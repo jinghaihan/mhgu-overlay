@@ -48,6 +48,9 @@ private:
     std::unique_ptr<MonsterReader> reader_{};
     core::Engine engine_{};
     SessionView view_{};
+    std::uint64_t process_id_{};
+    std::uint64_t heap_base_{};
+    std::uint64_t heap_size_{};
 };
 
 }  // namespace mhgu::platform::switch_adapter

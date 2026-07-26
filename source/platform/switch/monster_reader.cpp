@@ -4,6 +4,7 @@
 #include <array>
 #include <cmath>
 #include <cstring>
+#include <limits>
 #include <vector>
 
 #include "mhgu/core/catalog.hpp"
@@ -86,16 +87,31 @@ ResolvedMonster resolve_monster(
 MonsterReader::MonsterReader(
     MemoryAccess& memory,
     const GameProfile& profile,
-    const std::uint64_t heap_base
-) : memory_(memory), profile_(profile), heap_base_(heap_base) {}
+    const std::uint64_t heap_base,
+    const std::uint64_t heap_size
+) : memory_(memory),
+    profile_(profile),
+    heap_base_(heap_base),
+    heap_size_(heap_size) {}
 
 std::uint64_t MonsterReader::find_pointer_list() {
-    const auto begin = heap_base_ + profile_.scan_start_from_heap;
-    const auto end = heap_base_ + profile_.scan_end_from_heap;
+    const auto begin_offset = profile_.scan_start_from_heap;
+    const auto end_offset = std::min(
+        profile_.scan_end_from_heap,
+        heap_size_
+    );
     const auto structure_size = profile_.pointer_list.byte_size;
-    if (end <= begin || structure_size == 0) {
+    if (end_offset <= begin_offset ||
+        structure_size == 0 ||
+        heap_base_ > std::numeric_limits<std::uint64_t>::max() - end_offset ||
+        !contains_heap_range(
+            heap_base_ + begin_offset,
+            static_cast<std::size_t>(end_offset - begin_offset)
+        )) {
         return 0;
     }
+    const auto begin = heap_base_ + begin_offset;
+    const auto end = heap_base_ + end_offset;
 
     std::vector<std::uint8_t> buffer(
         kScanChunkSize + structure_size - 1
@@ -133,6 +149,7 @@ std::uint64_t MonsterReader::find_pointer_list() {
 bool MonsterReader::validate_pointer_list(const std::uint64_t address) {
     std::array<std::uint8_t, 0x41> bytes{};
     if (profile_.pointer_list.byte_size > bytes.size() ||
+        !contains_heap_range(address, profile_.pointer_list.byte_size) ||
         !memory_.read(
             address,
             bytes.data(),
@@ -176,6 +193,9 @@ bool MonsterReader::monster_identity(
     const std::uint64_t address,
     ResolvedMonster& resolved
 ) {
+    if (!contains_monster(address)) {
+        return false;
+    }
     std::uint8_t secondary{};
     std::uint16_t primary{};
     if (!read_value(
@@ -198,6 +218,9 @@ bool MonsterReader::read_monster(
     const std::uint64_t address,
     core::MonsterSnapshot& snapshot
 ) {
+    if (!contains_monster(address)) {
+        return false;
+    }
     ResolvedMonster resolved{};
     std::uint8_t location{};
     std::uint32_t health{};
@@ -256,6 +279,7 @@ bool MonsterReader::read_snapshot(
     std::array<std::uint8_t, 0x41> bytes{};
     const auto& layout = profile_.pointer_list;
     if (layout.byte_size > bytes.size() ||
+        !contains_heap_range(pointer_list_address, layout.byte_size) ||
         !memory_.read(pointer_list_address, bytes.data(), layout.byte_size)) {
         return false;
     }
@@ -285,6 +309,7 @@ bool MonsterReader::apply_size(
     std::uint8_t location{};
     const auto* definition = core::find_monster(request.monster_id);
     if (request.handle == 0 ||
+        !contains_monster(request.handle) ||
         definition == nullptr ||
         !core::is_legal_size_percent(*definition, request.target_percent) ||
         !read_value(
@@ -311,6 +336,29 @@ bool MonsterReader::apply_size(
     }
     verified_percent = multiplier_percent(read_back);
     return verified_percent == request.target_percent;
+}
+
+bool MonsterReader::contains_heap_range(
+    const std::uint64_t address,
+    const std::size_t size
+) const {
+    if (address < heap_base_) {
+        return false;
+    }
+    const auto offset = address - heap_base_;
+    return offset <= heap_size_ && size <= heap_size_ - offset;
+}
+
+bool MonsterReader::contains_monster(const std::uint64_t address) const {
+    const auto last_field = std::max({
+        profile_.monster.location_flag + sizeof(std::uint8_t),
+        profile_.monster.secondary_identifier + sizeof(std::uint8_t),
+        profile_.monster.size_multiplier + sizeof(float),
+        profile_.monster.health + sizeof(std::uint32_t),
+        profile_.monster.maximum_health + sizeof(std::uint32_t),
+        profile_.monster.primary_identifier + sizeof(std::uint16_t),
+    });
+    return contains_heap_range(address, last_field);
 }
 
 }  // namespace mhgu::platform::switch_adapter

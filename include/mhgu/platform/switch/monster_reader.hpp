@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
 #include "mhgu/core/types.hpp"
@@ -29,7 +30,8 @@ public:
     MonsterReader(
         MemoryAccess& memory,
         const GameProfile& profile,
-        std::uint64_t heap_base
+        std::uint64_t heap_base,
+        std::uint64_t heap_size
     );
 
     std::uint64_t find_pointer_list();
@@ -53,10 +55,16 @@ private:
         std::uint64_t address,
         ResolvedMonster& resolved
     );
+    bool contains_heap_range(
+        std::uint64_t address,
+        std::size_t size
+    ) const;
+    bool contains_monster(std::uint64_t address) const;
 
     MemoryAccess& memory_;
     const GameProfile& profile_;
     std::uint64_t heap_base_;
+    std::uint64_t heap_size_;
 };
 
 }  // namespace mhgu::platform::switch_adapter

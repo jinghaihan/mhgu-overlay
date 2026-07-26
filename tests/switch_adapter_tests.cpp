@@ -40,6 +40,7 @@ public:
             return false;
         }
         std::memcpy(bytes_.data() + address, source, size);
+        ++write_count_;
         return true;
     }
 
@@ -48,8 +49,13 @@ public:
         assert(write(address, &value, sizeof(value)));
     }
 
+    std::size_t write_count() const {
+        return write_count_;
+    }
+
 private:
     std::vector<std::uint8_t> bytes_;
+    std::size_t write_count_{};
 };
 
 }  // namespace
@@ -93,7 +99,7 @@ int main() {
 
     constexpr std::uint64_t kList = 0x200;
     constexpr std::uint32_t kMonster = 0x4000;
-    FakeMemory memory(0x10000);
+    FakeMemory memory(0x20000);
     const std::uint8_t one = 1;
     memory.store(kList, one);
     memory.store(kList + 1, one);
@@ -132,7 +138,7 @@ int main() {
     assert(locale_from_switch_language(7) == core::Locale::English);
     assert(locale_from_switch_language(2) == core::Locale::English);
 
-    MonsterReader reader(memory, profile, 0);
+    MonsterReader reader(memory, profile, 0, 0xC000);
     assert(reader.find_pointer_list() == kList);
     assert(reader.validate_pointer_list(kList));
 
@@ -165,6 +171,30 @@ int main() {
     core::GameSnapshot rejected{};
     assert(reader.read_snapshot(kList, core::Locale::English, rejected));
     assert(rejected.monsters[0].size_percent == rathian->gold_percent);
+
+    constexpr std::uint64_t kOutsideHeap = 0xC000;
+    memory.store(
+        kOutsideHeap + profile.monster.location_flag,
+        current_location
+    );
+    memory.store(
+        kOutsideHeap + profile.monster.secondary_identifier,
+        secondary
+    );
+    memory.store(
+        kOutsideHeap + profile.monster.primary_identifier,
+        primary
+    );
+    memory.store(
+        kOutsideHeap + profile.monster.size_multiplier,
+        size
+    );
+    request.handle = kOutsideHeap;
+    request.target_percent = rathian->mini_percent;
+    const auto writes_before_rejection = memory.write_count();
+    assert(!reader.apply_size(request, verified));
+    assert(memory.write_count() == writes_before_rejection);
+    request.handle = kMonster;
 
     const std::uint8_t inactive_location = 0x44;
     memory.store(

@@ -62,12 +62,19 @@ bool GameSession::attach() {
         return false;
     }
 
-    if (profile_ != next_profile || view_.title_id != metadata.title_id) {
+    if (profile_ != next_profile ||
+        process_id_ != metadata.process_id ||
+        heap_base_ != metadata.heap_extents.base ||
+        heap_size_ != metadata.heap_extents.size) {
         profile_ = next_profile;
+        process_id_ = metadata.process_id;
+        heap_base_ = metadata.heap_extents.base;
+        heap_size_ = metadata.heap_extents.size;
         reader_ = std::make_unique<MonsterReader>(
             memory_,
             *profile_,
-            metadata.heap_extents.base
+            heap_base_,
+            heap_size_
         );
         view_ = {};
         view_.status = SessionStatus::Searching;
@@ -86,6 +93,9 @@ bool GameSession::attach() {
 void GameSession::detach(const SessionStatus status) {
     reader_.reset();
     profile_ = nullptr;
+    process_id_ = 0;
+    heap_base_ = 0;
+    heap_size_ = 0;
     view_ = {};
     view_.status = status;
 }
