@@ -16,7 +16,6 @@ SOURCES := \
 	libs/Atmosphere-libs/libstratosphere/source/dmnt
 INCLUDES := \
 	include \
-	libs/libtesla/include \
 	libs/Atmosphere-libs/libstratosphere/source/dmnt \
 	libs/Atmosphere-libs/libstratosphere/source
 
@@ -31,6 +30,7 @@ CFLAGS := -g -Wall -Wextra -Werror \
 	-O2 -ffunction-sections $(ARCH) $(DEFINES)
 CFLAGS += $(INCLUDE) -D__SWITCH__
 CXXFLAGS := $(CFLAGS) -fno-exceptions -std=gnu++20 \
+	-isystem$(TOPDIR)/libs/libtesla/include \
 	-DMHGU_OVERLAY_VERSION=\"$(APP_VERSION)\"
 ASFLAGS := -g $(ARCH)
 LDFLAGS := -specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) \

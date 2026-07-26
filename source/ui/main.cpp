@@ -258,7 +258,7 @@ public:
     bool handleInput(
         u64,
         const u64 keys_held,
-        touchPosition,
+        const HidTouchState&,
         JoystickPosition,
         JoystickPosition
     ) override {
@@ -291,10 +291,10 @@ public:
             new tsl::elm::CustomDrawer(
                 [this](
                     tsl::gfx::Renderer* renderer,
-                    const s32 x,
-                    const s32 y,
-                    const s32,
-                    const s32
+                    const u16 x,
+                    const u16 y,
+                    const u16,
+                    const u16
                 ) {
                     const auto view = model_.session_view();
                     const auto locale_now = model_.display_locale();
@@ -316,9 +316,9 @@ public:
                             renderer->a({0x8, 0xB, 0xB, 0xF})
                         );
                     }
-                },
-                70
-            )
+                }
+            ),
+            70
         );
 
         hud_item_ = new tsl::elm::ListItem(
@@ -393,10 +393,10 @@ public:
             new tsl::elm::CustomDrawer(
                 [this](
                     tsl::gfx::Renderer* renderer,
-                    const s32 x,
-                    const s32 y,
-                    const s32,
-                    const s32
+                    const u16 x,
+                    const u16 y,
+                    const u16,
+                    const u16
                 ) {
                     renderer->drawString(
                         text(model_, UiMessage::BackHint),
@@ -406,9 +406,9 @@ public:
                         15,
                         renderer->a({0x9, 0x9, 0x9, 0xF})
                     );
-                },
-                52
-            )
+                }
+            ),
+            52
         );
 
         frame->setContent(list);
