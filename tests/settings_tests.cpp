@@ -34,7 +34,7 @@ int main() {
     assert(legacy != nullptr);
     std::fprintf(legacy, "size_preset=silver\nsize_lock=1\n");
     assert(std::fclose(legacy) == 0);
-    assert(store.load().size_preset == core::SizePreset::Off);
+    assert(store.load().size_preset == core::SizePreset::Silver);
 
     std::remove(kPath);
     std::cout << "settings tests passed\n";

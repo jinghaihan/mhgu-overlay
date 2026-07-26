@@ -52,6 +52,7 @@ int main() {
     assert(rathian != nullptr);
     assert(monster_catalog_size() == 1);
     assert(size_percent_for_preset(*rathian, SizePreset::Mini) == 90);
+    assert(size_percent_for_preset(*rathian, SizePreset::Silver) == 115);
     assert(size_percent_for_preset(*rathian, SizePreset::Gold) == 123);
     assert(is_legal_size_percent(*rathian, 90));
     assert(is_legal_size_percent(*rathian, 115));

@@ -40,6 +40,7 @@ enum class Crown : std::uint8_t {
 enum class SizePreset : std::uint8_t {
     Off,
     Mini,
+    Silver,
     Gold,
 };
 

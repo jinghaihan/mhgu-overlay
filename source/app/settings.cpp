@@ -28,6 +28,9 @@ core::SizePreset parse_preset(const char* value) {
     if (std::strcmp(value, "mini") == 0) {
         return core::SizePreset::Mini;
     }
+    if (std::strcmp(value, "silver") == 0) {
+        return core::SizePreset::Silver;
+    }
     if (std::strcmp(value, "gold") == 0) {
         return core::SizePreset::Gold;
     }
@@ -46,6 +49,7 @@ const char* locale_value(const core::LocaleMode mode) {
 const char* preset_value(const core::SizePreset preset) {
     switch (preset) {
         case core::SizePreset::Mini: return "mini";
+        case core::SizePreset::Silver: return "silver";
         case core::SizePreset::Gold: return "gold";
         default: return "off";
     }

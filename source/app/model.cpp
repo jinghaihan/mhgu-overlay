@@ -84,6 +84,9 @@ void Model::cycle_size_preset() {
                 settings_.size_preset = core::SizePreset::Mini;
                 break;
             case core::SizePreset::Mini:
+                settings_.size_preset = core::SizePreset::Silver;
+                break;
+            case core::SizePreset::Silver:
                 settings_.size_preset = core::SizePreset::Gold;
                 break;
             default:
