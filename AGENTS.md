@@ -46,6 +46,11 @@
 
 - Treat Kiranico and MH Crown as factual data sources. Do not mirror their page
   prose, quest tables, or media.
+- Treat Kiranico as authoritative for base sizes and crown thresholds. Use MH
+  Crown only as a cross-check and never widen a Kiranico-derived write range
+  because of a conflicting page.
+- Legal write ranges are global per monster, not per map or quest. Enforce
+  them in both the portable core and the final platform write adapter.
 
 ## Verification
 
@@ -80,5 +85,5 @@
 - Keep `README.md` concise and user-oriented.
 - Put contributor setup and build details in `docs/development.md`.
 - Put module boundaries and runtime flows in `docs/architecture.md`.
-- Keep Credits for both reference projects, Kiranico, MH Crown, libtesla, and
-  Atmosphere-libs.
+- Keep Credits for all three reference projects, Kiranico, MH Crown, libtesla,
+  and Atmosphere-libs.

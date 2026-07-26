@@ -29,7 +29,7 @@ git submodule update --init --recursive
 | Change English UI text or monster names | `data/locales/en.json` |
 | Change Simplified Chinese text or names | `data/locales/zh-Hans.json` |
 | Change Japanese UI text or names | `data/locales/ja.json` |
-| Change monster size or crown data | `data/catalog/monsters.seed.json` and the refresh pipeline |
+| Change monster size or crown data | `data/catalog/monsters.seed.json`, `data/catalog/legal-size-ranges.json`, and the refresh pipeline |
 | Change health, size, or preset decisions | `include/mhgu/core/` and `source/core/` |
 | Change Switch addresses or title support | `source/platform/switch/game_profile.cpp` |
 | Change memory validation, reads, or writes | `source/platform/switch/monster_reader.cpp` |
@@ -176,13 +176,17 @@ tables, and test:
 
 ```sh
 python3 tools/refresh_catalog.py
-python3 tools/validate_crowns.py
+python3 tools/refresh_legal_sizes.py
 python3 tools/generate_catalog.py
 make -f Makefile.host test
 ```
 
 Review the JSON diff before committing. The refresh process must not silently
 delete or rename translations when a source website changes its HTML.
+Kiranico is authoritative for base sizes and crown thresholds.
+`refresh_legal_sizes.py` records MH Crown comparison results without widening
+the Kiranico-derived write range. The range is per monster, not per quest or
+map.
 
 ## Release version
 
@@ -222,7 +226,7 @@ the NRO metadata.
   version.
 - **Scanning never finishes**: enter a quest with a large monster, then
   choose **Find monster list**.
-- **Size does not change**: confirm that the preset is not Off and
-  **Apply preset in quest** is enabled. Treat a write error as a safety stop.
+- **Size does not change**: confirm that **Size lock** is not Off. Treat a
+  write error as a safety stop.
 - **A generated file changed unexpectedly**: rerun the generator, review the
   source JSON diff, and do not hand-edit generated C++.

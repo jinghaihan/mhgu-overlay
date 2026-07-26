@@ -84,6 +84,12 @@ Gameplay facts and translations have different lifecycles, so they are stored se
 - Switch raw identifier;
 - source URLs.
 
+`data/catalog/legal-size-ranges.json` contains the conservative write range
+for every variable-size monster. Kiranico crown thresholds are authoritative:
+the Mini threshold is the lower bound and the Gold threshold is the upper
+bound. MH Crown is queried only to record whether its published sizes match,
+disagree, or are unavailable. A disagreement cannot expand the write range.
+
 `data/locales/<locale>.json` contains:
 
 - UI messages;
@@ -170,21 +176,30 @@ sequenceDiagram
     participant SwitchAdapter
     participant Game
 
-    User->>Model: Select Gold and arm before quest
+    User->>Model: Select Gold before quest
     Model->>Model: Persist settings
     Game-->>SwitchAdapter: Monster object appears
     SwitchAdapter->>Core: GameSnapshot(size, identity, health)
-    Core->>Core: Resolve legal Gold threshold
+    Core->>Core: Resolve and validate per-monster Gold threshold
     Core-->>SwitchAdapter: SizeWriteRequest
-    SwitchAdapter->>Game: Re-check identity and write multiplier
+    SwitchAdapter->>SwitchAdapter: Re-check per-monster range and identity
+    SwitchAdapter->>Game: Write multiplier
     SwitchAdapter->>Game: Read multiplier back
     Game-->>Core: Next snapshot matches target
     Core-->>SwitchAdapter: No further write
 ```
 
-The overlay cannot edit a monster that does not exist yet. “Before quest” therefore means the user's choice is locked in before loading; application occurs immediately after the runtime object becomes available.
+The overlay cannot edit a monster that does not exist yet. “Before quest”
+therefore means the user's choice is saved before loading; application occurs
+immediately after the runtime object becomes available. The single selector
+cycles through Off, Mini, Silver, and Gold; Off makes the core emit no writes.
 
-Fixed-size monsters, Off mode, an unarmed lock, unknown identities, implausible health, invalid multipliers, and targets outside 50–200% all stop the write path.
+Size legality is global per monster rather than map- or quest-specific. The
+current-map check protects object identity and lifetime; it does not choose a
+different legal range. “Silver” means the large silver crown; MHGU has no
+small silver crown category. Fixed-size monsters, Off mode, unknown identities,
+implausible health, invalid multipliers, and targets outside the selected
+monster's conservative Kiranico range all stop the write path.
 
 ## Future adapters
 
@@ -212,6 +227,7 @@ Host CI checks:
 - core size and locale behavior;
 - catalog completeness across all locales;
 - known crown thresholds;
+- per-monster legal write ranges and rejected out-of-range writes;
 - identifier normalization and Hyper resolution;
 - pointer-list validation and scanning;
 - bounded, verified size writes;

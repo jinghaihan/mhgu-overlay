@@ -10,7 +10,7 @@ A multilingual Monster Hunter Generations Ultimate overlay for Nintendo Switch, 
 - Compact in-game HUD for monster health, health percentage, size multiplier, actual size, crown class, and Hyper status.
 - English, Simplified Chinese, and Japanese monster names and UI.
 - Automatic language detection from the game's application control data. Unsupported languages and detection failures fall back to English.
-- Preselect Mini, Silver, or Gold before entering a quest. When the monster object appears, the worker applies the corresponding legal crown threshold and verifies the value by reading it back.
+- Use one size-lock selector for Off, Mini, Silver, or Gold. The selected value is resolved separately for each monster and verified after writing.
 - Portable C++ core with platform-specific memory, language, persistence, and UI adapters.
 - Normalized data for 94 large monsters, generated from independent catalog and locale files.
 
@@ -62,28 +62,39 @@ The main screen contains:
 
 - **Open compact HUD**: switches to a transparent, low-refresh HUD and returns input focus to the game.
 - **Language**: cycles through Auto, English, Simplified Chinese, and Japanese.
-- **Quest size preset**: cycles through Off, Mini, Silver, and Gold.
-- **Apply preset in quest**: arms or disarms experimental size writes.
+- **Size lock**: cycles through Off, Mini (small gold), Silver (large
+  silver), and Gold (large gold).
 - **Find monster list**: discards the cached in-memory pointer and scans again.
 
 In compact HUD mode, hold the left and right sticks together to return to the settings screen.
 
 ## Size presets
 
-Choose the preset and enable **Apply preset in quest** before entering the quest. The overlay does not try to edit a quest definition or save file in advance. Instead, it waits for each large monster's runtime object to be created, verifies the monster identity, writes the selected multiplier, and reads it back.
+Choose **Size lock** before entering the quest. The overlay does not edit a
+quest definition or save file in advance. It waits for each large monster's
+runtime object, verifies its identity, writes the selected crown threshold,
+and reads it back. Choose **Off** to disable all size writes.
 
 Safety rules in the current implementation:
 
 - Off is the default.
-- No write is attempted unless both a crown preset and the explicit lock toggle are enabled.
+- No free-form multiplier can be entered.
 - Fixed-size monsters do not receive write requests.
-- The target is derived from the catalog's legal Mini, Silver, or Gold threshold.
-- The adapter verifies the monster identity immediately before writing.
+- Each target comes from that monster's Kiranico Mini, Silver, or Gold
+  threshold and must remain inside its independent conservative write range.
+- Both the portable core and the Switch adapter reject a target outside that
+  monster's range.
+- The adapter verifies the game build, current-map state, and monster identity
+  immediately before writing.
 - Only the size multiplier field is written.
-- Values outside 50–200% are rejected.
 - A successful write must pass an immediate read-back check.
 
-Back up your save before testing. Crown registration, model scale, hitboxes, quest completion records, and special-event monsters still need systematic hardware validation. Do not assume this feature is safe for online or competitive use.
+The range is global per monster; it is not split by map or quest. This means a
+selected crown threshold may be applied in a quest that would not normally
+roll that crown. Back up your save before testing. Crown registration, model
+scale, hitboxes, quest completion records, and special-event monsters still
+need systematic hardware validation. Do not assume this feature is safe for
+online or competitive use.
 
 ## Languages and data
 
@@ -91,7 +102,7 @@ Localization is intentionally separate from gameplay data:
 
 ```text
 data/
-├── catalog/          # IDs, size facts, crown thresholds, adapter aliases
+├── catalog/          # IDs, crown facts, legal write ranges, adapter aliases
 ├── locales/          # en, zh-Hans, ja
 └── schema/           # validation contracts
 ```
@@ -100,12 +111,16 @@ To refresh public numeric facts and regenerate C++ tables:
 
 ```sh
 python3 tools/refresh_catalog.py
-python3 tools/validate_crowns.py
+python3 tools/refresh_legal_sizes.py
 python3 tools/generate_catalog.py
 make -f Makefile.host test
 ```
 
-`refresh_catalog.py` imports names only for source-page verification and writes language-independent numeric data. It does not mirror page prose, quest tables, or media. The locale files are authoritative for all user-facing names and messages.
+Kiranico is authoritative for base sizes and crown thresholds. The legal-range
+refresh uses MH Crown only as a recorded cross-check; a disagreement never
+widens Kiranico's conservative per-monster range. These tools import factual
+values only and do not mirror page prose, quest tables, or media. Locale files
+remain authoritative for all user-facing names and messages.
 
 ## Development
 
@@ -133,8 +148,9 @@ This project is an independent implementation. It does not copy source code, doc
 
 - [minazuki19/MHGU-Monster-Info-Overlay](https://github.com/minazuki19/MHGU-Monster-Info-Overlay) — Switch prior art and a reference for previously researched MHGU memory behavior.
 - [Alexander-Lancellott/MHGU-MHXX-HP-Overlay-For-Switch-Emulator](https://github.com/Alexander-Lancellott/MHGU-MHXX-HP-Overlay-For-Switch-Emulator) — Windows/emulator prior art and a reference for desktop presentation and monster-size investigation.
+- [3096/feth-overlays](https://github.com/3096/feth-overlays) — reference for version-gated Switch memory-editing interaction and validation patterns.
 - [Kiranico MHXX](https://mhxx.kiranico.com/) — monster names, base sizes, and crown thresholds used by the catalog refresh pipeline.
-- [MH Crown](https://mhcrown.com/) — independent crown-size and legal quest-size cross-checks.
+- [MH Crown](https://mhcrown.com/) — independent crown-size cross-checks.
 - [libtesla](https://github.com/minazuki19/libtesla) and [Atmosphere-libs](https://github.com/Atmosphere-NX/Atmosphere-libs) — third-party Switch runtime dependencies, included as Git submodules under their respective licenses.
 
 Monster Hunter and all related names are trademarks of Capcom. This is an unofficial fan project and is not affiliated with or endorsed by Capcom.
