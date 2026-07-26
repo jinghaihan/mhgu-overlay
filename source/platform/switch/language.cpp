@@ -50,7 +50,9 @@ core::Locale detect_game_locale(const std::uint64_t title_id) {
                 nsGetApplicationDesiredLanguage(&control->nacp, &desired)
             ) &&
             desired != nullptr) {
-            const auto index = desired - control->nacp.lang_data.lang;
+            const auto* language_entries =
+                reinterpret_cast<const NacpLanguageEntry*>(&control->nacp);
+            const auto index = desired - language_entries;
             nsExit();
             if (index >= 0 && index < 16) {
                 return locale_from_switch_language(
