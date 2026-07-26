@@ -203,7 +203,7 @@ def build_catalog(
             }
         )
     return {
-        "$schema": "./schema/monster-catalog.schema.json",
+        "$schema": "../schema/monster-catalog.schema.json",
         "generatedFrom": {
             "seed": "data/catalog/monsters.seed.json",
             "primary": "https://mhxx.kiranico.com/en/mon",
