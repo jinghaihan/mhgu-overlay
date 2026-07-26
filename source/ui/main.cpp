@@ -77,17 +77,6 @@ public:
     }
 };
 
-class LocalizedToggleListItem final : public tsl::elm::ToggleListItem {
-public:
-    using tsl::elm::ToggleListItem::ToggleListItem;
-
-    void setValues(std::string on_value, std::string off_value) {
-        m_onValue = std::move(on_value);
-        m_offValue = std::move(off_value);
-        setState(getState());
-    }
-};
-
 class HudElement final : public tsl::elm::Element {
 public:
     explicit HudElement(Model& model) : model_(model) {}
@@ -390,17 +379,6 @@ public:
         });
         list->addItem(preset_item_);
 
-        lock_item_ = new LocalizedToggleListItem(
-            mhgu::core::ui_message(UiMessage::SizeLock, locale),
-            model_.settings().size_lock_armed,
-            mhgu::core::ui_message(UiMessage::On, locale),
-            mhgu::core::ui_message(UiMessage::Off, locale)
-        );
-        lock_item_->setStateChangedListener([this](const bool state) {
-            model_.set_size_lock(state);
-        });
-        list->addItem(lock_item_);
-
         scan_item_ = new tsl::elm::ListItem(
             mhgu::core::ui_message(UiMessage::Scan, locale)
         );
@@ -473,13 +451,6 @@ private:
                 locale
             )
         );
-        lock_item_->setText(
-            mhgu::core::ui_message(UiMessage::SizeLock, locale)
-        );
-        lock_item_->setValues(
-            mhgu::core::ui_message(UiMessage::On, locale),
-            mhgu::core::ui_message(UiMessage::Off, locale)
-        );
         scan_item_->setText(
             mhgu::core::ui_message(UiMessage::Scan, locale)
         );
@@ -490,7 +461,6 @@ private:
     tsl::elm::ListItem* hud_item_{};
     tsl::elm::ListItem* language_item_{};
     tsl::elm::ListItem* preset_item_{};
-    LocalizedToggleListItem* lock_item_{};
     tsl::elm::ListItem* scan_item_{};
 };
 

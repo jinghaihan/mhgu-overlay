@@ -40,7 +40,6 @@ enum class Crown : std::uint8_t {
 enum class SizePreset : std::uint8_t {
     Off,
     Mini,
-    Silver,
     Gold,
 };
 
@@ -82,7 +81,6 @@ struct GameSnapshot {
 struct CoreSettings {
     LocaleMode locale_mode{LocaleMode::Auto};
     SizePreset size_preset{SizePreset::Off};
-    bool size_lock_armed{false};
 };
 
 struct MonsterView {

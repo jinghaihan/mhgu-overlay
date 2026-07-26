@@ -23,7 +23,6 @@ public:
 
     void cycle_language();
     void cycle_size_preset();
-    void set_size_lock(bool armed);
     void request_rescan();
 
 private:

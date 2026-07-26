@@ -9,8 +9,7 @@
     "size": "体型",
     "language": "语言",
     "automatic": "自动",
-    "sizePreset": "任务体型预设",
-    "sizeLock": "进入任务后应用",
+    "sizePreset": "体型锁定",
     "off": "关闭",
     "mini": "小金冠",
     "silver": "大银冠",
@@ -23,8 +22,7 @@
     "writeFailed": "体型写入失败",
     "hyper": "狞猛",
     "hud": "打开紧凑 HUD",
-    "backHint": "同时按住左右摇杆返回",
-    "on": "开启"
+    "backHint": "同时按住左右摇杆返回"
   },
   "monsters": {
     "great-maccao": "跳狗龙王",

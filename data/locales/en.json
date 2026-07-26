@@ -9,8 +9,7 @@
     "size": "Size",
     "language": "Language",
     "automatic": "Automatic",
-    "sizePreset": "Quest size preset",
-    "sizeLock": "Apply preset in quest",
+    "sizePreset": "Size lock",
     "off": "Off",
     "mini": "Mini crown",
     "silver": "Silver crown",
@@ -23,8 +22,7 @@
     "writeFailed": "Size write failed",
     "hyper": "Hyper",
     "hud": "Open compact HUD",
-    "backHint": "Hold L Stick + R Stick to return",
-    "on": "On"
+    "backHint": "Hold L Stick + R Stick to return"
   },
   "monsters": {
     "great-maccao": "Great Maccao",

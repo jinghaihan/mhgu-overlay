@@ -84,25 +84,12 @@ void Model::cycle_size_preset() {
                 settings_.size_preset = core::SizePreset::Mini;
                 break;
             case core::SizePreset::Mini:
-                settings_.size_preset = core::SizePreset::Silver;
-                break;
-            case core::SizePreset::Silver:
                 settings_.size_preset = core::SizePreset::Gold;
                 break;
             default:
                 settings_.size_preset = core::SizePreset::Off;
                 break;
         }
-        changed = settings_;
-    }
-    persist(changed);
-}
-
-void Model::set_size_lock(const bool armed) {
-    core::CoreSettings changed{};
-    {
-        const std::scoped_lock lock(mutex_);
-        settings_.size_lock_armed = armed;
         changed = settings_;
     }
     persist(changed);

@@ -28,7 +28,6 @@ UI_KEYS = [
     "language",
     "automatic",
     "sizePreset",
-    "sizeLock",
     "off",
     "mini",
     "silver",
@@ -42,7 +41,6 @@ UI_KEYS = [
     "hyper",
     "hud",
     "backHint",
-    "on",
 ]
 
 

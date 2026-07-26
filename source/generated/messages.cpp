@@ -14,8 +14,7 @@ constexpr const char* kMessages[][3] = {
     {"Size", "体型", "サイズ"},
     {"Language", "语言", "言語"},
     {"Automatic", "自动", "自動"},
-    {"Quest size preset", "任务体型预设", "クエストサイズ設定"},
-    {"Apply preset in quest", "进入任务后应用", "クエスト開始後に適用"},
+    {"Size lock", "体型锁定", "サイズ固定"},
     {"Off", "关闭", "オフ"},
     {"Mini crown", "小金冠", "小冠"},
     {"Silver crown", "大银冠", "銀冠"},
@@ -29,7 +28,6 @@ constexpr const char* kMessages[][3] = {
     {"Hyper", "狞猛", "獰猛"},
     {"Open compact HUD", "打开紧凑 HUD", "コンパクト HUD を開く"},
     {"Hold L Stick + R Stick to return", "同时按住左右摇杆返回", "L/R スティックを押し続けて戻る"},
-    {"On", "开启", "オン"},
 };
 
 }  // namespace

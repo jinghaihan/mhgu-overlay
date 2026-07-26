@@ -15,7 +15,6 @@ enum class UiMessage : std::uint8_t {
     Language,
     Automatic,
     SizePreset,
-    SizeLock,
     Off,
     Mini,
     Silver,
@@ -29,7 +28,6 @@ enum class UiMessage : std::uint8_t {
     Hyper,
     Hud,
     BackHint,
-    On,
 };
 
 const char* ui_message(UiMessage message, Locale locale);

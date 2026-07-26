@@ -9,8 +9,7 @@
     "size": "サイズ",
     "language": "言語",
     "automatic": "自動",
-    "sizePreset": "クエストサイズ設定",
-    "sizeLock": "クエスト開始後に適用",
+    "sizePreset": "サイズ固定",
     "off": "オフ",
     "mini": "小冠",
     "silver": "銀冠",
@@ -23,8 +22,7 @@
     "writeFailed": "サイズの書き込みに失敗",
     "hyper": "獰猛",
     "hud": "コンパクト HUD を開く",
-    "backHint": "L/R スティックを押し続けて戻る",
-    "on": "オン"
+    "backHint": "L/R スティックを押し続けて戻る"
   },
   "monsters": {
     "great-maccao": "ドスマッカォ",

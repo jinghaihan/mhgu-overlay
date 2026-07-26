@@ -28,9 +28,6 @@ core::SizePreset parse_preset(const char* value) {
     if (std::strcmp(value, "mini") == 0) {
         return core::SizePreset::Mini;
     }
-    if (std::strcmp(value, "silver") == 0) {
-        return core::SizePreset::Silver;
-    }
     if (std::strcmp(value, "gold") == 0) {
         return core::SizePreset::Gold;
     }
@@ -49,7 +46,6 @@ const char* locale_value(const core::LocaleMode mode) {
 const char* preset_value(const core::SizePreset preset) {
     switch (preset) {
         case core::SizePreset::Mini: return "mini";
-        case core::SizePreset::Silver: return "silver";
         case core::SizePreset::Gold: return "gold";
         default: return "off";
     }
@@ -61,6 +57,8 @@ SettingsStore::SettingsStore(std::string path) : path_(std::move(path)) {}
 
 core::CoreSettings SettingsStore::load() const {
     core::CoreSettings settings{};
+    bool has_legacy_size_lock = false;
+    bool legacy_size_lock_enabled = false;
     auto* file = std::fopen(path_.c_str(), "r");
     if (file == nullptr) {
         return settings;
@@ -78,10 +76,14 @@ core::CoreSettings SettingsStore::load() const {
         } else if (std::strcmp(key, "size_preset") == 0) {
             settings.size_preset = parse_preset(value);
         } else if (std::strcmp(key, "size_lock") == 0) {
-            settings.size_lock_armed = std::strcmp(value, "1") == 0;
+            has_legacy_size_lock = true;
+            legacy_size_lock_enabled = std::strcmp(value, "1") == 0;
         }
     }
     std::fclose(file);
+    if (has_legacy_size_lock && !legacy_size_lock_enabled) {
+        settings.size_preset = core::SizePreset::Off;
+    }
     return settings;
 }
 
@@ -97,11 +99,6 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
     }
     std::fprintf(file, "language=%s\n", locale_value(settings.locale_mode));
     std::fprintf(file, "size_preset=%s\n", preset_value(settings.size_preset));
-    std::fprintf(
-        file,
-        "size_lock=%d\n",
-        settings.size_lock_armed ? 1 : 0
-    );
     const auto close_result = std::fclose(file);
     if (close_result != 0) {
         std::remove(temporary.c_str());

@@ -14,18 +14,27 @@ int main() {
     const auto defaults = store.load();
     assert(defaults.locale_mode == core::LocaleMode::Auto);
     assert(defaults.size_preset == core::SizePreset::Off);
-    assert(!defaults.size_lock_armed);
 
     core::CoreSettings expected{};
     expected.locale_mode = core::LocaleMode::SimplifiedChinese;
     expected.size_preset = core::SizePreset::Gold;
-    expected.size_lock_armed = true;
     assert(store.save(expected));
 
     const auto restored = store.load();
     assert(restored.locale_mode == expected.locale_mode);
     assert(restored.size_preset == expected.size_preset);
-    assert(restored.size_lock_armed == expected.size_lock_armed);
+
+    auto* legacy = std::fopen(kPath, "w");
+    assert(legacy != nullptr);
+    std::fprintf(legacy, "size_preset=gold\nsize_lock=0\n");
+    assert(std::fclose(legacy) == 0);
+    assert(store.load().size_preset == core::SizePreset::Off);
+
+    legacy = std::fopen(kPath, "w");
+    assert(legacy != nullptr);
+    std::fprintf(legacy, "size_preset=silver\nsize_lock=1\n");
+    assert(std::fclose(legacy) == 0);
+    assert(store.load().size_preset == core::SizePreset::Off);
 
     std::remove(kPath);
     std::cout << "settings tests passed\n";

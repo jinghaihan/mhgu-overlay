@@ -48,8 +48,7 @@ CoreOutput Engine::update(
         view.crown = classify_crown(*definition, source.size_percent);
         view.hyper = source.hyper;
 
-        if (!settings.size_lock_armed ||
-            settings.size_preset == SizePreset::Off ||
+        if (settings.size_preset == SizePreset::Off ||
             !definition->variable_size) {
             continue;
         }
