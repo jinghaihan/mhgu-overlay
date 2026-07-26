@@ -1,0 +1,9 @@
+.build-host/
+build/
+
+*.elf
+*.nacp
+*.nro
+*.ovl
+
+.DS_Store
