@@ -19,7 +19,11 @@ using mhgu::core::SizePreset;
 using mhgu::core::UiMessage;
 using mhgu::platform::switch_adapter::SessionStatus;
 
-constexpr const char* kVersion = "v0.1.0";
+#ifndef MHGU_OVERLAY_VERSION
+#define MHGU_OVERLAY_VERSION "development"
+#endif
+
+constexpr const char* kVersion = "v" MHGU_OVERLAY_VERSION;
 
 const char* text(Model& model, const UiMessage message) {
     return mhgu::core::ui_message(message, model.display_locale());
