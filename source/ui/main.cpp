@@ -119,8 +119,11 @@ public:
         );
 
         if (count == 0) {
+            const auto* message = view.status == SessionStatus::Ready
+                ? mhgu::core::ui_message(UiMessage::NoMonsters, locale)
+                : status_value(view.status, locale);
             renderer->drawString(
-                status_value(view.status, locale),
+                message,
                 false,
                 panel_x + 16,
                 panel_y + 72,
