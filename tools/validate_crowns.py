@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import socket
 import time
 from decimal import Decimal
 from pathlib import Path
@@ -63,7 +64,7 @@ def main() -> None:
         }
         try:
             actual = page_numbers(url)
-        except (HTTPError, URLError, TimeoutError) as error:
+        except (HTTPError, URLError, TimeoutError, socket.timeout) as error:
             skipped.append((monster["key"], str(error)))
             continue
         missing = expected - actual
