@@ -9,12 +9,14 @@ CORE_SOURCES := \
 	source/generated/messages.cpp
 TEST_BINARY := $(HOST_BUILD)/core-tests
 CATALOG_TEST_BINARY := $(HOST_BUILD)/catalog-tests
+SWITCH_TEST_BINARY := $(HOST_BUILD)/switch-adapter-tests
 
 .PHONY: test clean-host
 
-test: $(TEST_BINARY) $(CATALOG_TEST_BINARY)
+test: $(TEST_BINARY) $(CATALOG_TEST_BINARY) $(SWITCH_TEST_BINARY)
 	@$(TEST_BINARY)
 	@$(CATALOG_TEST_BINARY)
+	@$(SWITCH_TEST_BINARY)
 
 $(TEST_BINARY): $(CORE_SOURCES) tests/core_tests.cpp
 	@mkdir -p $(HOST_BUILD)
@@ -22,6 +24,14 @@ $(TEST_BINARY): $(CORE_SOURCES) tests/core_tests.cpp
 
 $(CATALOG_TEST_BINARY): source/core/locale.cpp source/generated/catalog.cpp \
 		source/generated/messages.cpp tests/catalog_tests.cpp
+	@mkdir -p $(HOST_BUILD)
+	$(CXX) $(CXXFLAGS) -Iinclude $^ -o $@
+
+$(SWITCH_TEST_BINARY): source/generated/catalog.cpp \
+		source/generated/switch_aliases.cpp \
+		source/platform/switch/game_profile.cpp \
+		source/platform/switch/monster_reader.cpp \
+		tests/switch_adapter_tests.cpp
 	@mkdir -p $(HOST_BUILD)
 	$(CXX) $(CXXFLAGS) -Iinclude $^ -o $@
 
