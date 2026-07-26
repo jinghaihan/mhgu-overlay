@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "mhgu/app/model.hpp"
 #include "mhgu/core/locale.hpp"
@@ -67,6 +68,26 @@ tsl::gfx::Color crown_color(const mhgu::core::Crown crown) {
     }
 }
 
+class LocalizedOverlayFrame final : public tsl::elm::OverlayFrame {
+public:
+    using tsl::elm::OverlayFrame::OverlayFrame;
+
+    void setTitle(std::string title) {
+        m_title = std::move(title);
+    }
+};
+
+class LocalizedToggleListItem final : public tsl::elm::ToggleListItem {
+public:
+    using tsl::elm::ToggleListItem::ToggleListItem;
+
+    void setValues(std::string on_value, std::string off_value) {
+        m_onValue = std::move(on_value);
+        m_offValue = std::move(off_value);
+        setState(getState());
+    }
+};
+
 class HudElement final : public tsl::elm::Element {
 public:
     explicit HudElement(Model& model) : model_(model) {}
@@ -74,9 +95,12 @@ public:
     void draw(tsl::gfx::Renderer* renderer) override {
         const auto view = model_.session_view();
         const auto locale = model_.display_locale();
-        const auto count = std::min<std::size_t>(view.output.monster_count, 3);
+        const auto count = std::min<std::size_t>(
+            view.output.monster_count,
+            mhgu::core::kMaxMonsters
+        );
         const auto panel_height = static_cast<s32>(
-            count == 0 ? 110 : 58 + count * 104
+            count == 0 ? 110 : 48 + count * 60
         );
         const s32 panel_x = 12;
         const s32 panel_y = 720 - panel_height - 14;
@@ -123,7 +147,7 @@ public:
                 view.output.monsters[index],
                 locale,
                 panel_x + 16,
-                panel_y + 54 + static_cast<s32>(index * 104),
+                panel_y + 42 + static_cast<s32>(index * 60),
                 panel_width - 32
             );
         }
@@ -181,8 +205,8 @@ private:
             name.c_str(),
             false,
             x,
-            y + 22,
-            21,
+            y + 18,
+            18,
             renderer->a({0xF, 0xF, 0xF, 0xF})
         );
         const auto* crown = mhgu::core::crown_label(monster.crown, locale);
@@ -191,41 +215,41 @@ private:
                 crown,
                 false,
                 x + width - 105,
-                y + 22,
-                17,
+                y + 18,
+                15,
                 renderer->a(crown_color(monster.crown))
             );
         }
 
-        const s32 bar_y = y + 34;
+        const s32 bar_y = y + 24;
         renderer->drawRect(
             x,
             bar_y,
             width,
-            10,
+            7,
             renderer->a({0x3, 0x3, 0x3, 0xE})
         );
         renderer->drawRect(
             x,
             bar_y,
             width * monster.hp_percent_x10 / 1000,
-            10,
+            7,
             renderer->a({0x3, 0xC, 0x7, 0xF})
         );
         renderer->drawString(
             health,
             false,
             x,
-            y + 70,
-            17,
+            y + 51,
+            15,
             renderer->a({0xC, 0xC, 0xC, 0xF})
         );
         renderer->drawString(
             size,
             false,
-            x + width - 190,
-            y + 70,
-            17,
+            x + width - 185,
+            y + 51,
+            15,
             renderer->a({0xC, 0xC, 0xC, 0xF})
         );
     }
@@ -281,7 +305,7 @@ public:
     tsl::elm::Element* createUI() override {
         refresh_mode();
         const auto locale = model_.display_locale();
-        auto* frame = new tsl::elm::OverlayFrame(
+        frame_ = new LocalizedOverlayFrame(
             mhgu::core::ui_message(UiMessage::Title, locale),
             kVersion
         );
@@ -366,7 +390,7 @@ public:
         });
         list->addItem(preset_item_);
 
-        lock_item_ = new tsl::elm::ToggleListItem(
+        lock_item_ = new LocalizedToggleListItem(
             mhgu::core::ui_message(UiMessage::SizeLock, locale),
             model_.settings().size_lock_armed,
             mhgu::core::ui_message(UiMessage::On, locale),
@@ -377,17 +401,17 @@ public:
         });
         list->addItem(lock_item_);
 
-        auto* scan_item = new tsl::elm::ListItem(
+        scan_item_ = new tsl::elm::ListItem(
             mhgu::core::ui_message(UiMessage::Scan, locale)
         );
-        scan_item->setClickListener([this](const u64 keys) {
+        scan_item_->setClickListener([this](const u64 keys) {
             if ((keys & HidNpadButton_A) != 0) {
                 model_.request_rescan();
                 return true;
             }
             return false;
         });
-        list->addItem(scan_item);
+        list->addItem(scan_item_);
 
         list->addItem(
             new tsl::elm::CustomDrawer(
@@ -411,8 +435,8 @@ public:
             52
         );
 
-        frame->setContent(list);
-        return frame;
+        frame_->setContent(list);
+        return frame_;
     }
 
     void update() override {
@@ -430,6 +454,12 @@ private:
 
     void refresh_labels() {
         const auto locale = model_.display_locale();
+        frame_->setTitle(
+            mhgu::core::ui_message(UiMessage::Title, locale)
+        );
+        hud_item_->setText(
+            mhgu::core::ui_message(UiMessage::Hud, locale)
+        );
         language_item_->setText(
             mhgu::core::ui_message(UiMessage::Language, locale)
         );
@@ -446,13 +476,22 @@ private:
         lock_item_->setText(
             mhgu::core::ui_message(UiMessage::SizeLock, locale)
         );
+        lock_item_->setValues(
+            mhgu::core::ui_message(UiMessage::On, locale),
+            mhgu::core::ui_message(UiMessage::Off, locale)
+        );
+        scan_item_->setText(
+            mhgu::core::ui_message(UiMessage::Scan, locale)
+        );
     }
 
     Model& model_;
+    LocalizedOverlayFrame* frame_{};
     tsl::elm::ListItem* hud_item_{};
     tsl::elm::ListItem* language_item_{};
     tsl::elm::ListItem* preset_item_{};
-    tsl::elm::ToggleListItem* lock_item_{};
+    LocalizedToggleListItem* lock_item_{};
+    tsl::elm::ListItem* scan_item_{};
 };
 
 class MhguOverlay final : public tsl::Overlay {
