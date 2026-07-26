@@ -28,8 +28,15 @@ $(CATALOG_TEST_BINARY): source/core/locale.cpp source/generated/catalog.cpp \
 	$(CXX) $(CXXFLAGS) -Iinclude $^ -o $@
 
 $(SWITCH_TEST_BINARY): source/generated/catalog.cpp \
+		source/generated/messages.cpp \
 		source/generated/switch_aliases.cpp \
+		source/core/engine.cpp \
+		source/core/locale.cpp \
+		source/core/size.cpp \
+		source/platform/switch/dmnt_memory.cpp \
 		source/platform/switch/game_profile.cpp \
+		source/platform/switch/game_session.cpp \
+		source/platform/switch/language.cpp \
 		source/platform/switch/monster_reader.cpp \
 		tests/switch_adapter_tests.cpp
 	@mkdir -p $(HOST_BUILD)

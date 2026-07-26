@@ -7,6 +7,7 @@
 
 #include "mhgu/core/catalog.hpp"
 #include "mhgu/platform/switch/game_profile.hpp"
+#include "mhgu/platform/switch/language.hpp"
 #include "mhgu/platform/switch/memory.hpp"
 #include "mhgu/platform/switch/monster_reader.hpp"
 
@@ -88,6 +89,11 @@ int main() {
     const auto hyper = resolve_monster(primary, 0x4C);
     assert(hyper.monster_id == resolve_monster(primary, secondary).monster_id);
     assert(hyper.hyper);
+    assert(locale_from_switch_language(0) == core::Locale::Japanese);
+    assert(locale_from_switch_language(6) == core::Locale::SimplifiedChinese);
+    assert(locale_from_switch_language(15) == core::Locale::SimplifiedChinese);
+    assert(locale_from_switch_language(7) == core::Locale::English);
+    assert(locale_from_switch_language(2) == core::Locale::English);
 
     MonsterReader reader(memory, profile, 0);
     assert(reader.find_pointer_list() == kList);
