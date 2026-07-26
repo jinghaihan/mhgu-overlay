@@ -23,9 +23,6 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parents[1]
 SEED_PATH = ROOT / "data" / "catalog" / "monsters.seed.json"
 OUTPUT_PATH = ROOT / "data" / "catalog" / "monsters.json"
-ENGLISH_PATH = ROOT / "data" / "locales" / "en.json"
-JAPANESE_PATH = ROOT / "data" / "locales" / "ja.json"
-ENGLISH_OVERRIDES_PATH = ROOT / "data" / "locales" / "en.overrides.json"
 BASE_URL = "https://mhxx.kiranico.com/en/mon"
 USER_AGENT = "mhgu-overlay-catalog/0.1 (+https://github.com/jinghaihan/mhgu-overlay)"
 
@@ -142,9 +139,8 @@ def fetch_facts(kiranico_id: str) -> PageFacts:
 def build_catalog(
     delay: float,
     jobs: int,
-) -> tuple[dict, dict[str, str], dict[str, str]]:
+) -> dict:
     seed = json.loads(SEED_PATH.read_text(encoding="utf-8"))
-    overrides = json.loads(ENGLISH_OVERRIDES_PATH.read_text(encoding="utf-8"))
     rows = seed["monsters"]
     fetched: dict[str, PageFacts] = {}
     with ThreadPoolExecutor(max_workers=jobs) as executor:
@@ -214,22 +210,7 @@ def build_catalog(
             "validation": "https://mhcrown.com/",
         },
         "monsters": monsters,
-    }, {
-        row[1]: overrides.get(row[0], fetched[row[0]].english)
-        for row in rows
-    }, {
-        row[1]: fetched[row[0]].japanese
-        for row in rows
     }
-
-
-def update_locale(path: Path, names: dict[str, str]) -> None:
-    locale = json.loads(path.read_text(encoding="utf-8"))
-    locale["monsters"] = names
-    path.write_text(
-        json.dumps(locale, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
 
 
 def main() -> None:
@@ -247,7 +228,7 @@ def main() -> None:
         help="maximum concurrent requests",
     )
     args = parser.parse_args()
-    catalog, english_names, japanese_names = build_catalog(
+    catalog = build_catalog(
         max(0.0, args.delay),
         max(1, min(args.jobs, 8)),
     )
@@ -255,8 +236,6 @@ def main() -> None:
         json.dumps(catalog, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
-    update_locale(ENGLISH_PATH, english_names)
-    update_locale(JAPANESE_PATH, japanese_names)
     print(f"Wrote {OUTPUT_PATH}")
 
 
