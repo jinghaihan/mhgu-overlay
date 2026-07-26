@@ -196,7 +196,8 @@ delete or rename translations when a source website changes its HTML.
    git add VERSION
    git commit -m "chore(release): v0.2.0"
    git tag v0.2.0
-   git push upstream main --tags
+   git push upstream main
+   git push upstream v0.2.0
    ```
 
 Pushing a tag beginning with `v` starts `.github/workflows/release.yml`. The
