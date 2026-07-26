@@ -27,9 +27,6 @@ enum class UiMessage : std::uint8_t {
     Unsupported,
     WriteFailed,
     Hyper,
-    CrownMini,
-    CrownSilver,
-    CrownGold,
 };
 
 const char* ui_message(UiMessage message, Locale locale);

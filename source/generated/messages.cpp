@@ -27,9 +27,6 @@ constexpr const char* kMessages[][3] = {
     {"Unsupported game version", "不支持的游戏版本", "未対応のゲームバージョン"},
     {"Size write failed", "体型写入失败", "サイズの書き込みに失敗"},
     {"Hyper", "狞猛", "獰猛"},
-    {"MINI", "小金", "小冠"},
-    {"SILVER", "大银", "銀冠"},
-    {"GOLD", "大金", "金冠"},
 };
 
 }  // namespace

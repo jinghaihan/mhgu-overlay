@@ -39,9 +39,6 @@ UI_KEYS = [
     "unsupported",
     "writeFailed",
     "hyper",
-    "crownMini",
-    "crownSilver",
-    "crownGold",
 ]
 
 

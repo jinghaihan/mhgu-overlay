@@ -40,11 +40,11 @@ const char* localized_name(
 const char* crown_label(const Crown crown, const Locale locale) {
     switch (crown) {
         case Crown::Mini:
-            return ui_message(UiMessage::CrownMini, locale);
+            return ui_message(UiMessage::Mini, locale);
         case Crown::Silver:
-            return ui_message(UiMessage::CrownSilver, locale);
+            return ui_message(UiMessage::Silver, locale);
         case Crown::Gold:
-            return ui_message(UiMessage::CrownGold, locale);
+            return ui_message(UiMessage::Gold, locale);
         default:
             return "";
     }

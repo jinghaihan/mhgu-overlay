@@ -21,10 +21,7 @@
     "ready": "已就绪",
     "unsupported": "不支持的游戏版本",
     "writeFailed": "体型写入失败",
-    "hyper": "狞猛",
-    "crownMini": "小金",
-    "crownSilver": "大银",
-    "crownGold": "大金"
+    "hyper": "狞猛"
   },
   "monsters": {
     "great-maccao": "跳狗龙王",

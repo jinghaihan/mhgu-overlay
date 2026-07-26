@@ -21,10 +21,7 @@
     "ready": "準備完了",
     "unsupported": "未対応のゲームバージョン",
     "writeFailed": "サイズの書き込みに失敗",
-    "hyper": "獰猛",
-    "crownMini": "小冠",
-    "crownSilver": "銀冠",
-    "crownGold": "金冠"
+    "hyper": "獰猛"
   },
   "monsters": {
     "great-maccao": "ドスマッカォ",
