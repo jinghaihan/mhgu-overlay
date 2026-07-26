@@ -7,7 +7,7 @@ A multilingual Monster Hunter Generations Ultimate overlay for Nintendo Switch, 
 
 ## Features
 
-- Compact in-game HUD for monster health, health percentage, size multiplier, actual size, crown class, and Hyper status.
+- Compact lower-left HUD with one translucent label per monster, showing health, health percentage, size multiplier, actual size, crown class, and Hyper status.
 - English, Simplified Chinese, and Japanese monster names and UI.
 - Automatic language detection from the game's application control data. Unsupported languages and detection failures fall back to English.
 - Use one size-lock selector for Off, Mini, Silver, or Gold. The selected value is resolved separately for each monster and verified after writing.

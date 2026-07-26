@@ -164,7 +164,7 @@ Tesla rendering and memory scanning have different timing requirements.
 - The potentially slow heap scan and all `dmnt:cht` calls remain on the worker.
 - Settings are persisted atomically through a temporary file and rename.
 
-The compact HUD lowers Tesla's refresh rate and releases foreground input to the game. Holding both sticks returns to the full settings UI.
+The compact HUD draws a bottom-aligned stack of independent translucent monster labels at the left edge of the Tesla layer. Its information hierarchy is inspired by desktop overlays, while the implementation and visual treatment are native to this project. It lowers Tesla's refresh rate and releases foreground input to the game. Holding both sticks returns to the full settings UI.
 
 ## Quest size preset flow
 
