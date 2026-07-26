@@ -88,59 +88,29 @@ public:
             view.output.monster_count,
             mhgu::core::kMaxMonsters
         );
-        const auto panel_height = static_cast<s32>(
-            count == 0 ? 110 : 48 + count * 60
-        );
-        const s32 panel_x = 12;
-        const s32 panel_y = 720 - panel_height - 14;
-        const s32 panel_width = tsl::cfg::FramebufferWidth - 24;
-
-        renderer->drawRect(
-            panel_x,
-            panel_y,
-            panel_width,
-            panel_height,
-            renderer->a({0x1, 0x1, 0x1, 0xC})
-        );
-        renderer->drawRect(
-            panel_x,
-            panel_y,
-            4,
-            panel_height,
-            renderer->a({0x3, 0xB, 0xA, 0xF})
-        );
-        renderer->drawString(
-            mhgu::core::ui_message(UiMessage::Title, locale),
-            false,
-            panel_x + 16,
-            panel_y + 30,
-            20,
-            renderer->a({0xF, 0xF, 0xF, 0xF})
-        );
 
         if (count == 0) {
             const auto* message = view.status == SessionStatus::Ready
                 ? mhgu::core::ui_message(UiMessage::NoMonsters, locale)
                 : status_value(view.status, locale);
-            renderer->drawString(
-                message,
-                false,
-                panel_x + 16,
-                panel_y + 72,
-                18,
-                renderer->a({0xA, 0xA, 0xA, 0xF})
-            );
+            draw_status(renderer, locale, message);
             return;
         }
 
+        const auto stack_height = static_cast<s32>(
+            count * kCardHeight + (count - 1) * kCardGap
+        );
+        const s32 first_y =
+            tsl::cfg::FramebufferHeight - kMargin - stack_height;
         for (std::size_t index = 0; index < count; ++index) {
             draw_monster(
                 renderer,
                 view.output.monsters[index],
                 locale,
-                panel_x + 16,
-                panel_y + 42 + static_cast<s32>(index * 60),
-                panel_width - 32
+                kMargin,
+                first_y + static_cast<s32>(
+                    index * (kCardHeight + kCardGap)
+                )
             );
         }
     }
@@ -162,13 +132,133 @@ public:
     }
 
 private:
+    static constexpr s32 kCardWidth = 328;
+    static constexpr s32 kCardHeight = 58;
+    static constexpr s32 kCardGap = 5;
+    static constexpr s32 kMargin = 12;
+
+    static u32 text_width(
+        tsl::gfx::Renderer* renderer,
+        const std::string& value,
+        const float font_size
+    ) {
+        return renderer->drawString(
+            value.c_str(),
+            false,
+            0,
+            0,
+            font_size,
+            tsl::style::color::ColorTransparent
+        ).first;
+    }
+
+    static void erase_last_codepoint(std::string& value) {
+        if (value.empty()) {
+            return;
+        }
+        auto offset = value.size() - 1;
+        while (
+            offset > 0 &&
+            (static_cast<unsigned char>(value[offset]) & 0xC0) == 0x80
+        ) {
+            --offset;
+        }
+        value.erase(offset);
+    }
+
+    static std::string fit_text(
+        tsl::gfx::Renderer* renderer,
+        std::string value,
+        const u32 max_width,
+        const float font_size
+    ) {
+        if (text_width(renderer, value, font_size) <= max_width) {
+            return value;
+        }
+
+        constexpr const char* suffix = "...";
+        while (!value.empty()) {
+            erase_last_codepoint(value);
+            const auto candidate = value + suffix;
+            if (text_width(renderer, candidate, font_size) <= max_width) {
+                return candidate;
+            }
+        }
+        return suffix;
+    }
+
+    static void draw_right_aligned(
+        tsl::gfx::Renderer* renderer,
+        const std::string& value,
+        const s32 right,
+        const s32 y,
+        const float font_size,
+        const tsl::gfx::Color color
+    ) {
+        const auto width = static_cast<s32>(
+            text_width(renderer, value, font_size)
+        );
+        renderer->drawString(
+            value.c_str(),
+            false,
+            right - width,
+            y,
+            font_size,
+            renderer->a(color)
+        );
+    }
+
+    static void draw_status(
+        tsl::gfx::Renderer* renderer,
+        const Locale locale,
+        const char* message
+    ) {
+        constexpr s32 height = 66;
+        const s32 y = tsl::cfg::FramebufferHeight - kMargin - height;
+        renderer->drawRect(
+            kMargin,
+            y,
+            kCardWidth,
+            height,
+            renderer->a({0x1, 0x1, 0x1, 0xB})
+        );
+        renderer->drawRect(
+            kMargin,
+            y,
+            3,
+            height,
+            renderer->a({0x3, 0xB, 0xA, 0xF})
+        );
+        renderer->drawString(
+            mhgu::core::ui_message(UiMessage::Title, locale),
+            false,
+            kMargin + 11,
+            y + 23,
+            17,
+            renderer->a({0xF, 0xF, 0xF, 0xF})
+        );
+        const auto fitted = fit_text(
+            renderer,
+            message,
+            kCardWidth - 22,
+            15
+        );
+        renderer->drawString(
+            fitted.c_str(),
+            false,
+            kMargin + 11,
+            y + 51,
+            15,
+            renderer->a({0xA, 0xA, 0xA, 0xF})
+        );
+    }
+
     static void draw_monster(
         tsl::gfx::Renderer* renderer,
         const mhgu::core::MonsterView& monster,
         const Locale locale,
         const s32 x,
-        const s32 y,
-        const s32 width
+        const s32 y
     ) {
         char health[64]{};
         char size[96]{};
@@ -182,67 +272,113 @@ private:
         std::snprintf(
             size,
             sizeof(size),
-            "%s %u%%  %.2f",
+            "%s %u%% · %.2f",
             mhgu::core::ui_message(UiMessage::Size, locale),
             monster.size_percent,
             static_cast<double>(monster.actual_size_x100) / 100.0
         );
 
+        renderer->drawRect(
+            x,
+            y,
+            kCardWidth,
+            kCardHeight,
+            renderer->a({0x1, 0x1, 0x1, 0xB})
+        );
+        renderer->drawRect(
+            x,
+            y,
+            3,
+            kCardHeight,
+            renderer->a(
+                monster.crown == mhgu::core::Crown::None
+                    ? tsl::gfx::Color{0x3, 0xB, 0xA, 0xF}
+                    : crown_color(monster.crown)
+            )
+        );
+
+        constexpr s32 content_x = 11;
+        constexpr s32 content_width = kCardWidth - content_x * 2;
+        constexpr float name_size = 17;
+        constexpr float crown_size = 14;
         std::string name = monster.name;
         if (monster.hyper) {
             name += " · ";
             name += mhgu::core::hyper_label(locale);
         }
+        const std::string crown =
+            mhgu::core::crown_label(monster.crown, locale);
+        const auto crown_width = crown.empty()
+            ? u32{0}
+            : text_width(renderer, crown, crown_size);
+        const auto name_width = static_cast<u32>(content_width) -
+            std::min<u32>(
+                crown_width == 0 ? 0 : crown_width + 8,
+                content_width
+            );
+        const auto fitted_name = fit_text(
+            renderer,
+            std::move(name),
+            name_width,
+            name_size
+        );
         renderer->drawString(
-            name.c_str(),
+            fitted_name.c_str(),
             false,
-            x,
-            y + 18,
-            18,
+            x + content_x,
+            y + 20,
+            name_size,
             renderer->a({0xF, 0xF, 0xF, 0xF})
         );
-        const auto* crown = mhgu::core::crown_label(monster.crown, locale);
-        if (crown[0] != '\0') {
-            renderer->drawString(
+        if (!crown.empty()) {
+            draw_right_aligned(
+                renderer,
                 crown,
-                false,
-                x + width - 105,
-                y + 18,
-                15,
-                renderer->a(crown_color(monster.crown))
+                x + kCardWidth - content_x,
+                y + 20,
+                crown_size,
+                crown_color(monster.crown)
             );
         }
 
-        const s32 bar_y = y + 24;
+        const s32 bar_y = y + 25;
         renderer->drawRect(
-            x,
+            x + content_x,
             bar_y,
-            width,
-            7,
+            content_width,
+            6,
             renderer->a({0x3, 0x3, 0x3, 0xE})
         );
+        const auto hp_width = content_width *
+            std::min<std::uint16_t>(monster.hp_percent_x10, 1000) /
+            1000;
+        const auto hp_color = monster.hp_percent_x10 > 500
+            ? tsl::gfx::Color{0x3, 0xC, 0x7, 0xF}
+            : monster.hp_percent_x10 > 200
+                ? tsl::gfx::Color{0xF, 0xB, 0x3, 0xF}
+                : tsl::gfx::Color{0xE, 0x4, 0x4, 0xF};
         renderer->drawRect(
-            x,
+            x + content_x,
             bar_y,
-            width * monster.hp_percent_x10 / 1000,
-            7,
-            renderer->a({0x3, 0xC, 0x7, 0xF})
+            hp_width,
+            6,
+            renderer->a(hp_color)
         );
         renderer->drawString(
             health,
             false,
-            x,
+            x + content_x,
             y + 51,
-            15,
+            14,
             renderer->a({0xC, 0xC, 0xC, 0xF})
         );
-        renderer->drawString(
+        draw_right_aligned(
+            renderer,
             size,
-            false,
-            x + width - 185,
+            x + kCardWidth - content_x,
             y + 51,
-            15,
-            renderer->a({0xC, 0xC, 0xC, 0xF})
+            14,
+            {0xC, 0xC, 0xC, 0xF}
         );
     }
 
