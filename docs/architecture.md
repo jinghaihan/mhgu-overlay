@@ -121,9 +121,12 @@ These values are reverse-engineering facts derived from community prior art and 
 3. require the MHGU 1.4.0 Title ID and build ID profile;
 4. scan the profile's bounded heap range in 64 KiB chunks;
 5. validate candidate list markers, padding, pointer continuity, count, and the first monster identity;
-6. read each monster field individually.
+6. read each monster field individually and retain only objects marked as
+   present in the current map.
 
-Candidate validation prevents a coincidental byte pattern from becoming a write target. A failed list validation discards the address and forces a new scan.
+Candidate validation prevents a coincidental byte pattern from becoming a
+write target. A failed list validation discards the address and forces a new
+scan. The current-map flag is checked again immediately before a size write.
 
 ### Monster identity
 

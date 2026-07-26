@@ -101,10 +101,16 @@ int main() {
     memory.store(kList + profile.pointer_list.count, one);
 
     const std::uint8_t secondary = 0x44;
+    const std::uint8_t current_location =
+        profile.monster.current_location_value;
     const std::uint16_t primary = 0x2220;
     const std::uint32_t health = 4000;
     const std::uint32_t maximum_health = 5000;
     const float size = 1.0F;
+    memory.store(
+        kMonster + profile.monster.location_flag,
+        current_location
+    );
     memory.store(
         kMonster + profile.monster.secondary_identifier,
         secondary
@@ -153,6 +159,17 @@ int main() {
     core::GameSnapshot changed{};
     assert(reader.read_snapshot(kList, core::Locale::English, changed));
     assert(changed.monsters[0].size_percent == rathian->gold_percent);
+
+    const std::uint8_t inactive_location = 0x44;
+    memory.store(
+        kMonster + profile.monster.location_flag,
+        inactive_location
+    );
+    core::GameSnapshot inactive{};
+    assert(reader.read_snapshot(kList, core::Locale::English, inactive));
+    assert(inactive.monster_count == 0);
+    request.target_percent = rathian->mini_percent;
+    assert(!reader.apply_size(request, verified));
 
     std::cout << "switch adapter tests passed\n";
 }

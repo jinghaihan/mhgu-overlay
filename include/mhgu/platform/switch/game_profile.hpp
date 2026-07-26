@@ -13,6 +13,7 @@ using BuildIdPrefix = std::array<std::uint8_t, kBuildIdPrefixSize>;
 
 struct MonsterLayout {
     std::uint32_t location_flag;
+    std::uint8_t current_location_value;
     std::uint32_t secondary_identifier;
     std::uint32_t size_multiplier;
     std::uint32_t health;

@@ -7,6 +7,7 @@ namespace {
 
 constexpr MonsterLayout kMonsterLayout{
     0x000D,
+    0x4C,
     0x15EA,
     0x15F0,
     0x17B0,

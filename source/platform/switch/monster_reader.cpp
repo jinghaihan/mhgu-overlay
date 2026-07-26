@@ -197,10 +197,17 @@ bool MonsterReader::read_monster(
     core::MonsterSnapshot& snapshot
 ) {
     ResolvedMonster resolved{};
+    std::uint8_t location{};
     std::uint32_t health{};
     std::uint32_t maximum_health{};
     float size_multiplier{};
-    if (!monster_identity(address, resolved) ||
+    if (!read_value(
+            memory_,
+            address + profile_.monster.location_flag,
+            location
+        ) ||
+        location != profile_.monster.current_location_value ||
+        !monster_identity(address, resolved) ||
         !read_value(
             memory_,
             address + profile_.monster.health,
@@ -273,9 +280,16 @@ bool MonsterReader::apply_size(
 ) {
     verified_percent = 0;
     ResolvedMonster resolved{};
+    std::uint8_t location{};
     if (request.handle == 0 ||
         request.target_percent < 50 ||
         request.target_percent > 200 ||
+        !read_value(
+            memory_,
+            request.handle + profile_.monster.location_flag,
+            location
+        ) ||
+        location != profile_.monster.current_location_value ||
         !monster_identity(request.handle, resolved) ||
         resolved.monster_id != request.monster_id) {
         return false;
