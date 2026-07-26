@@ -1,0 +1,424 @@
+{
+  "$schema": "../schema/legal-size-ranges.schema.json",
+  "sources": {
+    "authoritative": "https://mhxx.kiranico.com/en/mon",
+    "crossCheck": "https://mhcrown.com/mhgu/"
+  },
+  "monsters": {
+    "agnaktor": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "arzuros": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "astalos": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "barioth": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "barroth": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "basarios": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "blangonga": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "bloodbath-diablos": {
+      "minPercent": 96,
+      "maxPercent": 114,
+      "validation": "mhcrown-matched"
+    },
+    "boltreaver-astalos": {
+      "minPercent": 96,
+      "maxPercent": 109,
+      "validation": "mhcrown-matched"
+    },
+    "brachydios": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "bulldrome": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "cephadrome": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "chameleos": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "chaotic-gore-magala": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-unavailable"
+    },
+    "congalala": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "crystalbeard-uragaan": {
+      "minPercent": 96,
+      "maxPercent": 109,
+      "validation": "mhcrown-matched"
+    },
+    "daimyo-hermitaur": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "deadeye-yian-garuga": {
+      "minPercent": 97,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "deviljho": {
+      "minPercent": 90,
+      "maxPercent": 128,
+      "validation": "mhcrown-matched"
+    },
+    "diablos": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "dreadking-rathalos": {
+      "minPercent": 96,
+      "maxPercent": 109,
+      "validation": "mhcrown-matched"
+    },
+    "dreadqueen-rathian": {
+      "minPercent": 96,
+      "maxPercent": 109,
+      "validation": "mhcrown-matched"
+    },
+    "drilltusk-tetsucabra": {
+      "minPercent": 96,
+      "maxPercent": 109,
+      "validation": "mhcrown-matched"
+    },
+    "duramboros": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "elderfrost-gammoth": {
+      "minPercent": 97,
+      "maxPercent": 114,
+      "validation": "mhcrown-matched"
+    },
+    "furious-rajang": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-unavailable"
+    },
+    "gammoth": {
+      "minPercent": 90,
+      "maxPercent": 114,
+      "validation": "mhcrown-matched"
+    },
+    "gendrome": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "giadrome": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "glavenus": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "gold-rathian": {
+      "minPercent": 97,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "gore-magala": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "gravios": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "great-maccao": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "grimclaw-tigrex": {
+      "minPercent": 96,
+      "maxPercent": 109,
+      "validation": "mhcrown-matched"
+    },
+    "gypceros": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "hellblade-glavenus": {
+      "minPercent": 97,
+      "maxPercent": 119,
+      "validation": "mhcrown-matched"
+    },
+    "iodrome": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "kecha-wacha": {
+      "minPercent": 90,
+      "maxPercent": 114,
+      "validation": "mhcrown-matched"
+    },
+    "khezu": {
+      "minPercent": 90,
+      "maxPercent": 114,
+      "validation": "mhcrown-matched"
+    },
+    "kirin": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "kushala-daora": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "lagiacrus": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "lagombi": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "lavasioth": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "malfestio": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "mizutsune": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "najarala": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "nargacuga": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "nerscylla": {
+      "minPercent": 90,
+      "maxPercent": 118,
+      "validation": "mhcrown-matched"
+    },
+    "nibelsnarf": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "nightcloak-malfestio": {
+      "minPercent": 97,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "plesioth": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "raging-brachydios": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-unavailable"
+    },
+    "rajang": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "rathalos": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "rathian": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "redhelm-arzuros": {
+      "minPercent": 96,
+      "maxPercent": 109,
+      "validation": "mhcrown-matched"
+    },
+    "royal-ludroth": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "rustrazor-ceanataur": {
+      "minPercent": 96,
+      "maxPercent": 114,
+      "validation": "mhcrown-matched"
+    },
+    "savage-deviljho": {
+      "minPercent": 90,
+      "maxPercent": 128,
+      "validation": "mhcrown-unavailable"
+    },
+    "seltas": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "seltas-queen": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "seregios": {
+      "minPercent": 90,
+      "maxPercent": 114,
+      "validation": "mhcrown-matched"
+    },
+    "shagaru-magala": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "shogun-ceanataur": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-mismatch"
+    },
+    "silver-rathalos": {
+      "minPercent": 97,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "silverwind-nargacuga": {
+      "minPercent": 97,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "snowbaron-lagombi": {
+      "minPercent": 97,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "soulseer-mizutsune": {
+      "minPercent": 97,
+      "maxPercent": 114,
+      "validation": "mhcrown-matched"
+    },
+    "stonefist-hermitaur": {
+      "minPercent": 97,
+      "maxPercent": 119,
+      "validation": "mhcrown-matched"
+    },
+    "teostra": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "tetsucabra": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "thunderlord-zinogre": {
+      "minPercent": 97,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "tigrex": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "uragaan": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "valstrax": {
+      "minPercent": 90,
+      "maxPercent": 118,
+      "validation": "mhcrown-matched"
+    },
+    "velocidrome": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "volvidon": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "yian-garuga": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "yian-kut-ku": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "zamtrios": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    },
+    "zinogre": {
+      "minPercent": 90,
+      "maxPercent": 123,
+      "validation": "mhcrown-matched"
+    }
+  }
+}

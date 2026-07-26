@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MHGU observed legal size ranges",
+  "type": "object",
+  "required": ["sources", "monsters"],
+  "properties": {
+    "sources": {
+      "type": "object",
+      "required": ["authoritative", "crossCheck"],
+      "properties": {
+        "authoritative": {
+          "type": "string",
+          "format": "uri"
+        },
+        "crossCheck": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "additionalProperties": false
+    },
+    "monsters": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "minPercent",
+          "maxPercent",
+          "validation"
+        ],
+        "properties": {
+          "minPercent": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 200
+          },
+          "maxPercent": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 200
+          },
+          "validation": {
+            "type": "string",
+            "enum": [
+              "mhcrown-matched",
+              "mhcrown-mismatch",
+              "mhcrown-unavailable"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
