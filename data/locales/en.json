@@ -21,7 +21,10 @@
     "ready": "Ready",
     "unsupported": "Unsupported game version",
     "writeFailed": "Size write failed",
-    "hyper": "Hyper"
+    "hyper": "Hyper",
+    "hud": "Open compact HUD",
+    "backHint": "Hold L Stick + R Stick to return",
+    "on": "On"
   },
   "monsters": {
     "great-maccao": "Great Maccao",
