@@ -36,7 +36,10 @@ This repository is under active development. A successful CI build proves that t
 
 ## Install
 
-1. Download `mhgu-overlay.ovl` from the latest successful GitHub Actions artifact.
+1. Download `mhgu-overlay.ovl` from the
+   [latest release](https://github.com/jinghaihan/mhgu-overlay/releases/latest),
+   or use the latest successful GitHub Actions artifact before the first
+   release is published.
 2. Copy it to:
 
    ```text
@@ -104,204 +107,25 @@ make -f Makefile.host test
 
 `refresh_catalog.py` imports names only for source-page verification and writes language-independent numeric data. It does not mirror page prose, quest tables, or media. The locale files are authoritative for all user-facing names and messages.
 
-## Build
+## Development
 
-### Easiest path: GitHub Actions
-
-You do not need to install C++ or the Switch toolchain for this path.
-
-1. Push your branch to GitHub.
-2. Open the repository's **Actions** tab.
-3. Open the latest `build` workflow.
-4. Wait for both `host-tests` and `switch` to turn green.
-5. Download the `mhgu-overlay` artifact from the workflow summary.
-6. Unzip it and copy `mhgu-overlay.ovl` to `sdmc:/switch/.overlays/`.
-
-Every push and pull request runs the same checks automatically.
-
-### Clone for development
-
-This project uses two Git submodules. Always clone with `--recurse-submodules`:
+Clone the submodules, run the portable tests, and build the Switch overlay:
 
 ```sh
 git clone --recurse-submodules https://github.com/jinghaihan/mhgu-overlay.git
 cd mhgu-overlay
-```
-
-If you already cloned without that option:
-
-```sh
-git submodule update --init --recursive
-```
-
-### Run tests without a Switch toolchain
-
-The core and adapters have ordinary desktop tests. On macOS or Linux with a C++17 compiler:
-
-```sh
 make -f Makefile.host test
+make -j2
 ```
 
-Expected output:
+If you do not have devkitPro, push the branch and download the build artifact
+from the latest successful GitHub Actions run. Version tags beginning with `v`
+build and publish a GitHub Release automatically.
 
-```text
-core tests passed
-catalog tests passed
-switch adapter tests passed
-settings tests passed
-```
-
-Use this command after changing core logic, data, translations, settings, or memory decoding.
-
-### Compile with Docker
-
-Docker is the simplest reproducible local Switch build because the image already contains devkitA64 and libnx:
-
-```sh
-docker run --rm \
-  -v "$PWD:/project" \
-  -w /project \
-  devkitpro/devkita64:latest \
-  make -j2
-```
-
-The result is `mhgu-overlay.ovl` in the repository root. Docker Desktop, OrbStack, or another Docker-compatible runtime must be running first.
-
-### Compile with a local devkitPro installation
-
-1. Install devkitPro and the `switch-dev` toolchain using the [official devkitPro setup guide](https://devkitpro.org/wiki/Getting_Started).
-2. Confirm that the `DEVKITPRO` environment variable exists:
-
-   ```sh
-   echo "$DEVKITPRO"
-   ```
-
-3. Build:
-
-   ```sh
-   make -j2
-   ```
-
-4. Remove build output when you need a clean rebuild:
-
-   ```sh
-   make clean
-   ```
-
-Do not use `Makefile.host` to produce the Switch plugin. It only builds tests for the portable code.
-
-## Development guide for beginners
-
-You do not need to understand the whole project before making a small change.
-
-### Where to make changes
-
-| Goal | Edit |
-| --- | --- |
-| Change English UI text or monster names | `data/locales/en.json` |
-| Change Simplified Chinese text or names | `data/locales/zh-Hans.json` |
-| Change Japanese text or names | `data/locales/ja.json` |
-| Change monster size/crown data | `data/catalog/monsters.seed.json` and the refresh pipeline |
-| Change health, size, or preset decisions | `include/mhgu/core/` and `source/core/` |
-| Change Switch addresses or title support | `source/platform/switch/game_profile.cpp` |
-| Change memory validation/read/write behavior | `source/platform/switch/monster_reader.cpp` |
-| Change the settings menu or compact HUD | `source/ui/main.cpp` |
-| Change saved settings | `source/app/settings.cpp` |
-
-Files under `source/generated/` are generated output. Do not edit them by hand.
-
-### Normal edit-test-build loop
-
-1. Create a branch:
-
-   ```sh
-   git switch -c feat/my-change
-   ```
-
-2. Edit the relevant source or data file.
-3. If you changed a locale or catalog file, regenerate tables:
-
-   ```sh
-   python3 tools/generate_catalog.py
-   ```
-
-4. Run host tests:
-
-   ```sh
-   make -f Makefile.host test
-   ```
-
-5. Build the Switch overlay with Docker/devkitPro, or push and let GitHub Actions build it.
-6. Copy the `.ovl` to the SD card and test on hardware.
-7. Commit using Conventional Commits, for example:
-
-   ```sh
-   git add data/locales/zh-Hans.json source/generated/messages.cpp
-   git commit -m "fix(i18n): improve Chinese size labels"
-   ```
-
-### C++ project conventions
-
-- Headers under `include/` describe public types and functions.
-- Matching `.cpp` files under `source/` contain implementations.
-- Code is grouped under the `mhgu` namespace.
-- The portable core must not include `switch.h`, `tesla.hpp`, or `dmntcht.h`.
-- Raw offsets belong in a `GameProfile`; do not spread numeric addresses through UI or core code.
-- Any new memory write must validate its target and read the value back.
-- Compile with warnings treated as errors. Fix the warning instead of disabling it.
-
-### Add or edit a language
-
-All locale files must contain exactly the same monster keys and UI keys. After editing:
-
-```sh
-python3 tools/generate_catalog.py
-make -f Makefile.host test
-```
-
-The generator fails with a list of missing or extra keys when a locale is incomplete. Unsupported detected game languages intentionally resolve to English.
-
-### Refresh monster data
-
-The network refresh is separate from localization:
-
-```sh
-python3 tools/refresh_catalog.py
-python3 tools/validate_crowns.py
-python3 tools/generate_catalog.py
-make -f Makefile.host test
-```
-
-Review the JSON diff before committing. A source website changing its HTML must never silently delete or rename translations.
-
-### Change the version
-
-`VERSION` is the single version source. For a release:
-
-1. Replace its contents, for example `0.1.0` → `0.2.0`.
-2. Run the complete tests and Switch build.
-3. Commit and tag:
-
-   ```sh
-   git add VERSION
-   git commit -m "chore(release): v0.2.0"
-   git tag v0.2.0
-   git push upstream main --tags
-   ```
-
-The Makefile passes this value to the Tesla UI and embeds it in the NRO metadata.
-
-### Common problems
-
-- **`DEVKITPRO is not set`**: use the Docker command, or install devkitPro and open a shell where `DEVKITPRO` is exported.
-- **Missing `tesla.hpp` or `dmntcht.h`**: run `git submodule update --init --recursive`.
-- **Overlay does not appear**: verify the `.ovl` path and that Tesla Menu itself works.
-- **`MHGU / MHXX is not running`**: launch the game first and verify the title/version.
-- **Scanning never finishes**: enter a quest with a large monster, then choose **Find monster list**.
-- **Size does not change**: confirm the preset is not Off and **Apply preset in quest** is enabled. Treat a write error as a safety stop, not something to bypass.
-- **A generated file changed unexpectedly**: rerun the generator, review the source JSON diff, and do not hand-edit generated C++.
-
-See [docs/architecture.md](docs/architecture.md) for module boundaries, data flow, memory safety rules, and the future platform-adapter contract.
+- [Development guide](docs/development.md) — setup, Docker, data,
+  localization, releases, and troubleshooting
+- [Architecture](docs/architecture.md) — module boundaries, data flow,
+  memory safety, and future platform adapters
 
 ## Credits
 
