@@ -265,7 +265,9 @@ private:
         std::snprintf(
             health,
             sizeof(health),
-            "%u / %u",
+            "%u.%u%% · %u / %u",
+            monster.hp_percent_x10 / 10,
+            monster.hp_percent_x10 % 10,
             monster.hp,
             monster.max_hp
         );
@@ -364,6 +366,20 @@ private:
             6,
             renderer->a(hp_color)
         );
+        const auto size_width = text_width(renderer, size, 14);
+        const auto health_width = text_width(renderer, health, 14);
+        if (
+            health_width + size_width + 10 >
+            static_cast<u32>(content_width)
+        ) {
+            std::snprintf(
+                health,
+                sizeof(health),
+                "%u.%u%%",
+                monster.hp_percent_x10 / 10,
+                monster.hp_percent_x10 % 10
+            );
+        }
         renderer->drawString(
             health,
             false,
