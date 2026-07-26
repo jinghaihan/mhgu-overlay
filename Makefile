@@ -37,9 +37,9 @@ LIBDIRS := $(PORTLIBS) $(LIBNX)
 
 .PHONY: all clean
 
-all: $(BUILD)
-
 ifneq ($(BUILD),$(notdir $(CURDIR)))
+
+all: $(BUILD)
 
 export OUTPUT := $(CURDIR)/$(TARGET)
 export TOPDIR := $(CURDIR)
@@ -68,6 +68,8 @@ clean:
 else
 
 DEPENDS := $(OFILES:.o=.d)
+
+all: $(OUTPUT).nro
 
 $(OUTPUT).nro: $(OUTPUT).elf
 
