@@ -6,6 +6,8 @@
 #include <cstring>
 #include <vector>
 
+#include "mhgu/core/catalog.hpp"
+#include "mhgu/core/size.hpp"
 #include "mhgu/platform/switch/monster_aliases.hpp"
 
 namespace mhgu::platform::switch_adapter {
@@ -281,9 +283,10 @@ bool MonsterReader::apply_size(
     verified_percent = 0;
     ResolvedMonster resolved{};
     std::uint8_t location{};
+    const auto* definition = core::find_monster(request.monster_id);
     if (request.handle == 0 ||
-        request.target_percent < 50 ||
-        request.target_percent > 200 ||
+        definition == nullptr ||
+        !core::is_legal_size_percent(*definition, request.target_percent) ||
         !read_value(
             memory_,
             request.handle + profile_.monster.location_flag,

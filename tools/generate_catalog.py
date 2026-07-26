@@ -9,6 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = ROOT / "data" / "catalog" / "monsters.json"
+LEGAL_RANGES_PATH = ROOT / "data" / "catalog" / "legal-size-ranges.json"
 LOCALE_PATHS = {
     "en": ROOT / "data" / "locales" / "en.json",
     "zh-Hans": ROOT / "data" / "locales" / "zh-Hans.json",
@@ -49,8 +50,11 @@ def cpp_string(value: str) -> str:
     return json.dumps(value, ensure_ascii=False)
 
 
-def load_inputs() -> tuple[dict, dict[str, dict]]:
+def load_inputs() -> tuple[dict, dict[str, dict], dict]:
     catalog = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
+    legal_ranges = json.loads(
+        LEGAL_RANGES_PATH.read_text(encoding="utf-8")
+    )["monsters"]
     locales = {
         name: json.loads(path.read_text(encoding="utf-8"))
         for name, path in LOCALE_PATHS.items()
@@ -67,14 +71,54 @@ def load_inputs() -> tuple[dict, dict[str, dict]]:
         missing_ui = [key for key in UI_KEYS if key not in locale["ui"]]
         if missing_ui:
             raise ValueError(f"{name} is missing UI keys: {missing_ui}")
-    return catalog, locales
+
+    expected_ranges = {
+        monster["key"]
+        for monster in catalog["monsters"]
+        if monster["variableSize"]
+    }
+    actual_ranges = set(legal_ranges)
+    if actual_ranges != expected_ranges:
+        raise ValueError(
+            "legal size range keys differ; "
+            f"missing={sorted(expected_ranges - actual_ranges)}, "
+            f"extra={sorted(actual_ranges - expected_ranges)}"
+        )
+    for monster in catalog["monsters"]:
+        if not monster["variableSize"]:
+            continue
+        size_range = legal_ranges[monster["key"]]
+        crowns = monster["crowns"]
+        if (
+            size_range["minPercent"] != crowns["miniPercent"] or
+            size_range["maxPercent"] != crowns["goldPercent"] or
+            not (
+                50 <= size_range["minPercent"] <
+                100 <
+                crowns["silverPercent"] <=
+                size_range["maxPercent"] <=
+                200
+            )
+        ):
+            raise ValueError(
+                f'{monster["key"]} has an invalid legal size range'
+            )
+    return catalog, locales, legal_ranges
 
 
-def generate_core(catalog: dict, locales: dict[str, dict]) -> str:
+def generate_core(
+    catalog: dict,
+    locales: dict[str, dict],
+    legal_ranges: dict,
+) -> str:
     rows = []
     for monster in catalog["monsters"]:
         key = monster["key"]
         crowns = monster["crowns"]
+        size_range = legal_ranges.get(
+            key,
+            {"minPercent": 100, "maxPercent": 100},
+        )
         rows.append(
             "    {"
             f'{monster["id"]}, {cpp_string(key)}, '
@@ -87,6 +131,8 @@ def generate_core(catalog: dict, locales: dict[str, dict]) -> str:
             f'{crowns["miniPercent"]}, '
             f'{crowns["silverPercent"]}, '
             f'{crowns["goldPercent"]}, '
+            f'{size_range["minPercent"]}, '
+            f'{size_range["maxPercent"]}, '
             f'{"true" if monster["variableSize"] else "false"}'
             "},"
         )
@@ -224,9 +270,9 @@ std::size_t monster_alias_count() {{
 
 
 def main() -> None:
-    catalog, locales = load_inputs()
+    catalog, locales, legal_ranges = load_inputs()
     outputs = {
-        CORE_OUTPUT: generate_core(catalog, locales),
+        CORE_OUTPUT: generate_core(catalog, locales, legal_ranges),
         MESSAGES_OUTPUT: generate_messages(locales),
         ALIAS_OUTPUT: generate_aliases(catalog),
     }

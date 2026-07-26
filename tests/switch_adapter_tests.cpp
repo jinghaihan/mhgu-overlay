@@ -160,6 +160,12 @@ int main() {
     assert(reader.read_snapshot(kList, core::Locale::English, changed));
     assert(changed.monsters[0].size_percent == rathian->gold_percent);
 
+    request.target_percent = rathian->legal_max_percent + 1;
+    assert(!reader.apply_size(request, verified));
+    core::GameSnapshot rejected{};
+    assert(reader.read_snapshot(kList, core::Locale::English, rejected));
+    assert(rejected.monsters[0].size_percent == rathian->gold_percent);
+
     const std::uint8_t inactive_location = 0x44;
     memory.store(
         kMonster + profile.monster.location_flag,

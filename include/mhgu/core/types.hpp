@@ -58,6 +58,8 @@ struct MonsterDefinition {
     std::uint16_t mini_percent;
     std::uint16_t silver_percent;
     std::uint16_t gold_percent;
+    std::uint16_t legal_min_percent;
+    std::uint16_t legal_max_percent;
     bool variable_size;
 };
 

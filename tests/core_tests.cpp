@@ -18,6 +18,8 @@ constexpr MonsterDefinition kRathian{
     90,
     115,
     123,
+    90,
+    123,
     true,
 };
 
@@ -52,6 +54,14 @@ int main() {
     assert(size_percent_for_preset(*rathian, SizePreset::Mini) == 90);
     assert(size_percent_for_preset(*rathian, SizePreset::Silver) == 115);
     assert(size_percent_for_preset(*rathian, SizePreset::Gold) == 123);
+    assert(is_legal_size_percent(*rathian, 90));
+    assert(is_legal_size_percent(*rathian, 115));
+    assert(is_legal_size_percent(*rathian, 123));
+    assert(!is_legal_size_percent(*rathian, 89));
+    assert(!is_legal_size_percent(*rathian, 124));
+    auto invalid_range = *rathian;
+    invalid_range.legal_max_percent = 122;
+    assert(size_percent_for_preset(invalid_range, SizePreset::Gold) == 0);
     assert(actual_size_x100(*rathian, 123) == 203479);
     assert(classify_crown(*rathian, 90) == Crown::Mini);
     assert(classify_crown(*rathian, 115) == Crown::Silver);

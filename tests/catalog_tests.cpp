@@ -27,6 +27,13 @@ int main() {
             assert(monster.mini_percent < 100);
             assert(monster.silver_percent > 100);
             assert(monster.gold_percent >= monster.silver_percent);
+            assert(monster.legal_min_percent == monster.mini_percent);
+            assert(monster.legal_max_percent == monster.gold_percent);
+            assert(monster.legal_min_percent < 100);
+            assert(monster.legal_max_percent <= 200);
+        } else {
+            assert(monster.legal_min_percent == 100);
+            assert(monster.legal_max_percent == 100);
         }
     }
 
@@ -36,6 +43,8 @@ int main() {
     assert(rathian->mini_percent == 90);
     assert(rathian->silver_percent == 115);
     assert(rathian->gold_percent == 123);
+    assert(rathian->legal_min_percent == 90);
+    assert(rathian->legal_max_percent == 123);
     assert(std::strcmp(rathian->names.english, "Rathian") == 0);
     assert(std::strcmp(rathian->names.simplified_chinese, "雌火龙") == 0);
     assert(std::strcmp(rathian->names.japanese, "リオレイア") == 0);

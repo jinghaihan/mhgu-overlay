@@ -2,25 +2,43 @@
 
 namespace mhgu::core {
 
+bool is_legal_size_percent(
+    const MonsterDefinition& monster,
+    const std::uint16_t size_percent
+) {
+    if (!monster.variable_size) {
+        return size_percent == 100;
+    }
+    return monster.legal_min_percent > 0 &&
+        monster.legal_min_percent <= monster.legal_max_percent &&
+        size_percent >= monster.legal_min_percent &&
+        size_percent <= monster.legal_max_percent;
+}
+
 std::uint16_t size_percent_for_preset(
     const MonsterDefinition& monster,
     const SizePreset preset
 ) {
     if (!monster.variable_size) {
-        return 100;
+        return preset == SizePreset::Off ? 0 : 100;
     }
 
+    std::uint16_t target{};
     switch (preset) {
         case SizePreset::Mini:
-            return monster.mini_percent;
+            target = monster.mini_percent;
+            break;
         case SizePreset::Silver:
-            return monster.silver_percent;
+            target = monster.silver_percent;
+            break;
         case SizePreset::Gold:
-            return monster.gold_percent;
+            target = monster.gold_percent;
+            break;
         case SizePreset::Off:
         default:
             return 0;
     }
+    return is_legal_size_percent(monster, target) ? target : 0;
 }
 
 std::uint32_t actual_size_x100(
