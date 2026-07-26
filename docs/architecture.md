@@ -118,7 +118,7 @@ These values are reverse-engineering facts derived from community prior art and 
 
 1. detect the current cheat process;
 2. read its title ID and heap base;
-3. choose an MHGU or MHXX profile;
+3. require the MHGU 1.4.0 Title ID and build ID profile;
 4. scan the profile's bounded heap range in 64 KiB chunks;
 5. validate candidate list markers, padding, pointer continuity, count, and the first monster identity;
 6. read each monster field individually.
@@ -142,7 +142,8 @@ Mappings are deliberately narrow:
 - Simplified or Traditional Chinese → Simplified Chinese UI;
 - every other language or error → English.
 
-MHXX selects Japanese in Auto mode. A manual language setting always wins.
+A manual language setting always wins. MHXX remains a future profile and is
+not selected by the current Switch adapter.
 
 ## Application model and threading
 

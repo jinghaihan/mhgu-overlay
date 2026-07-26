@@ -3,7 +3,7 @@
   "locale": "ja",
   "ui": {
     "title": "MHGU モンスター情報",
-    "notRunning": "MHGU / MHXX が起動していません",
+    "notRunning": "MHGU 1.4.0 が起動していません",
     "noMonsters": "大型モンスターがいません",
     "health": "体力",
     "size": "サイズ",

@@ -1,5 +1,7 @@
 #include "mhgu/platform/switch/game_profile.hpp"
 
+#include <algorithm>
+
 namespace mhgu::platform::switch_adapter {
 namespace {
 
@@ -25,15 +27,7 @@ constexpr GameProfile kProfiles[]{
         "MHGU 1.4.0",
         core::GameId::Mhgu,
         kMhguTitleId,
-        0x10A00000,
-        0x10F00000,
-        kMonsterLayout,
-        kPointerListLayout,
-    },
-    {
-        "MHXX Switch",
-        core::GameId::Mhxx,
-        kMhxxTitleId,
+        kMhgu140BuildId,
         0x10A00000,
         0x10F00000,
         kMonsterLayout,
@@ -43,9 +37,21 @@ constexpr GameProfile kProfiles[]{
 
 }  // namespace
 
-const GameProfile* profile_for_title(const std::uint64_t title_id) {
+const GameProfile* profile_for_process(
+    const std::uint64_t title_id,
+    const std::uint8_t* build_id,
+    const std::size_t build_id_size
+) {
+    if (build_id == nullptr || build_id_size < kBuildIdPrefixSize) {
+        return nullptr;
+    }
     for (const auto& profile : kProfiles) {
-        if (profile.title_id == title_id) {
+        if (profile.title_id == title_id &&
+            std::equal(
+                profile.build_id_prefix.begin(),
+                profile.build_id_prefix.end(),
+                build_id
+            )) {
             return &profile;
         }
     }

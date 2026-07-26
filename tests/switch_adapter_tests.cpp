@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -56,7 +58,36 @@ int main() {
     using namespace mhgu;
     using namespace platform::switch_adapter;
 
-    auto profile = *profile_for_title(kMhguTitleId);
+    std::array<std::uint8_t, 0x20> build_id{};
+    std::copy(
+        kMhgu140BuildId.begin(),
+        kMhgu140BuildId.end(),
+        build_id.begin()
+    );
+    const auto* matched_profile = profile_for_process(
+        kMhguTitleId,
+        build_id.data(),
+        build_id.size()
+    );
+    assert(matched_profile != nullptr);
+    assert(
+        profile_for_process(
+            kMhxxTitleId,
+            build_id.data(),
+            build_id.size()
+        ) == nullptr
+    );
+    build_id[0] ^= 0xFFU;
+    assert(
+        profile_for_process(
+            kMhguTitleId,
+            build_id.data(),
+            build_id.size()
+        ) == nullptr
+    );
+    build_id[0] ^= 0xFFU;
+
+    auto profile = *matched_profile;
     profile.scan_start_from_heap = 0x100;
     profile.scan_end_from_heap = 0x1000;
 

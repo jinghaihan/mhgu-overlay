@@ -51,7 +51,11 @@ bool GameSession::attach() {
         detach(SessionStatus::NoGame);
         return false;
     }
-    const auto* next_profile = profile_for_title(metadata.title_id);
+    const auto* next_profile = profile_for_process(
+        metadata.title_id,
+        metadata.main_nso_build_id,
+        sizeof(metadata.main_nso_build_id)
+    );
     if (next_profile == nullptr) {
         detach(SessionStatus::Unsupported);
         view_.title_id = metadata.title_id;

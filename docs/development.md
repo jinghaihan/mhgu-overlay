@@ -218,8 +218,8 @@ the NRO metadata.
   `git submodule update --init --recursive`.
 - **Overlay does not appear**: verify the `.ovl` path and confirm that Tesla
   Menu itself works.
-- **`MHGU / MHXX is not running`**: launch the game first and verify the
-  title and version.
+- **`MHGU is not running`**: launch MHGU 1.4.0 and verify the title and
+  version.
 - **Scanning never finishes**: enter a quest with a large monster, then
   choose **Find monster list**.
 - **Size does not change**: confirm that the preset is not Off and

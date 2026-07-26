@@ -3,7 +3,7 @@
   "locale": "en",
   "ui": {
     "title": "MHGU Overlay",
-    "notRunning": "MHGU / MHXX is not running",
+    "notRunning": "MHGU 1.4.0 is not running",
     "noMonsters": "No large monsters",
     "health": "HP",
     "size": "Size",

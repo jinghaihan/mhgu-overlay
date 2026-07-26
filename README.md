@@ -20,8 +20,8 @@ The size-writing feature is experimental and disabled by default. Read [Size pre
 
 | Target | Status |
 | --- | --- |
-| MHGU 1.4.0 on Atmosphère | Primary target; memory reads are implemented, hardware verification is still required |
-| MHXX Nintendo Switch | Experimental; shares the current profile and defaults to Japanese |
+| MHGU 1.4.0 on Atmosphère | Primary target; Title ID and build ID are checked, hardware verification is still required |
+| MHXX Nintendo Switch | Not currently supported; it requires a separately verified profile |
 | Ryujinx | This Tesla build does not run in Ryujinx; the portable core is designed for a future emulator adapter |
 | Windows | Not included; a future adapter can reuse the core without depending on Tesla or libnx |
 
@@ -32,7 +32,7 @@ This repository is under active development. A successful CI build proves that t
 - A Nintendo Switch running a current Atmosphère release.
 - Tesla Menu / ovlmenu.
 - Atmosphère's `dmnt:cht` service.
-- MHGU 1.4.0 or MHXX for Nintendo Switch.
+- MHGU 1.4.0 for Nintendo Switch.
 
 ## Install
 
@@ -46,7 +46,7 @@ This repository is under active development. A successful CI build proves that t
    sdmc:/switch/.overlays/mhgu-overlay.ovl
    ```
 
-3. Start MHGU or MHXX.
+3. Start MHGU 1.4.0.
 4. Open Tesla Menu and select **MHGU Overlay**.
 5. Enter a quest containing a large monster. The first scan may take a moment.
 

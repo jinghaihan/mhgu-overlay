@@ -1,10 +1,15 @@
 #pragma once
 
+#include <array>
+#include <cstddef>
 #include <cstdint>
 
 #include "mhgu/core/types.hpp"
 
 namespace mhgu::platform::switch_adapter {
+
+constexpr std::size_t kBuildIdPrefixSize = 8;
+using BuildIdPrefix = std::array<std::uint8_t, kBuildIdPrefixSize>;
 
 struct MonsterLayout {
     std::uint32_t location_flag;
@@ -27,6 +32,7 @@ struct GameProfile {
     const char* name;
     core::GameId game;
     std::uint64_t title_id;
+    BuildIdPrefix build_id_prefix;
     std::uint64_t scan_start_from_heap;
     std::uint64_t scan_end_from_heap;
     MonsterLayout monster;
@@ -35,7 +41,21 @@ struct GameProfile {
 
 constexpr std::uint64_t kMhguTitleId = 0x0100770008DD8000ULL;
 constexpr std::uint64_t kMhxxTitleId = 0x0100C3800049C000ULL;
+constexpr BuildIdPrefix kMhgu140BuildId{
+    0xFB,
+    0x08,
+    0xF1,
+    0xD2,
+    0x0F,
+    0xD1,
+    0x20,
+    0x4F,
+};
 
-const GameProfile* profile_for_title(std::uint64_t title_id);
+const GameProfile* profile_for_process(
+    std::uint64_t title_id,
+    const std::uint8_t* build_id,
+    std::size_t build_id_size
+);
 
 }  // namespace mhgu::platform::switch_adapter

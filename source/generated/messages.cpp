@@ -8,7 +8,7 @@ namespace {
 
 constexpr const char* kMessages[][3] = {
     {"MHGU Overlay", "MHGU 怪物信息", "MHGU モンスター情報"},
-    {"MHGU / MHXX is not running", "未检测到 MHGU / MHXX", "MHGU / MHXX が起動していません"},
+    {"MHGU 1.4.0 is not running", "未检测到 MHGU 1.4.0", "MHGU 1.4.0 が起動していません"},
     {"No large monsters", "未发现大型怪物", "大型モンスターがいません"},
     {"HP", "生命", "体力"},
     {"Size", "体型", "サイズ"},
