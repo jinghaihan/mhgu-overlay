@@ -188,16 +188,16 @@ delete or rename translations when a source website changes its HTML.
 
 `VERSION` is the single version source. For a release:
 
-1. Replace its contents, for example `0.1.0` with `0.2.0`.
+1. Replace its contents with the intended `X.Y.Z` version.
 2. Run the complete tests and Switch build.
-3. Commit and tag:
+3. Replace `X.Y.Z` below with that same version, then commit and tag:
 
    ```sh
    git add VERSION
-   git commit -m "chore(release): v0.2.0"
-   git tag v0.2.0
+   git commit -m "chore(release): prepare vX.Y.Z"
+   git tag vX.Y.Z
    git push upstream main
-   git push upstream v0.2.0
+   git push upstream vX.Y.Z
    ```
 
 Pushing a tag beginning with `v` starts `.github/workflows/release.yml`. The
