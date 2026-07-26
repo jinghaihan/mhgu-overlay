@@ -1,6 +1,11 @@
 .build-host/
 __pycache__/
 *.pyc
+/build/
+/*.elf
+/*.map
+/*.nro
+/*.ovl
 build/
 
 *.elf
