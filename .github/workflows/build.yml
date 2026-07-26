@@ -1,6 +1,7 @@
 name: build
 
 on:
+  workflow_dispatch:
   push:
   pull_request:
 
@@ -9,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Verify generated tables
+        run: |
+          python3 tools/generate_catalog.py
+          git diff --exit-code -- source/generated
       - name: Run portable tests
         run: make -f Makefile.host test
 
@@ -26,3 +31,4 @@ jobs:
           name: mhgu-overlay
           path: mhgu-overlay.ovl
           if-no-files-found: error
+          retention-days: 14

@@ -66,13 +66,16 @@ memory decoding. `Makefile.host` does not build the Switch plugin.
 
 This path does not require a local C++ or Switch toolchain:
 
-1. Push your branch to GitHub.
-2. Open the repository's **Actions** tab.
-3. Open the latest `build` workflow.
-4. Wait for both `host-tests` and `switch` to turn green.
-5. Download the `mhgu-overlay` artifact from the workflow summary.
+1. Push your branch to GitHub, or open **Actions → build → Run workflow** to
+   start a build manually without publishing a release.
+2. Open the resulting `build` workflow run.
+3. Wait for both `host-tests` and `switch` to turn green.
+4. Download the `mhgu-overlay` artifact from the workflow summary. It contains
+   `mhgu-overlay.ovl` and is retained for 14 days.
 
-Every push and pull request runs the same checks.
+Every push and pull request runs the same checks. Only a `v*` tag invokes the
+separate release workflow; an ordinary or manual build never creates a GitHub
+Release.
 
 ### Docker
 
