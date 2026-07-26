@@ -22,13 +22,16 @@ INCLUDES := \
 
 APP_TITLE := MHGU Overlay
 APP_AUTHOR := Jing Haihan
-APP_VERSION := 0.1.0
+APP_VERSION := $(shell tr -d '[:space:]' < $(TOPDIR)/VERSION)
 NO_ICON := 1
 
 ARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
-CFLAGS := -g -Wall -Wextra -Werror -O2 -ffunction-sections $(ARCH) $(DEFINES)
+CFLAGS := -g -Wall -Wextra -Werror \
+	-Wno-error=missing-field-initializers \
+	-O2 -ffunction-sections $(ARCH) $(DEFINES)
 CFLAGS += $(INCLUDE) -D__SWITCH__
-CXXFLAGS := $(CFLAGS) -fno-exceptions -std=gnu++20
+CXXFLAGS := $(CFLAGS) -fno-exceptions -std=gnu++20 \
+	-DMHGU_OVERLAY_VERSION=\"$(APP_VERSION)\"
 ASFLAGS := -g $(ARCH)
 LDFLAGS := -specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) \
 	-Wl,-Map,$(notdir $*.map)
