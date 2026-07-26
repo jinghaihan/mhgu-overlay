@@ -1,0 +1,37 @@
+#pragma once
+
+#include <cstdint>
+
+#include "mhgu/core/types.hpp"
+
+namespace mhgu::core {
+
+enum class UiMessage : std::uint8_t {
+    Title,
+    NotRunning,
+    NoMonsters,
+    Health,
+    Size,
+    Language,
+    Automatic,
+    SizePreset,
+    SizeLock,
+    Off,
+    Mini,
+    Silver,
+    Gold,
+    Experimental,
+    Scan,
+    Scanning,
+    Ready,
+    Unsupported,
+    WriteFailed,
+    Hyper,
+    CrownMini,
+    CrownSilver,
+    CrownGold,
+};
+
+const char* ui_message(UiMessage message, Locale locale);
+
+}  // namespace mhgu::core

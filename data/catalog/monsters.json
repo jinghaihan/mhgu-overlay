@@ -1,0 +1,1702 @@
+{
+  "$schema": "./schema/monster-catalog.schema.json",
+  "generatedFrom": {
+    "seed": "data/catalog/monsters.seed.json",
+    "primary": "https://mhxx.kiranico.com/en/mon",
+    "validation": "https://mhcrown.com/"
+  },
+  "monsters": [
+    {
+      "id": 1,
+      "key": "great-maccao",
+      "baseSizeX100": 79731,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x452060"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/60036",
+        "crownValidation": "https://mhcrown.com/mhgu/greatmaccao/"
+      }
+    },
+    {
+      "id": 2,
+      "key": "velocidrome",
+      "baseSizeX100": 86820,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x27A020"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/64dd6",
+        "crownValidation": "https://mhcrown.com/mhgu/velocidrome/"
+      }
+    },
+    {
+      "id": 3,
+      "key": "bulldrome",
+      "baseSizeX100": 56585,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x2F2004"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/60b36",
+        "crownValidation": "https://mhcrown.com/mhgu/bulldrome/"
+      }
+    },
+    {
+      "id": 4,
+      "key": "seltas",
+      "baseSizeX100": 61590,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x40A004"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6d786",
+        "crownValidation": "https://mhcrown.com/mhgu/seltas/"
+      }
+    },
+    {
+      "id": 5,
+      "key": "seltas-queen",
+      "baseSizeX100": 144480,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x3F2044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/65376",
+        "crownValidation": "https://mhcrown.com/mhgu/seltasqueen/"
+      }
+    },
+    {
+      "id": 6,
+      "key": "arzuros",
+      "baseSizeX100": 56263,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x39A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/65776",
+        "crownValidation": "https://mhcrown.com/mhgu/arzuros/"
+      }
+    },
+    {
+      "id": 7,
+      "key": "redhelm-arzuros",
+      "baseSizeX100": 82234,
+      "crowns": {
+        "miniPercent": 96,
+        "silverPercent": 105,
+        "goldPercent": 109
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x3A2044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/60e36",
+        "crownValidation": "https://mhcrown.com/mhgu/redhelmarzuros/"
+      }
+    },
+    {
+      "id": 8,
+      "key": "giadrome",
+      "baseSizeX100": 86675,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x5F2020"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/64d84",
+        "crownValidation": "https://mhcrown.com/mhgu/giadrome/"
+      }
+    },
+    {
+      "id": 9,
+      "key": "gendrome",
+      "baseSizeX100": 86450,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x282020"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6eab6",
+        "crownValidation": "https://mhcrown.com/mhgu/gendrome/"
+      }
+    },
+    {
+      "id": 10,
+      "key": "cephadrome",
+      "baseSizeX100": 167760,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x292044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/65e76",
+        "crownValidation": "https://mhcrown.com/mhgu/cephadrome/"
+      }
+    },
+    {
+      "id": 11,
+      "key": "yian-kut-ku",
+      "baseSizeX100": 89860,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x25A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/a67b6",
+        "crownValidation": "https://mhcrown.com/mhgu/yiankutku/"
+      }
+    },
+    {
+      "id": 12,
+      "key": "iodrome",
+      "baseSizeX100": 91170,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x28A020"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/69846",
+        "crownValidation": "https://mhcrown.com/mhgu/iodrome/"
+      }
+    },
+    {
+      "id": 13,
+      "key": "kecha-wacha",
+      "baseSizeX100": 88610,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 109,
+        "goldPercent": 114
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x3CA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6a756",
+        "crownValidation": "https://mhcrown.com/mhgu/kechawacha/"
+      }
+    },
+    {
+      "id": 14,
+      "key": "lagombi",
+      "baseSizeX100": 52730,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x3AA004"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/68a46",
+        "crownValidation": "https://mhcrown.com/mhgu/lagombi/"
+      }
+    },
+    {
+      "id": 15,
+      "key": "snowbaron-lagombi",
+      "baseSizeX100": 63949,
+      "crowns": {
+        "miniPercent": 97,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x3B2004"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6db86",
+        "crownValidation": "https://mhcrown.com/mhgu/snowbaronlagombi/"
+      }
+    },
+    {
+      "id": 16,
+      "key": "gypceros",
+      "baseSizeX100": 99090,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x262044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/a6b96",
+        "crownValidation": "https://mhcrown.com/mhgu/gypceros/"
+      }
+    },
+    {
+      "id": 17,
+      "key": "tetsucabra",
+      "baseSizeX100": 126580,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x3D2044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/63906",
+        "crownValidation": "https://mhcrown.com/mhgu/tetsucabra/"
+      }
+    },
+    {
+      "id": 18,
+      "key": "drilltusk-tetsucabra",
+      "baseSizeX100": 151291,
+      "crowns": {
+        "miniPercent": 96,
+        "silverPercent": 105,
+        "goldPercent": 109
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x3DA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/64ad6",
+        "crownValidation": "https://mhcrown.com/mhgu/drilltusktetsucabra/"
+      }
+    },
+    {
+      "id": 19,
+      "key": "daimyo-hermitaur",
+      "baseSizeX100": 49500,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x2AA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6da86",
+        "crownValidation": "https://mhcrown.com/mhgu/daimyohermitaur/"
+      }
+    },
+    {
+      "id": 20,
+      "key": "stonefist-hermitaur",
+      "baseSizeX100": 149473,
+      "crowns": {
+        "miniPercent": 97,
+        "silverPercent": 114,
+        "goldPercent": 119
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x2B2044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/67db6",
+        "crownValidation": "https://mhcrown.com/mhgu/stonefisthermitaur/"
+      }
+    },
+    {
+      "id": 21,
+      "key": "volvidon",
+      "baseSizeX100": 69668,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x3BA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/674b6",
+        "crownValidation": "https://mhcrown.com/mhgu/volvidon/"
+      }
+    },
+    {
+      "id": 22,
+      "key": "congalala",
+      "baseSizeX100": 98400,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x5EA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/63d0d",
+        "crownValidation": "https://mhcrown.com/mhgu/congalala/"
+      }
+    },
+    {
+      "id": 23,
+      "key": "royal-ludroth",
+      "baseSizeX100": 154533,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x35A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6d586",
+        "crownValidation": "https://mhcrown.com/mhgu/royalludroth/"
+      }
+    },
+    {
+      "id": 24,
+      "key": "barroth",
+      "baseSizeX100": 140619,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x602044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/69879",
+        "crownValidation": "https://mhcrown.com/mhgu/barroth/"
+      }
+    },
+    {
+      "id": 25,
+      "key": "basarios",
+      "baseSizeX100": 142650,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x5A2044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6eed6",
+        "crownValidation": "https://mhcrown.com/mhgu/basarios/"
+      }
+    },
+    {
+      "id": 26,
+      "key": "malfestio",
+      "baseSizeX100": 61166,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x41A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6b796",
+        "crownValidation": "https://mhcrown.com/mhgu/malfestio/"
+      }
+    },
+    {
+      "id": 27,
+      "key": "nightcloak-malfestio",
+      "baseSizeX100": 73302,
+      "crowns": {
+        "miniPercent": 97,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x622044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6dade",
+        "crownValidation": "https://mhcrown.com/mhgu/nightcloakmalfestio/"
+      }
+    },
+    {
+      "id": 28,
+      "key": "zamtrios",
+      "baseSizeX100": 151960,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x3E2044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6e7b6",
+        "crownValidation": "https://mhcrown.com/mhgu/zamtrios/"
+      }
+    },
+    {
+      "id": 29,
+      "key": "khezu",
+      "baseSizeX100": 87190,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 109,
+        "goldPercent": 114
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x252044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/d6d86",
+        "crownValidation": "https://mhcrown.com/mhgu/khezu/"
+      }
+    },
+    {
+      "id": 30,
+      "key": "nerscylla",
+      "baseSizeX100": 99890,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 112,
+        "goldPercent": 118
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x612004"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/60750",
+        "crownValidation": "https://mhcrown.com/mhgu/nerscylla/"
+      }
+    },
+    {
+      "id": 31,
+      "key": "rathian",
+      "baseSizeX100": 165430,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x222044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/464d6",
+        "crownValidation": "https://mhcrown.com/mhgu/rathian/"
+      }
+    },
+    {
+      "id": 32,
+      "key": "gold-rathian",
+      "baseSizeX100": 165430,
+      "crowns": {
+        "miniPercent": 97,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x22A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/06eb6",
+        "crownValidation": "https://mhcrown.com/mhgu/goldrathian/"
+      }
+    },
+    {
+      "id": 33,
+      "key": "dreadqueen-rathian",
+      "baseSizeX100": 205568,
+      "crowns": {
+        "miniPercent": 96,
+        "silverPercent": 105,
+        "goldPercent": 109
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x232044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/76946",
+        "crownValidation": "https://mhcrown.com/mhgu/dreadqueenrathian/"
+      }
+    },
+    {
+      "id": 34,
+      "key": "rathalos",
+      "baseSizeX100": 171130,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x23A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/d6576",
+        "crownValidation": "https://mhcrown.com/mhgu/rathalos/"
+      }
+    },
+    {
+      "id": 35,
+      "key": "silver-rathalos",
+      "baseSizeX100": 171130,
+      "crowns": {
+        "miniPercent": 97,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x242044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/06036",
+        "crownValidation": "https://mhcrown.com/mhgu/silverrathalos/"
+      }
+    },
+    {
+      "id": 36,
+      "key": "dreadking-rathalos",
+      "baseSizeX100": 205778,
+      "crowns": {
+        "miniPercent": 96,
+        "silverPercent": 105,
+        "goldPercent": 109
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x24A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/d6846",
+        "crownValidation": "https://mhcrown.com/mhgu/dreadkingrathalos/"
+      }
+    },
+    {
+      "id": 37,
+      "key": "nibelsnarf",
+      "baseSizeX100": 204046,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x37A004"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/63706",
+        "crownValidation": "https://mhcrown.com/mhgu/nibelsnarf/"
+      }
+    },
+    {
+      "id": 38,
+      "key": "plesioth",
+      "baseSizeX100": 262483,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x26A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/76a56",
+        "crownValidation": "https://mhcrown.com/mhgu/plesioth/"
+      }
+    },
+    {
+      "id": 39,
+      "key": "blangonga",
+      "baseSizeX100": 85991,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x2C2044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6a056",
+        "crownValidation": "https://mhcrown.com/mhgu/blangonga/"
+      }
+    },
+    {
+      "id": 40,
+      "key": "lavasioth",
+      "baseSizeX100": 207767,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x312044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6ba96",
+        "crownValidation": "https://mhcrown.com/mhgu/lavasioth/"
+      }
+    },
+    {
+      "id": 41,
+      "key": "shogun-ceanataur",
+      "baseSizeX100": 59799,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x2BA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6bb96",
+        "crownValidation": "https://mhcrown.com/mhgu/shogunceanataur/"
+      }
+    },
+    {
+      "id": 42,
+      "key": "rustrazor-ceanataur",
+      "baseSizeX100": 68844,
+      "crowns": {
+        "miniPercent": 96,
+        "silverPercent": 110,
+        "goldPercent": 114
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x5E2044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6a044",
+        "crownValidation": "https://mhcrown.com/mhgu/rustrazorceanataur/"
+      }
+    },
+    {
+      "id": 43,
+      "key": "najarala",
+      "baseSizeX100": 405500,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x3EA004"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/69a46",
+        "crownValidation": "https://mhcrown.com/mhgu/najarala/"
+      }
+    },
+    {
+      "id": 44,
+      "key": "nargacuga",
+      "baseSizeX100": 160219,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x31A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6a856",
+        "crownValidation": "https://mhcrown.com/mhgu/nargacuga/"
+      }
+    },
+    {
+      "id": 45,
+      "key": "silverwind-nargacuga",
+      "baseSizeX100": 170233,
+      "crowns": {
+        "miniPercent": 97,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x322044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/63506",
+        "crownValidation": "https://mhcrown.com/mhgu/silverwindnargacuga/"
+      }
+    },
+    {
+      "id": 46,
+      "key": "yian-garuga",
+      "baseSizeX100": 139560,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x29A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/60736",
+        "crownValidation": "https://mhcrown.com/mhgu/yiangaruga/"
+      }
+    },
+    {
+      "id": 47,
+      "key": "deadeye-yian-garuga",
+      "baseSizeX100": 118633,
+      "crowns": {
+        "miniPercent": 97,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x2A2044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/68046",
+        "crownValidation": "https://mhcrown.com/mhgu/deadeyeyiangaruga/"
+      }
+    },
+    {
+      "id": 48,
+      "key": "uragaan",
+      "baseSizeX100": 208542,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x342044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/65076",
+        "crownValidation": "https://mhcrown.com/mhgu/uragaan/"
+      }
+    },
+    {
+      "id": 49,
+      "key": "crystalbeard-uragaan",
+      "baseSizeX100": 265474,
+      "crowns": {
+        "miniPercent": 96,
+        "silverPercent": 105,
+        "goldPercent": 109
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x34A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/60436",
+        "crownValidation": "https://mhcrown.com/mhgu/crystalbearduragaan/"
+      }
+    },
+    {
+      "id": 50,
+      "key": "lagiacrus",
+      "baseSizeX100": 264858,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x352044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/68346",
+        "crownValidation": "https://mhcrown.com/mhgu/lagiacrus/"
+      }
+    },
+    {
+      "id": 51,
+      "key": "zinogre",
+      "baseSizeX100": 145540,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x382044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/647d6",
+        "crownValidation": "https://mhcrown.com/mhgu/zinogre/"
+      }
+    },
+    {
+      "id": 52,
+      "key": "thunderlord-zinogre",
+      "baseSizeX100": 153446,
+      "crowns": {
+        "miniPercent": 97,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x38A04C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6e0b6",
+        "crownValidation": "https://mhcrown.com/mhgu/thunderlordzinogre/"
+      }
+    },
+    {
+      "id": 53,
+      "key": "barioth",
+      "baseSizeX100": 182174,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x5FA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6ea4d",
+        "crownValidation": "https://mhcrown.com/mhgu/barioth/"
+      }
+    },
+    {
+      "id": 54,
+      "key": "mizutsune",
+      "baseSizeX100": 188512,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x43A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6e5b6",
+        "crownValidation": "https://mhcrown.com/mhgu/mizutsune/"
+      }
+    },
+    {
+      "id": 55,
+      "key": "soulseer-mizutsune",
+      "baseSizeX100": 242850,
+      "crowns": {
+        "miniPercent": 97,
+        "silverPercent": 110,
+        "goldPercent": 114
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x632044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6bbe8",
+        "crownValidation": "https://mhcrown.com/mhgu/soulseermizutsune/"
+      }
+    },
+    {
+      "id": 56,
+      "key": "astalos",
+      "baseSizeX100": 175526,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x432044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/649d6",
+        "crownValidation": "https://mhcrown.com/mhgu/astalos/"
+      }
+    },
+    {
+      "id": 57,
+      "key": "boltreaver-astalos",
+      "baseSizeX100": 221942,
+      "crowns": {
+        "miniPercent": 96,
+        "silverPercent": 105,
+        "goldPercent": 109
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x62A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/67d50",
+        "crownValidation": "https://mhcrown.com/mhgu/boltreaverastalos/"
+      }
+    },
+    {
+      "id": 58,
+      "key": "gammoth",
+      "baseSizeX100": 227607,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 109,
+        "goldPercent": 114
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x442004"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/69e46",
+        "crownValidation": "https://mhcrown.com/mhgu/gammoth/"
+      }
+    },
+    {
+      "id": 59,
+      "key": "elderfrost-gammoth",
+      "baseSizeX100": 227607,
+      "crowns": {
+        "miniPercent": 97,
+        "silverPercent": 110,
+        "goldPercent": 114
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x63A004"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6a004",
+        "crownValidation": "https://mhcrown.com/mhgu/elderfrostgammoth/"
+      }
+    },
+    {
+      "id": 60,
+      "key": "glavenus",
+      "baseSizeX100": 253949,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x422044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6aa56",
+        "crownValidation": "https://mhcrown.com/mhgu/glavenus/"
+      }
+    },
+    {
+      "id": 61,
+      "key": "hellblade-glavenus",
+      "baseSizeX100": 284085,
+      "crowns": {
+        "miniPercent": 97,
+        "silverPercent": 114,
+        "goldPercent": 119
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x42A04C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/63a06",
+        "crownValidation": "https://mhcrown.com/mhgu/hellbladeglavenus/"
+      }
+    },
+    {
+      "id": 62,
+      "key": "agnaktor",
+      "baseSizeX100": 273731,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x362044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/677b6",
+        "crownValidation": "https://mhcrown.com/mhgu/agnaktor/"
+      }
+    },
+    {
+      "id": 63,
+      "key": "gore-magala",
+      "baseSizeX100": 176090,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x3FA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/60336",
+        "crownValidation": "https://mhcrown.com/mhgu/goremagala/"
+      }
+    },
+    {
+      "id": 64,
+      "key": "chaotic-gore-magala",
+      "baseSizeX100": 179470,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x61A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/680d5",
+        "crownValidation": "https://mhcrown.com/mhgu/chaoticgoremagala/"
+      }
+    },
+    {
+      "id": 65,
+      "key": "seregios",
+      "baseSizeX100": 172810,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 109,
+        "goldPercent": 114
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x412044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/67eb6",
+        "crownValidation": "https://mhcrown.com/mhgu/seregios/"
+      }
+    },
+    {
+      "id": 66,
+      "key": "duramboros",
+      "baseSizeX100": 208420,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x372044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6ab56",
+        "crownValidation": "https://mhcrown.com/mhgu/duramboros/"
+      }
+    },
+    {
+      "id": 67,
+      "key": "tigrex",
+      "baseSizeX100": 173540,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x2FA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/68746",
+        "crownValidation": "https://mhcrown.com/mhgu/tigrex/"
+      }
+    },
+    {
+      "id": 68,
+      "key": "grimclaw-tigrex",
+      "baseSizeX100": 212110,
+      "crowns": {
+        "miniPercent": 96,
+        "silverPercent": 105,
+        "goldPercent": 109
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x302044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6d486",
+        "crownValidation": "https://mhcrown.com/mhgu/grimclawtigrex/"
+      }
+    },
+    {
+      "id": 69,
+      "key": "gravios",
+      "baseSizeX100": 209870,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x5AA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/69596",
+        "crownValidation": "https://mhcrown.com/mhgu/gravios/"
+      }
+    },
+    {
+      "id": 70,
+      "key": "diablos",
+      "baseSizeX100": 199300,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x5B2044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/65836",
+        "crownValidation": "https://mhcrown.com/mhgu/diablos/"
+      }
+    },
+    {
+      "id": 71,
+      "key": "bloodbath-diablos",
+      "baseSizeX100": 240935,
+      "crowns": {
+        "miniPercent": 96,
+        "silverPercent": 110,
+        "goldPercent": 114
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x5BA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/60806",
+        "crownValidation": "https://mhcrown.com/mhgu/bloodbathdiablos/"
+      }
+    },
+    {
+      "id": 72,
+      "key": "kirin",
+      "baseSizeX100": 54980,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x272008"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/63d06",
+        "crownValidation": "https://mhcrown.com/mhgu/kirin/"
+      }
+    },
+    {
+      "id": 73,
+      "key": "brachydios",
+      "baseSizeX100": 152180,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x3C2044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6b096",
+        "crownValidation": "https://mhcrown.com/mhgu/brachydios/"
+      }
+    },
+    {
+      "id": 74,
+      "key": "raging-brachydios",
+      "baseSizeX100": 152180,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 115,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x60A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/65ed3",
+        "crownValidation": "https://mhcrown.com/mhgu/ragingbrachydios/"
+      }
+    },
+    {
+      "id": 75,
+      "key": "shagaru-magala",
+      "baseSizeX100": 177810,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x40204C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/68946",
+        "crownValidation": "https://mhcrown.com/mhgu/shagarumagala/"
+      }
+    },
+    {
+      "id": 76,
+      "key": "valstrax",
+      "baseSizeX100": 226735,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 112,
+        "goldPercent": 118
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x64204C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/63ddd",
+        "crownValidation": "https://mhcrown.com/mhgu/valstrax/"
+      }
+    },
+    {
+      "id": 77,
+      "key": "rajang",
+      "baseSizeX100": 96560,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x2CA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/63306",
+        "crownValidation": "https://mhcrown.com/mhgu/rajang/"
+      }
+    },
+    {
+      "id": 78,
+      "key": "furious-rajang",
+      "baseSizeX100": 96600,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x2D204C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/644d6",
+        "crownValidation": "https://mhcrown.com/mhgu/furiousrajang/"
+      }
+    },
+    {
+      "id": 79,
+      "key": "deviljho",
+      "baseSizeX100": 204680,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 120,
+        "goldPercent": 128
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x332044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6edb6",
+        "crownValidation": "https://mhcrown.com/mhgu/deviljho/"
+      }
+    },
+    {
+      "id": 80,
+      "key": "savage-deviljho",
+      "baseSizeX100": 204680,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 120,
+        "goldPercent": 128
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x33A044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/69446",
+        "crownValidation": "https://mhcrown.com/mhgu/savagedeviljho/"
+      }
+    },
+    {
+      "id": 81,
+      "key": "kushala-daora",
+      "baseSizeX100": 180130,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x2DA044"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6ebb6",
+        "crownValidation": "https://mhcrown.com/mhgu/kushaladaora/"
+      }
+    },
+    {
+      "id": 82,
+      "key": "chameleos",
+      "baseSizeX100": 199300,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x2E204C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/69346",
+        "crownValidation": "https://mhcrown.com/mhgu/chameleos/"
+      }
+    },
+    {
+      "id": 83,
+      "key": "teostra",
+      "baseSizeX100": 173980,
+      "crowns": {
+        "miniPercent": 90,
+        "silverPercent": 117,
+        "goldPercent": 123
+      },
+      "variableSize": true,
+      "switch": {
+        "rawId": "0x2EA04C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/65a76",
+        "crownValidation": "https://mhcrown.com/mhgu/teostra/"
+      }
+    },
+    {
+      "id": 84,
+      "key": "lao-shan-lung",
+      "baseSizeX100": 695979,
+      "crowns": {
+        "miniPercent": 0,
+        "silverPercent": 0,
+        "goldPercent": 0
+      },
+      "variableSize": false,
+      "switch": {
+        "rawId": "0x5C200C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/68e56",
+        "crownValidation": null
+      }
+    },
+    {
+      "id": 85,
+      "key": "akantor",
+      "baseSizeX100": 304900,
+      "crowns": {
+        "miniPercent": 0,
+        "silverPercent": 0,
+        "goldPercent": 0
+      },
+      "variableSize": false,
+      "switch": {
+        "rawId": "0x30A04C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/678b6",
+        "crownValidation": null
+      }
+    },
+    {
+      "id": 86,
+      "key": "ukanlos",
+      "baseSizeX100": 318660,
+      "crowns": {
+        "miniPercent": 0,
+        "silverPercent": 0,
+        "goldPercent": 0
+      },
+      "variableSize": false,
+      "switch": {
+        "rawId": "0x32A04C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/640d6",
+        "crownValidation": null
+      }
+    },
+    {
+      "id": 87,
+      "key": "amatsu",
+      "baseSizeX100": 261148,
+      "crowns": {
+        "miniPercent": 0,
+        "silverPercent": 0,
+        "goldPercent": 0
+      },
+      "variableSize": false,
+      "switch": {
+        "rawId": "0x39200C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/69946",
+        "crownValidation": null
+      }
+    },
+    {
+      "id": 88,
+      "key": "nakarkos",
+      "baseSizeX100": 581286,
+      "crowns": {
+        "miniPercent": 0,
+        "silverPercent": 0,
+        "goldPercent": 0
+      },
+      "variableSize": false,
+      "switch": {
+        "rawId": "0x44A00C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/65576",
+        "crownValidation": null
+      }
+    },
+    {
+      "id": 89,
+      "key": "ahtal-throne",
+      "baseSizeX100": 0,
+      "crowns": {
+        "miniPercent": 0,
+        "silverPercent": 0,
+        "goldPercent": 0
+      },
+      "variableSize": false,
+      "switch": {
+        "rawId": "0x64A00C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/64dd4",
+        "crownValidation": null
+      }
+    },
+    {
+      "id": 90,
+      "key": "ahtal-ka",
+      "baseSizeX100": 122367,
+      "crowns": {
+        "miniPercent": 0,
+        "silverPercent": 0,
+        "goldPercent": 0
+      },
+      "variableSize": false,
+      "switch": {
+        "rawId": "0x652004"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6eaad",
+        "crownValidation": null
+      }
+    },
+    {
+      "id": 91,
+      "key": "alatreon",
+      "baseSizeX100": 287248,
+      "crowns": {
+        "miniPercent": 0,
+        "silverPercent": 0,
+        "goldPercent": 0
+      },
+      "variableSize": false,
+      "switch": {
+        "rawId": "0x36A04C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6bd96",
+        "crownValidation": null
+      }
+    },
+    {
+      "id": 92,
+      "key": "fatalis",
+      "baseSizeX100": 411060,
+      "crowns": {
+        "miniPercent": 0,
+        "silverPercent": 0,
+        "goldPercent": 0
+      },
+      "variableSize": false,
+      "switch": {
+        "rawId": "0x5CA00C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6d3e6",
+        "crownValidation": null
+      }
+    },
+    {
+      "id": 93,
+      "key": "crimson-fatalis",
+      "baseSizeX100": 411060,
+      "crowns": {
+        "miniPercent": 0,
+        "silverPercent": 0,
+        "goldPercent": 0
+      },
+      "variableSize": false,
+      "switch": {
+        "rawId": "0x5D200C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/67306",
+        "crownValidation": null
+      }
+    },
+    {
+      "id": 94,
+      "key": "white-fatalis",
+      "baseSizeX100": 411920,
+      "crowns": {
+        "miniPercent": 0,
+        "silverPercent": 0,
+        "goldPercent": 0
+      },
+      "variableSize": false,
+      "switch": {
+        "rawId": "0x5DA00C"
+      },
+      "sources": {
+        "sizeAndNames": "https://mhxx.kiranico.com/en/mon/6b886",
+        "crownValidation": null
+      }
+    }
+  ]
+}

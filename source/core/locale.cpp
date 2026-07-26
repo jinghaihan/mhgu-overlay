@@ -1,5 +1,7 @@
 #include "mhgu/core/locale.hpp"
 
+#include "mhgu/core/messages.hpp"
+
 namespace mhgu::core {
 
 Locale resolve_locale(
@@ -36,39 +38,20 @@ const char* localized_name(
 }
 
 const char* crown_label(const Crown crown, const Locale locale) {
-    switch (locale) {
-        case Locale::SimplifiedChinese:
-            switch (crown) {
-                case Crown::Mini: return "小金";
-                case Crown::Silver: return "大银";
-                case Crown::Gold: return "大金";
-                default: return "";
-            }
-        case Locale::Japanese:
-            switch (crown) {
-                case Crown::Mini: return "小冠";
-                case Crown::Silver: return "銀冠";
-                case Crown::Gold: return "金冠";
-                default: return "";
-            }
-        case Locale::English:
+    switch (crown) {
+        case Crown::Mini:
+            return ui_message(UiMessage::CrownMini, locale);
+        case Crown::Silver:
+            return ui_message(UiMessage::CrownSilver, locale);
+        case Crown::Gold:
+            return ui_message(UiMessage::CrownGold, locale);
         default:
-            switch (crown) {
-                case Crown::Mini: return "MINI";
-                case Crown::Silver: return "SILVER";
-                case Crown::Gold: return "GOLD";
-                default: return "";
-            }
+            return "";
     }
 }
 
 const char* hyper_label(const Locale locale) {
-    switch (locale) {
-        case Locale::SimplifiedChinese: return "狞猛";
-        case Locale::Japanese: return "獰猛";
-        case Locale::English:
-        default: return "Hyper";
-    }
+    return ui_message(UiMessage::Hyper, locale);
 }
 
 const char* size_preset_label(
@@ -76,11 +59,7 @@ const char* size_preset_label(
     const Locale locale
 ) {
     if (preset == SizePreset::Off) {
-        switch (locale) {
-            case Locale::SimplifiedChinese: return "关闭";
-            case Locale::Japanese: return "オフ";
-            default: return "Off";
-        }
+        return ui_message(UiMessage::Off, locale);
     }
 
     Crown crown = Crown::None;

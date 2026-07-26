@@ -1,4 +1,6 @@
 .build-host/
+__pycache__/
+*.pyc
 build/
 
 *.elf

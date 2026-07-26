@@ -5,17 +5,25 @@ HOST_BUILD := .build-host
 CORE_SOURCES := \
 	source/core/engine.cpp \
 	source/core/locale.cpp \
-	source/core/size.cpp
+	source/core/size.cpp \
+	source/generated/messages.cpp
 TEST_BINARY := $(HOST_BUILD)/core-tests
+CATALOG_TEST_BINARY := $(HOST_BUILD)/catalog-tests
 
 .PHONY: test clean-host
 
-test: $(TEST_BINARY)
+test: $(TEST_BINARY) $(CATALOG_TEST_BINARY)
 	@$(TEST_BINARY)
+	@$(CATALOG_TEST_BINARY)
 
 $(TEST_BINARY): $(CORE_SOURCES) tests/core_tests.cpp
 	@mkdir -p $(HOST_BUILD)
 	$(CXX) $(CXXFLAGS) -Iinclude $(CORE_SOURCES) tests/core_tests.cpp -o $@
+
+$(CATALOG_TEST_BINARY): source/core/locale.cpp source/generated/catalog.cpp \
+		source/generated/messages.cpp tests/catalog_tests.cpp
+	@mkdir -p $(HOST_BUILD)
+	$(CXX) $(CXXFLAGS) -Iinclude $^ -o $@
 
 clean-host:
 	rm -rf $(HOST_BUILD)

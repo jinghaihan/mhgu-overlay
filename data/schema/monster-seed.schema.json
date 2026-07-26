@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MHGU overlay monster seed",
+  "type": "object",
+  "required": ["monsters"],
+  "properties": {
+    "monsters": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "prefixItems": [
+          { "type": "string", "pattern": "^[0-9a-f]{5}$" },
+          { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          { "type": "string", "pattern": "^0x[0-9A-F]{6}$" }
+        ],
+        "minItems": 3,
+        "maxItems": 3
+      }
+    }
+  }
+}

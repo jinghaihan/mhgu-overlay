@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Generated MHGU overlay monster catalog",
+  "type": "object",
+  "required": ["generatedFrom", "monsters"],
+  "properties": {
+    "monsters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "key",
+          "baseSizeX100",
+          "crowns",
+          "variableSize",
+          "switch",
+          "sources"
+        ]
+      }
+    }
+  }
+}
