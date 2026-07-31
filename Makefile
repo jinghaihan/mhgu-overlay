@@ -24,6 +24,10 @@ APP_AUTHOR := Jing Haihan
 APP_VERSION := $(shell tr -d '[:space:]' < $(TOPDIR)/VERSION)
 NO_ICON := 1
 
+ifeq ($(strip $(NO_NACP)),)
+export NROFLAGS += --nacp=$(TOPDIR)/$(TARGET).nacp
+endif
+
 ARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS := -g -Wall -Wextra -Werror \
 	-Wno-error=missing-field-initializers \
@@ -38,7 +42,7 @@ LDFLAGS := -specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) \
 LIBS := -lnx
 LIBDIRS := $(PORTLIBS) $(LIBNX)
 
-.PHONY: all clean
+.PHONY: all clean $(BUILD)
 
 ifneq ($(BUILD),$(notdir $(CURDIR)))
 
@@ -63,18 +67,20 @@ export LIBPATHS := $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 $(BUILD):
 	@mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	@cp $(TARGET).nro $(TARGET).ovl
 
 clean:
-	@rm -rf $(BUILD) $(TARGET).elf $(TARGET).nro $(TARGET).ovl $(TARGET).map
+	@rm -rf $(BUILD) $(TARGET).elf $(TARGET).nro $(TARGET).ovl \
+		$(TARGET).nacp $(TARGET).map
 
 else
 
 DEPENDS := $(OFILES:.o=.d)
 
-all: $(OUTPUT).nro
+all: $(OUTPUT).ovl
 
-$(OUTPUT).nro: $(OUTPUT).elf
+$(OUTPUT).ovl: $(OUTPUT).elf $(OUTPUT).nacp
+	@elf2nro $< $@ $(NROFLAGS)
+	@echo "built ... $(notdir $@)"
 
 $(OUTPUT).elf: $(OFILES)
 
