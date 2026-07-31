@@ -6,16 +6,12 @@ Switch.
 [![build](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml/badge.svg)](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+![MHGU Overlay compact HUD](screenshot.jpg)
+
 > [!IMPORTANT]
 > The current target is **MHGU 1.4.0 on Nintendo Switch**. The overlay builds
 > successfully in CI, but its memory profile and size-writing behavior still
 > require systematic testing on real hardware.
-
-## Screenshot
-
-<!-- Replace this note only with a screenshot captured from this project. -->
-
-> Project-owned hardware screenshot coming soon.
 
 ## Features
 
