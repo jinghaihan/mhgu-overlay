@@ -61,6 +61,14 @@
 - A green CI build proves compilation and host-test success only. Track real
   hardware behavior separately.
 
+## Formatting
+
+- Use two spaces for indentation in C++, Python, JSON, YAML, and other text
+  files.
+- Preserve the required tab indentation for Makefile recipes.
+- Follow `.editorconfig` and format C++ files with the repository's
+  `.clang-format` rules.
+
 ## Git and releases
 
 - Use Conventional Commits, for example:

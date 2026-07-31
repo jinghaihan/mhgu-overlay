@@ -1,0 +1,7 @@
+line-length = 88
+indent-width = 2
+target-version = "py39"
+
+[format]
+indent-style = "space"
+quote-style = "double"

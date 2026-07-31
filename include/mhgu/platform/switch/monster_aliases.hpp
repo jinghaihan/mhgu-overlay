@@ -8,8 +8,8 @@
 namespace mhgu::platform::switch_adapter {
 
 struct MonsterAlias {
-    std::uint32_t raw_id;
-    core::MonsterId monster_id;
+  std::uint32_t raw_id;
+  core::MonsterId monster_id;
 };
 
 const MonsterAlias* find_monster_alias(std::uint32_t raw_id);

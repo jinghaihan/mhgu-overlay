@@ -7,38 +7,38 @@ namespace mhgu::core {
 namespace {
 
 constexpr const char* kMessages[][3] = {
-    {"MHGU Overlay", "MHGU 怪物信息", "MHGU モンスター情報"},
-    {"MHGU 1.4.0 is not running", "未检测到 MHGU 1.4.0", "MHGU 1.4.0 が起動していません"},
-    {"No large monsters", "未发现大型怪物", "大型モンスターがいません"},
-    {"Size", "体型", "サイズ"},
-    {"Language", "语言", "言語"},
-    {"Automatic", "自动", "自動"},
-    {"Size lock", "体型锁定", "サイズ固定"},
-    {"Off", "关闭", "オフ"},
-    {"Mini crown", "小金冠", "小冠"},
-    {"Silver crown", "大银冠", "銀冠"},
-    {"Gold crown", "大金冠", "金冠"},
-    {"Find monster list", "查找怪物列表", "モンスターリストを検索"},
-    {"Scanning game memory", "正在扫描游戏内存", "ゲームメモリを検索中"},
-    {"Ready", "已就绪", "準備完了"},
-    {"Unsupported game version", "不支持的游戏版本", "未対応のゲームバージョン"},
-    {"Size write failed", "体型写入失败", "サイズの書き込みに失敗"},
-    {"Hyper", "狞猛", "獰猛"},
-    {"Open compact HUD", "打开紧凑 HUD", "コンパクト HUD を開く"},
-    {"Hold L Stick + R Stick to return", "同时按住左右摇杆返回", "L/R スティックを押し続けて戻る"},
+  {"MHGU Overlay", "MHGU 怪物信息", "MHGU モンスター情報"},
+  {"MHGU 1.4.0 is not running", "未检测到 MHGU 1.4.0", "MHGU 1.4.0 が起動していません"},
+  {"No large monsters", "未发现大型怪物", "大型モンスターがいません"},
+  {"Size", "体型", "サイズ"},
+  {"Language", "语言", "言語"},
+  {"Automatic", "自动", "自動"},
+  {"Size lock", "体型锁定", "サイズ固定"},
+  {"Off", "关闭", "オフ"},
+  {"Mini crown", "小金冠", "小冠"},
+  {"Silver crown", "大银冠", "銀冠"},
+  {"Gold crown", "大金冠", "金冠"},
+  {"Find monster list", "查找怪物列表", "モンスターリストを検索"},
+  {"Scanning game memory", "正在扫描游戏内存", "ゲームメモリを検索中"},
+  {"Ready", "已就绪", "準備完了"},
+  {"Unsupported game version", "不支持的游戏版本", "未対応のゲームバージョン"},
+  {"Size write failed", "体型写入失败", "サイズの書き込みに失敗"},
+  {"Hyper", "狞猛", "獰猛"},
+  {"Open compact HUD", "打开紧凑 HUD", "コンパクト HUD を開く"},
+  {"Hold L Stick + R Stick to return", "同时按住左右摇杆返回", "L/R スティックを押し続けて戻る"},
 };
 
 }  // namespace
 
 const char* ui_message(const UiMessage message, const Locale locale) {
-    const auto row = static_cast<std::size_t>(message);
-    auto column = std::size_t{0};
-    if (locale == Locale::SimplifiedChinese) {
-        column = 1;
-    } else if (locale == Locale::Japanese) {
-        column = 2;
-    }
-    return kMessages[row][column];
+  const auto row = static_cast<std::size_t>(message);
+  auto column = std::size_t{0};
+  if (locale == Locale::SimplifiedChinese) {
+    column = 1;
+  } else if (locale == Locale::Japanese) {
+    column = 2;
+  }
+  return kMessages[row][column];
 }
 
 }  // namespace mhgu::core

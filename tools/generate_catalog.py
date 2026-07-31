@@ -11,129 +11,122 @@ ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = ROOT / "data" / "catalog" / "monsters.json"
 LEGAL_RANGES_PATH = ROOT / "data" / "catalog" / "legal-size-ranges.json"
 LOCALE_PATHS = {
-    "en": ROOT / "data" / "locales" / "en.json",
-    "zh-Hans": ROOT / "data" / "locales" / "zh-Hans.json",
-    "ja": ROOT / "data" / "locales" / "ja.json",
+  "en": ROOT / "data" / "locales" / "en.json",
+  "zh-Hans": ROOT / "data" / "locales" / "zh-Hans.json",
+  "ja": ROOT / "data" / "locales" / "ja.json",
 }
 CORE_OUTPUT = ROOT / "source" / "generated" / "catalog.cpp"
 MESSAGES_OUTPUT = ROOT / "source" / "generated" / "messages.cpp"
 ALIAS_OUTPUT = ROOT / "source" / "generated" / "switch_aliases.cpp"
 
 UI_KEYS = [
-    "title",
-    "notRunning",
-    "noMonsters",
-    "size",
-    "language",
-    "automatic",
-    "sizePreset",
-    "off",
-    "mini",
-    "silver",
-    "gold",
-    "scan",
-    "scanning",
-    "ready",
-    "unsupported",
-    "writeFailed",
-    "hyper",
-    "hud",
-    "backHint",
+  "title",
+  "notRunning",
+  "noMonsters",
+  "size",
+  "language",
+  "automatic",
+  "sizePreset",
+  "off",
+  "mini",
+  "silver",
+  "gold",
+  "scan",
+  "scanning",
+  "ready",
+  "unsupported",
+  "writeFailed",
+  "hyper",
+  "hud",
+  "backHint",
 ]
 
 
 def cpp_string(value: str) -> str:
-    return json.dumps(value, ensure_ascii=False)
+  return json.dumps(value, ensure_ascii=False)
 
 
 def load_inputs() -> tuple[dict, dict[str, dict], dict]:
-    catalog = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
-    legal_ranges = json.loads(
-        LEGAL_RANGES_PATH.read_text(encoding="utf-8")
-    )["monsters"]
-    locales = {
-        name: json.loads(path.read_text(encoding="utf-8"))
-        for name, path in LOCALE_PATHS.items()
-    }
-    expected = {monster["key"] for monster in catalog["monsters"]}
-    for name, locale in locales.items():
-        actual = set(locale["monsters"])
-        if actual != expected:
-            missing = sorted(expected - actual)
-            extra = sorted(actual - expected)
-            raise ValueError(
-                f"{name} monster keys differ; missing={missing}, extra={extra}"
-            )
-        missing_ui = [key for key in UI_KEYS if key not in locale["ui"]]
-        if missing_ui:
-            raise ValueError(f"{name} is missing UI keys: {missing_ui}")
+  catalog = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
+  legal_ranges = json.loads(LEGAL_RANGES_PATH.read_text(encoding="utf-8"))["monsters"]
+  locales = {
+    name: json.loads(path.read_text(encoding="utf-8"))
+    for name, path in LOCALE_PATHS.items()
+  }
+  expected = {monster["key"] for monster in catalog["monsters"]}
+  for name, locale in locales.items():
+    actual = set(locale["monsters"])
+    if actual != expected:
+      missing = sorted(expected - actual)
+      extra = sorted(actual - expected)
+      raise ValueError(f"{name} monster keys differ; missing={missing}, extra={extra}")
+    missing_ui = [key for key in UI_KEYS if key not in locale["ui"]]
+    if missing_ui:
+      raise ValueError(f"{name} is missing UI keys: {missing_ui}")
 
-    expected_ranges = {
-        monster["key"]
-        for monster in catalog["monsters"]
-        if monster["variableSize"]
-    }
-    actual_ranges = set(legal_ranges)
-    if actual_ranges != expected_ranges:
-        raise ValueError(
-            "legal size range keys differ; "
-            f"missing={sorted(expected_ranges - actual_ranges)}, "
-            f"extra={sorted(actual_ranges - expected_ranges)}"
-        )
-    for monster in catalog["monsters"]:
-        if not monster["variableSize"]:
-            continue
-        size_range = legal_ranges[monster["key"]]
-        crowns = monster["crowns"]
-        if (
-            size_range["minPercent"] != crowns["miniPercent"] or
-            size_range["maxPercent"] != crowns["goldPercent"] or
-            not (
-                50 <= size_range["minPercent"] <
-                100 <
-                crowns["silverPercent"] <=
-                size_range["maxPercent"] <=
-                200
-            )
-        ):
-            raise ValueError(
-                f'{monster["key"]} has an invalid legal size range'
-            )
-    return catalog, locales, legal_ranges
+  expected_ranges = {
+    monster["key"] for monster in catalog["monsters"] if monster["variableSize"]
+  }
+  actual_ranges = set(legal_ranges)
+  if actual_ranges != expected_ranges:
+    raise ValueError(
+      "legal size range keys differ; "
+      f"missing={sorted(expected_ranges - actual_ranges)}, "
+      f"extra={sorted(actual_ranges - expected_ranges)}"
+    )
+  for monster in catalog["monsters"]:
+    if not monster["variableSize"]:
+      continue
+    size_range = legal_ranges[monster["key"]]
+    crowns = monster["crowns"]
+    if (
+      size_range["minPercent"] != crowns["miniPercent"]
+      or size_range["maxPercent"] != crowns["goldPercent"]
+      or not (
+        50
+        <= size_range["minPercent"]
+        < 100
+        < crowns["silverPercent"]
+        <= size_range["maxPercent"]
+        <= 200
+      )
+    ):
+      raise ValueError(f"{monster['key']} has an invalid legal size range")
+  return catalog, locales, legal_ranges
 
 
 def generate_core(
-    catalog: dict,
-    locales: dict[str, dict],
-    legal_ranges: dict,
+  catalog: dict,
+  locales: dict[str, dict],
+  legal_ranges: dict,
 ) -> str:
-    rows = []
-    for monster in catalog["monsters"]:
-        key = monster["key"]
-        crowns = monster["crowns"]
-        size_range = legal_ranges.get(
-            key,
-            {"minPercent": 100, "maxPercent": 100},
-        )
-        rows.append(
-            "    {"
-            f'{monster["id"]}, {cpp_string(key)}, '
-            "{"
-            f'{cpp_string(locales["en"]["monsters"][key])}, '
-            f'{cpp_string(locales["zh-Hans"]["monsters"][key])}, '
-            f'{cpp_string(locales["ja"]["monsters"][key])}'
-            "}, "
-            f'{monster["baseSizeX100"]}, '
-            f'{crowns["miniPercent"]}, '
-            f'{crowns["silverPercent"]}, '
-            f'{crowns["goldPercent"]}, '
-            f'{size_range["minPercent"]}, '
-            f'{size_range["maxPercent"]}, '
-            f'{"true" if monster["variableSize"] else "false"}'
-            "},"
-        )
+  rows = []
+  for monster in catalog["monsters"]:
+    key = monster["key"]
+    crowns = monster["crowns"]
+    size_range = legal_ranges.get(
+      key,
+      {"minPercent": 100, "maxPercent": 100},
+    )
+    rows.append(
+      "  {"
+      f"{monster['id']}, {cpp_string(key)}, "
+      "{"
+      f"{cpp_string(locales['en']['monsters'][key])}, "
+      f"{cpp_string(locales['zh-Hans']['monsters'][key])}, "
+      f"{cpp_string(locales['ja']['monsters'][key])}"
+      "}, "
+      f"{monster['baseSizeX100']}, "
+      f"{crowns['miniPercent']}, "
+      f"{crowns['silverPercent']}, "
+      f"{crowns['goldPercent']}, "
+      f"{size_range['minPercent']}, "
+      f"{size_range['maxPercent']}, "
+      f"{'true' if monster['variableSize'] else 'false'}"
+      "},"
+    )
 
-    return f"""// Generated by tools/generate_catalog.py. Do not edit.
+  return f"""// Generated by tools/generate_catalog.py. Do not edit.
 #include "mhgu/core/catalog.hpp"
 
 #include <cstring>
@@ -148,32 +141,32 @@ constexpr MonsterDefinition kMonsters[] = {{
 }}  // namespace
 
 const MonsterDefinition* find_monster(const MonsterId id) {{
-    for (const auto& monster : kMonsters) {{
-        if (monster.id == id) {{
-            return &monster;
-        }}
+  for (const auto& monster : kMonsters) {{
+    if (monster.id == id) {{
+      return &monster;
     }}
-    return nullptr;
+  }}
+  return nullptr;
 }}
 
 const MonsterDefinition* find_monster_by_key(const char* key) {{
-    if (key == nullptr) {{
-        return nullptr;
-    }}
-    for (const auto& monster : kMonsters) {{
-        if (std::strcmp(monster.key, key) == 0) {{
-            return &monster;
-        }}
-    }}
+  if (key == nullptr) {{
     return nullptr;
+  }}
+  for (const auto& monster : kMonsters) {{
+    if (std::strcmp(monster.key, key) == 0) {{
+      return &monster;
+    }}
+  }}
+  return nullptr;
 }}
 
 const MonsterDefinition* monster_catalog() {{
-    return kMonsters;
+  return kMonsters;
 }}
 
 std::size_t monster_catalog_size() {{
-    return sizeof(kMonsters) / sizeof(kMonsters[0]);
+  return sizeof(kMonsters) / sizeof(kMonsters[0]);
 }}
 
 }}  // namespace mhgu::core
@@ -181,16 +174,16 @@ std::size_t monster_catalog_size() {{
 
 
 def generate_messages(locales: dict[str, dict]) -> str:
-    rows = []
-    for key in UI_KEYS:
-        rows.append(
-            "    {"
-            f'{cpp_string(locales["en"]["ui"][key])}, '
-            f'{cpp_string(locales["zh-Hans"]["ui"][key])}, '
-            f'{cpp_string(locales["ja"]["ui"][key])}'
-            "},"
-        )
-    return f"""// Generated by tools/generate_catalog.py. Do not edit.
+  rows = []
+  for key in UI_KEYS:
+    rows.append(
+      "  {"
+      f"{cpp_string(locales['en']['ui'][key])}, "
+      f"{cpp_string(locales['zh-Hans']['ui'][key])}, "
+      f"{cpp_string(locales['ja']['ui'][key])}"
+      "},"
+    )
+  return f"""// Generated by tools/generate_catalog.py. Do not edit.
 #include "mhgu/core/messages.hpp"
 
 #include <cstddef>
@@ -205,14 +198,14 @@ constexpr const char* kMessages[][3] = {{
 }}  // namespace
 
 const char* ui_message(const UiMessage message, const Locale locale) {{
-    const auto row = static_cast<std::size_t>(message);
-    auto column = std::size_t{{0}};
-    if (locale == Locale::SimplifiedChinese) {{
-        column = 1;
-    }} else if (locale == Locale::Japanese) {{
-        column = 2;
-    }}
-    return kMessages[row][column];
+  const auto row = static_cast<std::size_t>(message);
+  auto column = std::size_t{{0}};
+  if (locale == Locale::SimplifiedChinese) {{
+    column = 1;
+  }} else if (locale == Locale::Japanese) {{
+    column = 2;
+  }}
+  return kMessages[row][column];
 }}
 
 }}  // namespace mhgu::core
@@ -220,19 +213,16 @@ const char* ui_message(const UiMessage message, const Locale locale) {{
 
 
 def generate_aliases(catalog: dict) -> str:
-    rows = [
-        (
-            int(monster["switch"]["rawId"], 16),
-            monster["id"],
-        )
-        for monster in catalog["monsters"]
-    ]
-    rows.sort()
-    entries = [
-        f"    {{0x{raw_id:06X}, {monster_id}}},"
-        for raw_id, monster_id in rows
-    ]
-    return f"""// Generated by tools/generate_catalog.py. Do not edit.
+  rows = [
+    (
+      int(monster["switch"]["rawId"], 16),
+      monster["id"],
+    )
+    for monster in catalog["monsters"]
+  ]
+  rows.sort()
+  entries = [f"  {{0x{raw_id:06X}, {monster_id}}}," for raw_id, monster_id in rows]
+  return f"""// Generated by tools/generate_catalog.py. Do not edit.
 #include "mhgu/platform/switch/monster_aliases.hpp"
 
 namespace mhgu::platform::switch_adapter {{
@@ -245,20 +235,20 @@ constexpr MonsterAlias kAliases[] = {{
 }}  // namespace
 
 const MonsterAlias* find_monster_alias(const std::uint32_t raw_id) {{
-    for (const auto& alias : kAliases) {{
-        if (alias.raw_id == raw_id) {{
-            return &alias;
-        }}
+  for (const auto& alias : kAliases) {{
+    if (alias.raw_id == raw_id) {{
+      return &alias;
     }}
-    return nullptr;
+  }}
+  return nullptr;
 }}
 
 const MonsterAlias* monster_aliases() {{
-    return kAliases;
+  return kAliases;
 }}
 
 std::size_t monster_alias_count() {{
-    return sizeof(kAliases) / sizeof(kAliases[0]);
+  return sizeof(kAliases) / sizeof(kAliases[0]);
 }}
 
 }}  // namespace mhgu::platform::switch_adapter
@@ -266,17 +256,17 @@ std::size_t monster_alias_count() {{
 
 
 def main() -> None:
-    catalog, locales, legal_ranges = load_inputs()
-    outputs = {
-        CORE_OUTPUT: generate_core(catalog, locales, legal_ranges),
-        MESSAGES_OUTPUT: generate_messages(locales),
-        ALIAS_OUTPUT: generate_aliases(catalog),
-    }
-    for path, content in outputs.items():
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
-    print(f"Generated C++ tables for {len(catalog['monsters'])} monsters")
+  catalog, locales, legal_ranges = load_inputs()
+  outputs = {
+    CORE_OUTPUT: generate_core(catalog, locales, legal_ranges),
+    MESSAGES_OUTPUT: generate_messages(locales),
+    ALIAS_OUTPUT: generate_aliases(catalog),
+  }
+  for path, content in outputs.items():
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+  print(f"Generated C++ tables for {len(catalog['monsters'])} monsters")
 
 
 if __name__ == "__main__":
-    main()
+  main()

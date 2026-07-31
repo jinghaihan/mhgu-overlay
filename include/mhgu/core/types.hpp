@@ -12,103 +12,103 @@ using MonsterId = std::uint16_t;
 using MonsterHandle = std::uint64_t;
 
 enum class GameId : std::uint8_t {
-    Unknown,
-    Mhgu,
-    Mhxx,
+  Unknown,
+  Mhgu,
+  Mhxx,
 };
 
 enum class Locale : std::uint8_t {
-    English,
-    SimplifiedChinese,
-    Japanese,
+  English,
+  SimplifiedChinese,
+  Japanese,
 };
 
 enum class LocaleMode : std::uint8_t {
-    Auto,
-    English,
-    SimplifiedChinese,
-    Japanese,
+  Auto,
+  English,
+  SimplifiedChinese,
+  Japanese,
 };
 
 enum class Crown : std::uint8_t {
-    None,
-    Mini,
-    Silver,
-    Gold,
+  None,
+  Mini,
+  Silver,
+  Gold,
 };
 
 enum class SizePreset : std::uint8_t {
-    Off,
-    Mini,
-    Silver,
-    Gold,
+  Off,
+  Mini,
+  Silver,
+  Gold,
 };
 
 struct LocalizedNames {
-    const char* english;
-    const char* simplified_chinese;
-    const char* japanese;
+  const char* english;
+  const char* simplified_chinese;
+  const char* japanese;
 };
 
 struct MonsterDefinition {
-    MonsterId id;
-    const char* key;
-    LocalizedNames names;
-    std::uint32_t base_size_x100;
-    std::uint16_t mini_percent;
-    std::uint16_t silver_percent;
-    std::uint16_t gold_percent;
-    std::uint16_t legal_min_percent;
-    std::uint16_t legal_max_percent;
-    bool variable_size;
+  MonsterId id;
+  const char* key;
+  LocalizedNames names;
+  std::uint32_t base_size_x100;
+  std::uint16_t mini_percent;
+  std::uint16_t silver_percent;
+  std::uint16_t gold_percent;
+  std::uint16_t legal_min_percent;
+  std::uint16_t legal_max_percent;
+  bool variable_size;
 };
 
 struct MonsterSnapshot {
-    MonsterHandle handle;
-    MonsterId monster_id;
-    std::uint32_t hp;
-    std::uint32_t max_hp;
-    std::uint16_t size_percent;
-    bool hyper;
+  MonsterHandle handle;
+  MonsterId monster_id;
+  std::uint32_t hp;
+  std::uint32_t max_hp;
+  std::uint16_t size_percent;
+  bool hyper;
 };
 
 struct GameSnapshot {
-    GameId game;
-    Locale detected_locale;
-    std::array<MonsterSnapshot, kMaxMonsters> monsters{};
-    std::size_t monster_count{};
+  GameId game;
+  Locale detected_locale;
+  std::array<MonsterSnapshot, kMaxMonsters> monsters{};
+  std::size_t monster_count{};
 };
 
 struct CoreSettings {
-    LocaleMode locale_mode{LocaleMode::Auto};
-    SizePreset size_preset{SizePreset::Off};
+  LocaleMode locale_mode{LocaleMode::Auto};
+  SizePreset size_preset{SizePreset::Off};
 };
 
 struct MonsterView {
-    MonsterHandle handle;
-    MonsterId monster_id;
-    const char* name;
-    std::uint32_t hp;
-    std::uint32_t max_hp;
-    std::uint16_t hp_percent_x10;
-    std::uint16_t size_percent;
-    std::uint32_t actual_size_x100;
-    Crown crown;
-    bool hyper;
+  MonsterHandle handle;
+  MonsterId monster_id;
+  const char* name;
+  std::uint32_t hp;
+  std::uint32_t max_hp;
+  std::uint16_t hp_percent_x10;
+  std::uint16_t size_percent;
+  std::uint32_t actual_size_x100;
+  Crown crown;
+  bool hyper;
 };
 
 struct SizeWriteRequest {
-    MonsterHandle handle;
-    MonsterId monster_id;
-    std::uint16_t target_percent;
+  MonsterHandle handle;
+  MonsterId monster_id;
+  std::uint16_t target_percent;
 };
 
 struct CoreOutput {
-    Locale locale{Locale::English};
-    std::array<MonsterView, kMaxMonsters> monsters{};
-    std::size_t monster_count{};
-    std::array<SizeWriteRequest, kMaxMonsters> writes{};
-    std::size_t write_count{};
+  Locale locale{Locale::English};
+  std::array<MonsterView, kMaxMonsters> monsters{};
+  std::size_t monster_count{};
+  std::array<SizeWriteRequest, kMaxMonsters> writes{};
+  std::size_t write_count{};
 };
 
 }  // namespace mhgu::core

@@ -11,46 +11,46 @@
 namespace mhgu::platform::switch_adapter {
 
 enum class SessionStatus : std::uint8_t {
-    NoGame,
-    Unsupported,
-    Searching,
-    Ready,
-    ReadFailed,
-    WriteFailed,
+  NoGame,
+  Unsupported,
+  Searching,
+  Ready,
+  ReadFailed,
+  WriteFailed,
 };
 
 struct SessionView {
-    SessionStatus status{SessionStatus::NoGame};
-    core::GameId game{core::GameId::Unknown};
-    core::Locale detected_locale{core::Locale::English};
-    core::CoreOutput output{};
-    const char* profile_name{};
-    std::uint64_t title_id{};
-    std::uint64_t pointer_list{};
+  SessionStatus status{SessionStatus::NoGame};
+  core::GameId game{core::GameId::Unknown};
+  core::Locale detected_locale{core::Locale::English};
+  core::CoreOutput output{};
+  const char* profile_name{};
+  std::uint64_t title_id{};
+  std::uint64_t pointer_list{};
 };
 
 class GameSession {
 public:
-    bool initialize();
-    void shutdown();
-    void poll(const core::CoreSettings& settings);
-    void request_rescan();
+  bool initialize();
+  void shutdown();
+  void poll(const core::CoreSettings& settings);
+  void request_rescan();
 
-    const SessionView& view() const;
+  const SessionView& view() const;
 
 private:
-    bool attach();
-    void detach(SessionStatus status);
+  bool attach();
+  void detach(SessionStatus status);
 
-    bool initialized_{};
-    DmntMemoryAccess memory_{};
-    const GameProfile* profile_{};
-    std::unique_ptr<MonsterReader> reader_{};
-    core::Engine engine_{};
-    SessionView view_{};
-    std::uint64_t process_id_{};
-    std::uint64_t heap_base_{};
-    std::uint64_t heap_size_{};
+  bool initialized_{};
+  DmntMemoryAccess memory_{};
+  const GameProfile* profile_{};
+  std::unique_ptr<MonsterReader> reader_{};
+  core::Engine engine_{};
+  SessionView view_{};
+  std::uint64_t process_id_{};
+  std::uint64_t heap_base_{};
+  std::uint64_t heap_size_{};
 };
 
 }  // namespace mhgu::platform::switch_adapter

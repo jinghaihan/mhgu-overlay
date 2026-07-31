@@ -17,272 +17,217 @@ namespace {
 
 class FakeMemory final : public mhgu::platform::switch_adapter::MemoryAccess {
 public:
-    explicit FakeMemory(const std::size_t size) : bytes_(size) {}
+  explicit FakeMemory(const std::size_t size)
+    : bytes_(size) {}
 
-    bool read(
-        const std::uint64_t address,
-        void* destination,
-        const std::size_t size
-    ) override {
-        if (address > bytes_.size() || size > bytes_.size() - address) {
-            return false;
-        }
-        std::memcpy(destination, bytes_.data() + address, size);
-        return true;
+  bool read(
+    const std::uint64_t address, void* destination, const std::size_t size
+  ) override {
+    if (address > bytes_.size() || size > bytes_.size() - address) {
+      return false;
     }
+    std::memcpy(destination, bytes_.data() + address, size);
+    return true;
+  }
 
-    bool write(
-        const std::uint64_t address,
-        const void* source,
-        const std::size_t size
-    ) override {
-        if (address > bytes_.size() || size > bytes_.size() - address) {
-            return false;
-        }
-        std::memcpy(bytes_.data() + address, source, size);
-        ++write_count_;
-        return true;
+  bool write(
+    const std::uint64_t address, const void* source, const std::size_t size
+  ) override {
+    if (address > bytes_.size() || size > bytes_.size() - address) {
+      return false;
     }
+    std::memcpy(bytes_.data() + address, source, size);
+    ++write_count_;
+    return true;
+  }
 
-    template <typename T>
-    void store(const std::size_t address, const T& value) {
-        assert(write(address, &value, sizeof(value)));
-    }
+  template <typename T> void store(const std::size_t address, const T& value) {
+    assert(write(address, &value, sizeof(value)));
+  }
 
-    std::size_t write_count() const {
-        return write_count_;
-    }
+  std::size_t write_count() const {
+    return write_count_;
+  }
 
 private:
-    std::vector<std::uint8_t> bytes_;
-    std::size_t write_count_{};
+  std::vector<std::uint8_t> bytes_;
+  std::size_t write_count_{};
 };
 
 }  // namespace
 
 int main() {
-    using namespace mhgu;
-    using namespace platform::switch_adapter;
+  using namespace mhgu;
+  using namespace platform::switch_adapter;
 
-    std::array<std::uint8_t, 0x20> build_id{};
-    std::copy(
-        kMhgu140BuildId.begin(),
-        kMhgu140BuildId.end(),
-        build_id.begin()
-    );
-    const auto* matched_profile = profile_for_process(
-        kMhguTitleId,
-        build_id.data(),
-        build_id.size()
-    );
-    assert(matched_profile != nullptr);
-    assert(
-        profile_for_process(
-            kMhxxTitleId,
-            build_id.data(),
-            build_id.size()
-        ) == nullptr
-    );
-    build_id[0] ^= 0xFFU;
-    assert(
-        profile_for_process(
-            kMhguTitleId,
-            build_id.data(),
-            build_id.size()
-        ) == nullptr
-    );
-    build_id[0] ^= 0xFFU;
+  std::array<std::uint8_t, 0x20> build_id{};
+  std::copy(kMhgu140BuildId.begin(), kMhgu140BuildId.end(), build_id.begin());
+  const auto* matched_profile =
+    profile_for_process(kMhguTitleId, build_id.data(), build_id.size());
+  assert(matched_profile != nullptr);
+  assert(
+    profile_for_process(kMhxxTitleId, build_id.data(), build_id.size()) ==
+    nullptr
+  );
+  build_id[0] ^= 0xFFU;
+  assert(
+    profile_for_process(kMhguTitleId, build_id.data(), build_id.size()) ==
+    nullptr
+  );
+  build_id[0] ^= 0xFFU;
 
-    auto profile = *matched_profile;
-    profile.scan_start_from_heap = 0x100;
-    profile.scan_end_from_heap = 0x1000;
+  auto profile = *matched_profile;
+  profile.scan_start_from_heap = 0x100;
+  profile.scan_end_from_heap = 0x1000;
 
-    constexpr std::uint64_t kList = 0x200;
-    constexpr std::uint32_t kMonster = 0x4000;
-    FakeMemory memory(0x20000);
-    const std::uint8_t one = 1;
-    memory.store(kList, one);
-    memory.store(kList + 1, one);
-    memory.store(kList + profile.pointer_list.pointers, kMonster);
-    memory.store(kList + profile.pointer_list.count, one);
+  constexpr std::uint64_t kList = 0x200;
+  constexpr std::uint32_t kMonster = 0x4000;
+  FakeMemory memory(0x20000);
+  const std::uint8_t one = 1;
+  memory.store(kList, one);
+  memory.store(kList + 1, one);
+  memory.store(kList + profile.pointer_list.pointers, kMonster);
+  memory.store(kList + profile.pointer_list.count, one);
 
-    const std::uint8_t secondary = 0x44;
-    const std::uint8_t current_location =
-        profile.monster.current_location_value;
-    const std::uint16_t primary = 0x2220;
-    const std::uint32_t health = 4000;
-    const std::uint32_t maximum_health = 5000;
-    const float size = 1.0F;
-    memory.store(
-        kMonster + profile.monster.location_flag,
-        current_location
-    );
-    memory.store(
-        kMonster + profile.monster.secondary_identifier,
-        secondary
-    );
-    memory.store(kMonster + profile.monster.primary_identifier, primary);
-    memory.store(kMonster + profile.monster.health, health);
-    memory.store(kMonster + profile.monster.maximum_health, maximum_health);
-    memory.store(kMonster + profile.monster.size_multiplier, size);
+  const std::uint8_t secondary = 0x44;
+  const std::uint8_t current_location = profile.monster.current_location_value;
+  const std::uint16_t primary = 0x2220;
+  const std::uint32_t health = 4000;
+  const std::uint32_t maximum_health = 5000;
+  const float size = 1.0F;
+  memory.store(kMonster + profile.monster.location_flag, current_location);
+  memory.store(kMonster + profile.monster.secondary_identifier, secondary);
+  memory.store(kMonster + profile.monster.primary_identifier, primary);
+  memory.store(kMonster + profile.monster.health, health);
+  memory.store(kMonster + profile.monster.maximum_health, maximum_health);
+  memory.store(kMonster + profile.monster.size_multiplier, size);
 
-    assert(normalized_raw_id(primary, secondary) == 0x222044);
-    assert(normalized_raw_id(0x21C0, secondary) == 0x222044);
-    assert(resolve_monster(primary, secondary).monster_id != 0);
-    const auto hyper = resolve_monster(primary, 0x4C);
-    assert(hyper.monster_id == resolve_monster(primary, secondary).monster_id);
-    assert(hyper.hyper);
-    assert(locale_from_switch_language(0) == core::Locale::Japanese);
-    assert(locale_from_switch_language(6) == core::Locale::SimplifiedChinese);
-    assert(locale_from_switch_language(15) == core::Locale::SimplifiedChinese);
-    assert(locale_from_switch_language(7) == core::Locale::English);
-    assert(locale_from_switch_language(2) == core::Locale::English);
+  assert(normalized_raw_id(primary, secondary) == 0x222044);
+  assert(normalized_raw_id(0x21C0, secondary) == 0x222044);
+  assert(resolve_monster(primary, secondary).monster_id != 0);
+  const auto hyper = resolve_monster(primary, 0x4C);
+  assert(hyper.monster_id == resolve_monster(primary, secondary).monster_id);
+  assert(hyper.hyper);
+  assert(locale_from_switch_language(0) == core::Locale::Japanese);
+  assert(locale_from_switch_language(6) == core::Locale::SimplifiedChinese);
+  assert(locale_from_switch_language(15) == core::Locale::SimplifiedChinese);
+  assert(locale_from_switch_language(7) == core::Locale::English);
+  assert(locale_from_switch_language(2) == core::Locale::English);
 
-    MonsterReader reader(memory, profile, 0, 0x18000);
-    assert(reader.find_pointer_list() == kList);
-    assert(reader.validate_pointer_list(kList));
+  MonsterReader reader(memory, profile, 0, 0x18000);
+  assert(reader.find_pointer_list() == kList);
+  assert(reader.validate_pointer_list(kList));
 
-    core::GameSnapshot snapshot{};
-    assert(reader.read_snapshot(kList, core::Locale::English, snapshot));
-    assert(snapshot.game == core::GameId::Mhgu);
-    assert(snapshot.monster_count == 1);
-    assert(snapshot.monsters[0].hp == health);
-    assert(snapshot.monsters[0].max_hp == maximum_health);
-    assert(snapshot.monsters[0].size_percent == 100);
+  core::GameSnapshot snapshot{};
+  assert(reader.read_snapshot(kList, core::Locale::English, snapshot));
+  assert(snapshot.game == core::GameId::Mhgu);
+  assert(snapshot.monster_count == 1);
+  assert(snapshot.monsters[0].hp == health);
+  assert(snapshot.monsters[0].max_hp == maximum_health);
+  assert(snapshot.monsters[0].size_percent == 100);
 
-    const auto* rathian = core::find_monster_by_key("rathian");
-    assert(rathian != nullptr);
-    assert(snapshot.monsters[0].monster_id == rathian->id);
-    core::SizeWriteRequest request{
-        kMonster,
-        rathian->id,
-        rathian->gold_percent,
-    };
-    std::uint16_t verified{};
-    assert(reader.apply_size(kList, request, verified));
-    assert(verified == rathian->gold_percent);
+  const auto* rathian = core::find_monster_by_key("rathian");
+  assert(rathian != nullptr);
+  assert(snapshot.monsters[0].monster_id == rathian->id);
+  core::SizeWriteRequest request{
+    kMonster,
+    rathian->id,
+    rathian->gold_percent,
+  };
+  std::uint16_t verified{};
+  assert(reader.apply_size(kList, request, verified));
+  assert(verified == rathian->gold_percent);
 
-    core::GameSnapshot changed{};
-    assert(reader.read_snapshot(kList, core::Locale::English, changed));
-    assert(changed.monsters[0].size_percent == rathian->gold_percent);
+  core::GameSnapshot changed{};
+  assert(reader.read_snapshot(kList, core::Locale::English, changed));
+  assert(changed.monsters[0].size_percent == rathian->gold_percent);
 
-    request.target_percent = rathian->legal_max_percent + 1;
-    assert(!reader.apply_size(kList, request, verified));
-    core::GameSnapshot rejected{};
-    assert(reader.read_snapshot(kList, core::Locale::English, rejected));
-    assert(rejected.monsters[0].size_percent == rathian->gold_percent);
+  request.target_percent = rathian->legal_max_percent + 1;
+  assert(!reader.apply_size(kList, request, verified));
+  core::GameSnapshot rejected{};
+  assert(reader.read_snapshot(kList, core::Locale::English, rejected));
+  assert(rejected.monsters[0].size_percent == rathian->gold_percent);
 
-    constexpr std::uint64_t kOutsideHeap = 0x18000;
-    memory.store(
-        kOutsideHeap + profile.monster.location_flag,
-        current_location
-    );
-    memory.store(
-        kOutsideHeap + profile.monster.secondary_identifier,
-        secondary
-    );
-    memory.store(
-        kOutsideHeap + profile.monster.primary_identifier,
-        primary
-    );
-    memory.store(
-        kOutsideHeap + profile.monster.size_multiplier,
-        size
-    );
-    request.handle = kOutsideHeap;
-    request.target_percent = rathian->mini_percent;
-    const auto writes_before_rejection = memory.write_count();
-    assert(!reader.apply_size(kList, request, verified));
-    assert(memory.write_count() == writes_before_rejection);
-    request.handle = kMonster;
+  constexpr std::uint64_t kOutsideHeap = 0x18000;
+  memory.store(kOutsideHeap + profile.monster.location_flag, current_location);
+  memory.store(kOutsideHeap + profile.monster.secondary_identifier, secondary);
+  memory.store(kOutsideHeap + profile.monster.primary_identifier, primary);
+  memory.store(kOutsideHeap + profile.monster.size_multiplier, size);
+  request.handle = kOutsideHeap;
+  request.target_percent = rathian->mini_percent;
+  const auto writes_before_rejection = memory.write_count();
+  assert(!reader.apply_size(kList, request, verified));
+  assert(memory.write_count() == writes_before_rejection);
+  request.handle = kMonster;
 
-    const auto remote_location = profile.monster.remote_location_value;
-    memory.store(
-        kMonster + profile.monster.location_flag,
-        remote_location
-    );
-    core::GameSnapshot remote{};
-    assert(reader.read_snapshot(kList, core::Locale::English, remote));
-    assert(remote.monster_count == 1);
-    request.target_percent = rathian->mini_percent;
-    assert(reader.apply_size(kList, request, verified));
-    assert(verified == rathian->mini_percent);
+  const auto remote_location = profile.monster.remote_location_value;
+  memory.store(kMonster + profile.monster.location_flag, remote_location);
+  core::GameSnapshot remote{};
+  assert(reader.read_snapshot(kList, core::Locale::English, remote));
+  assert(remote.monster_count == 1);
+  request.target_percent = rathian->mini_percent;
+  assert(reader.apply_size(kList, request, verified));
+  assert(verified == rathian->mini_percent);
 
-    memory.store(kMonster + profile.monster.size_multiplier, size);
-    assert(reader.apply_size(kList, request, verified));
-    core::GameSnapshot reapplied{};
-    assert(reader.read_snapshot(kList, core::Locale::English, reapplied));
-    assert(reapplied.monsters[0].size_percent == rathian->mini_percent);
+  memory.store(kMonster + profile.monster.size_multiplier, size);
+  assert(reader.apply_size(kList, request, verified));
+  core::GameSnapshot reapplied{};
+  assert(reader.read_snapshot(kList, core::Locale::English, reapplied));
+  assert(reapplied.monsters[0].size_percent == rathian->mini_percent);
 
-    const std::uint8_t unknown_location = 0x55;
-    memory.store(
-        kMonster + profile.monster.location_flag,
-        unknown_location
-    );
-    core::GameSnapshot unknown{};
-    assert(reader.read_snapshot(kList, core::Locale::English, unknown));
-    assert(unknown.monster_count == 0);
-    auto writes_before_guard = memory.write_count();
-    assert(!reader.apply_size(kList, request, verified));
-    assert(memory.write_count() == writes_before_guard);
+  const std::uint8_t unknown_location = 0x55;
+  memory.store(kMonster + profile.monster.location_flag, unknown_location);
+  core::GameSnapshot unknown{};
+  assert(reader.read_snapshot(kList, core::Locale::English, unknown));
+  assert(unknown.monster_count == 0);
+  auto writes_before_guard = memory.write_count();
+  assert(!reader.apply_size(kList, request, verified));
+  assert(memory.write_count() == writes_before_guard);
 
-    const std::uint32_t no_health = 0;
-    memory.store(kMonster + profile.monster.location_flag, remote_location);
-    memory.store(kMonster + profile.monster.health, no_health);
-    core::GameSnapshot defeated{};
-    assert(reader.read_snapshot(kList, core::Locale::English, defeated));
-    assert(defeated.monster_count == 0);
-    writes_before_guard = memory.write_count();
-    assert(!reader.apply_size(kList, request, verified));
-    assert(memory.write_count() == writes_before_guard);
-    memory.store(kMonster + profile.monster.health, health);
+  const std::uint32_t no_health = 0;
+  memory.store(kMonster + profile.monster.location_flag, remote_location);
+  memory.store(kMonster + profile.monster.health, no_health);
+  core::GameSnapshot defeated{};
+  assert(reader.read_snapshot(kList, core::Locale::English, defeated));
+  assert(defeated.monster_count == 0);
+  writes_before_guard = memory.write_count();
+  assert(!reader.apply_size(kList, request, verified));
+  assert(memory.write_count() == writes_before_guard);
+  memory.store(kMonster + profile.monster.health, health);
 
-    constexpr std::uint32_t kSecondMonster = 0xC000;
-    memory.store(
-        kSecondMonster + profile.monster.location_flag,
-        remote_location
-    );
-    memory.store(
-        kSecondMonster + profile.monster.secondary_identifier,
-        secondary
-    );
-    memory.store(
-        kSecondMonster + profile.monster.primary_identifier,
-        primary
-    );
-    memory.store(kSecondMonster + profile.monster.health, health);
-    memory.store(
-        kSecondMonster + profile.monster.maximum_health,
-        maximum_health
-    );
-    memory.store(kSecondMonster + profile.monster.size_multiplier, size);
+  constexpr std::uint32_t kSecondMonster = 0xC000;
+  memory.store(kSecondMonster + profile.monster.location_flag, remote_location);
+  memory.store(
+    kSecondMonster + profile.monster.secondary_identifier, secondary
+  );
+  memory.store(kSecondMonster + profile.monster.primary_identifier, primary);
+  memory.store(kSecondMonster + profile.monster.health, health);
+  memory.store(kSecondMonster + profile.monster.maximum_health, maximum_health);
+  memory.store(kSecondMonster + profile.monster.size_multiplier, size);
 
-    request.handle = kSecondMonster;
-    writes_before_guard = memory.write_count();
-    assert(!reader.apply_size(kList, request, verified));
-    assert(memory.write_count() == writes_before_guard);
+  request.handle = kSecondMonster;
+  writes_before_guard = memory.write_count();
+  assert(!reader.apply_size(kList, request, verified));
+  assert(memory.write_count() == writes_before_guard);
 
-    const std::uint8_t two = 2;
-    memory.store(
-        kList + profile.pointer_list.pointers + sizeof(std::uint32_t),
-        kSecondMonster
-    );
-    memory.store(kList + profile.pointer_list.count, two);
-    memory.store(
-        kMonster + profile.monster.location_flag,
-        current_location
-    );
-    core::GameSnapshot multi{};
-    assert(reader.read_snapshot(kList, core::Locale::English, multi));
-    assert(multi.monster_count == 2);
-    assert(multi.monsters[0].handle == kMonster);
-    assert(multi.monsters[1].handle == kSecondMonster);
+  const std::uint8_t two = 2;
+  memory.store(
+    kList + profile.pointer_list.pointers + sizeof(std::uint32_t),
+    kSecondMonster
+  );
+  memory.store(kList + profile.pointer_list.count, two);
+  memory.store(kMonster + profile.monster.location_flag, current_location);
+  core::GameSnapshot multi{};
+  assert(reader.read_snapshot(kList, core::Locale::English, multi));
+  assert(multi.monster_count == 2);
+  assert(multi.monsters[0].handle == kMonster);
+  assert(multi.monsters[1].handle == kSecondMonster);
 
-    request.target_percent = rathian->gold_percent;
-    assert(reader.apply_size(kList, request, verified));
-    writes_before_guard = memory.write_count();
-    assert(reader.apply_size(kList, request, verified));
-    assert(memory.write_count() == writes_before_guard);
+  request.target_percent = rathian->gold_percent;
+  assert(reader.apply_size(kList, request, verified));
+  writes_before_guard = memory.write_count();
+  assert(reader.apply_size(kList, request, verified));
+  assert(memory.write_count() == writes_before_guard);
 
-    std::cout << "switch adapter tests passed\n";
+  std::cout << "switch adapter tests passed\n";
 }

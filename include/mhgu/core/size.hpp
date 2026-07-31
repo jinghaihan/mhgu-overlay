@@ -5,23 +5,17 @@
 namespace mhgu::core {
 
 bool is_legal_size_percent(
-    const MonsterDefinition& monster,
-    std::uint16_t size_percent
+  const MonsterDefinition& monster, std::uint16_t size_percent
 );
 
-std::uint16_t size_percent_for_preset(
-    const MonsterDefinition& monster,
-    SizePreset preset
-);
+std::uint16_t
+size_percent_for_preset(const MonsterDefinition& monster, SizePreset preset);
 
-std::uint32_t actual_size_x100(
-    const MonsterDefinition& monster,
-    std::uint16_t size_percent
-);
+std::uint32_t
+actual_size_x100(const MonsterDefinition& monster, std::uint16_t size_percent);
 
 Crown classify_crown(
-    const MonsterDefinition& monster,
-    std::uint16_t size_percent
+  const MonsterDefinition& monster, std::uint16_t size_percent
 );
 
 }  // namespace mhgu::core

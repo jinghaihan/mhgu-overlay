@@ -4,16 +4,9 @@
 
 namespace mhgu::core {
 
-Locale resolve_locale(
-    GameId game,
-    LocaleMode mode,
-    Locale detected_locale
-);
+Locale resolve_locale(GameId game, LocaleMode mode, Locale detected_locale);
 
-const char* localized_name(
-    const MonsterDefinition& monster,
-    Locale locale
-);
+const char* localized_name(const MonsterDefinition& monster, Locale locale);
 
 const char* crown_label(Crown crown, Locale locale);
 const char* hyper_label(Locale locale);

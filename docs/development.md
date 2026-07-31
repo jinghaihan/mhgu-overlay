@@ -39,6 +39,23 @@ git submodule update --init --recursive
 Files under `source/generated/` are generated output. Do not edit them by
 hand.
 
+## Format source
+
+Use the repository's two-space rules before testing:
+
+```sh
+git ls-files '*.cpp' '*.hpp' \
+  | grep -v '^source/generated/' \
+  | xargs clang-format -i
+uvx ruff@0.12.7 format tools
+uvx ruff@0.12.7 check tools
+```
+
+The Python commands use an isolated Ruff executable managed by
+[uv](https://docs.astral.sh/uv/), so Ruff does not become a runtime dependency
+of the overlay. Regenerate `source/generated/` through the catalog generator
+instead of formatting those files directly.
+
 ## Run host tests
 
 The portable core and adapters have ordinary desktop tests. On macOS or Linux
@@ -148,6 +165,10 @@ OrbStack, or another Docker-compatible runtime must be running.
 
 ## C++ project conventions
 
+- Use two spaces for indentation. The repository includes `.editorconfig` for
+  supported editors, `.clang-format` for C++ formatting, and `ruff.toml` for
+  Python formatting. Makefile recipes remain tab-indented because `make`
+  requires it.
 - Headers under `include/` describe public types and functions.
 - Matching `.cpp` files under `source/` contain implementations.
 - Code is grouped under the `mhgu` namespace.
