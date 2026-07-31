@@ -1,27 +1,33 @@
 # MHGU Overlay
 
-A multilingual monster HUD and crown-size controller for MHGU on Nintendo
-Switch.
+A multilingual monster HUD and crown-size controller for Monster Hunter
+Generations Ultimate on Nintendo Switch.
 
 [![build](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml/badge.svg)](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-![MHGU Overlay compact HUD](screenshot.jpg)
-
 > [!IMPORTANT]
-> The current target is **MHGU 1.4.0 on Nintendo Switch**. The overlay builds
-> successfully in CI, but its memory profile and size-writing behavior still
-> require systematic testing on real hardware.
+> Size presets modify live game memory. Back up your save before enabling
+> them, avoid online use, and read
+> [Size presets and safety](docs/size-lock.md).
+
+<p align="center">
+  <img src="./assets/screenshot.jpg" alt="MHGU Overlay compact HUD" width="520" />
+</p>
 
 ## Features
 
-- Lower-left compact HUD for health, size, crown class, and Hyper status.
+- Displays each active large monster in a separate lower-left HUD card.
+- Shows the localized monster name, current and maximum health, health bar,
+  and health percentage in real time.
+- Shows the size multiplier, calculated actual size, crown class, and Hyper
+  status.
+- Optionally locks each monster to its own Mini, Silver, or Gold crown
+  threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
   English fallback.
-- Per-monster size presets: Off, Mini, Silver, and Gold.
 - Conservative, version-gated memory access with bounds checks and immediate
   write verification.
-- Portable gameplay core separated from the Switch and Tesla adapters.
 
 ## Requirements
 
@@ -49,11 +55,6 @@ Switch.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.
 
-> [!WARNING]
-> Size presets modify live game memory. They do not edit quest definitions or
-> support arbitrary multipliers. Back up your save, avoid online use, and read
-> [Size presets and safety](docs/size-lock.md) before enabling them.
-
 ## Documentation
 
 - [Development guide](docs/development.md) — setup, testing, building, data,
@@ -69,22 +70,23 @@ This is an independent implementation. The following projects and sites were
 used as prior art or factual references; their source, documentation,
 screenshots, and media are not copied into this repository.
 
-- [minazuki19/MHGU-Monster-Info-Overlay](https://github.com/minazuki19/MHGU-Monster-Info-Overlay)
+- [MHGU Monster Info Overlay](https://github.com/minazuki19/MHGU-Monster-Info-Overlay)
   — prior research into MHGU memory behavior on Switch.
-- [Alexander-Lancellott/MHGU-MHXX-HP-Overlay-For-Switch-Emulator](https://github.com/Alexander-Lancellott/MHGU-MHXX-HP-Overlay-For-Switch-Emulator)
+- [MHGU MHXX HP Overlay for Switch Emulator](https://github.com/Alexander-Lancellott/MHGU-MHXX-HP-Overlay-For-Switch-Emulator)
   — desktop overlay and monster-size prior art.
-- [3096/feth-overlays](https://github.com/3096/feth-overlays) — prior art for
+- [FETH Overlays](https://github.com/3096/feth-overlays) — prior art for
   version-gated Switch memory editing.
-- [Kiranico MHXX](https://mhxx.kiranico.com/) — authoritative base sizes and
+- [Kiranico](https://mhxx.kiranico.com/) — authoritative base sizes and
   crown thresholds used by the catalog pipeline.
 - [MH Crown](https://mhcrown.com/) — independent crown-size cross-checks.
-- [libtesla](https://github.com/minazuki19/libtesla) and
-  [Atmosphere-libs](https://github.com/Atmosphere-NX/Atmosphere-libs) — Switch
-  runtime dependencies included as Git submodules under their own licenses.
+- [libtesla](https://github.com/minazuki19/libtesla) — Tesla UI runtime
+  dependency included as a Git submodule under its own license.
+- [Atmosphere Libs](https://github.com/Atmosphere-NX/Atmosphere-libs) — Switch
+  process runtime dependency included as a Git submodule under its own license.
 
 Monster Hunter and related names are trademarks of Capcom. This unofficial
 fan project is not affiliated with or endorsed by Capcom.
 
 ## License
 
-[MIT](LICENSE) © 2025 Jing Haihan
+[MIT](./LICENSE) License © [jinghaihan](https://github.com/jinghaihan)
