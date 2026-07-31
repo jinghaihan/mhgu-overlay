@@ -35,6 +35,22 @@ std::uint16_t multiplier_percent(const float multiplier) {
     return static_cast<std::uint16_t>(std::lround(multiplier * 100.0F));
 }
 
+bool is_known_location(
+    const GameProfile& profile,
+    const std::uint8_t location
+) {
+    return location == profile.monster.current_location_value ||
+        location == profile.monster.remote_location_value;
+}
+
+bool is_live_health(
+    const std::uint32_t health,
+    const std::uint32_t maximum_health
+) {
+    return health != 0 && maximum_health != 0 &&
+        maximum_health <= 20'000'000U && health <= maximum_health;
+}
+
 }  // namespace
 
 std::uint32_t normalized_raw_id(
@@ -214,6 +230,41 @@ bool MonsterReader::monster_identity(
     return resolved.monster_id != 0;
 }
 
+bool MonsterReader::pointer_list_contains(
+    const std::uint64_t pointer_list_address,
+    const core::MonsterHandle handle
+) {
+    if (handle == 0 || !validate_pointer_list(pointer_list_address)) {
+        return false;
+    }
+
+    std::array<std::uint8_t, 0x41> bytes{};
+    const auto& layout = profile_.pointer_list;
+    if (layout.byte_size > bytes.size() ||
+        !contains_heap_range(pointer_list_address, layout.byte_size) ||
+        !memory_.read(
+            pointer_list_address,
+            bytes.data(),
+            layout.byte_size
+        )) {
+        return false;
+    }
+
+    const auto count = std::min<std::size_t>(
+        bytes[layout.count],
+        kPointerCapacity
+    );
+    for (std::size_t index = 0; index < count; ++index) {
+        const auto pointer = read_u32(
+            bytes.data() + layout.pointers + index * sizeof(std::uint32_t)
+        );
+        if (pointer == handle) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool MonsterReader::read_monster(
     const std::uint64_t address,
     core::MonsterSnapshot& snapshot
@@ -231,7 +282,7 @@ bool MonsterReader::read_monster(
             address + profile_.monster.location_flag,
             location
         ) ||
-        location != profile_.monster.current_location_value ||
+        !is_known_location(profile_, location) ||
         !monster_identity(address, resolved) ||
         !read_value(
             memory_,
@@ -252,8 +303,7 @@ bool MonsterReader::read_monster(
     }
 
     const auto size_percent = multiplier_percent(size_multiplier);
-    if (maximum_health == 0 || maximum_health > 20'000'000U ||
-        health > maximum_health || size_percent == 0) {
+    if (!is_live_health(health, maximum_health) || size_percent == 0) {
         return false;
     }
     snapshot = {
@@ -301,15 +351,20 @@ bool MonsterReader::read_snapshot(
 }
 
 bool MonsterReader::apply_size(
+    const std::uint64_t pointer_list_address,
     const core::SizeWriteRequest& request,
     std::uint16_t& verified_percent
 ) {
     verified_percent = 0;
     ResolvedMonster resolved{};
     std::uint8_t location{};
+    std::uint32_t health{};
+    std::uint32_t maximum_health{};
+    float current_multiplier{};
     const auto* definition = core::find_monster(request.monster_id);
     if (request.handle == 0 ||
         !contains_monster(request.handle) ||
+        !pointer_list_contains(pointer_list_address, request.handle) ||
         definition == nullptr ||
         !core::is_legal_size_percent(*definition, request.target_percent) ||
         !read_value(
@@ -317,10 +372,34 @@ bool MonsterReader::apply_size(
             request.handle + profile_.monster.location_flag,
             location
         ) ||
-        location != profile_.monster.current_location_value ||
+        !is_known_location(profile_, location) ||
         !monster_identity(request.handle, resolved) ||
-        resolved.monster_id != request.monster_id) {
+        resolved.monster_id != request.monster_id ||
+        !read_value(
+            memory_,
+            request.handle + profile_.monster.health,
+            health
+        ) ||
+        !read_value(
+            memory_,
+            request.handle + profile_.monster.maximum_health,
+            maximum_health
+        ) ||
+        !read_value(
+            memory_,
+            request.handle + profile_.monster.size_multiplier,
+            current_multiplier
+        )) {
         return false;
+    }
+
+    const auto current_percent = multiplier_percent(current_multiplier);
+    if (!is_live_health(health, maximum_health) || current_percent == 0) {
+        return false;
+    }
+    if (current_percent == request.target_percent) {
+        verified_percent = request.target_percent;
+        return true;
     }
 
     const auto address = request.handle + profile_.monster.size_multiplier;
@@ -335,7 +414,27 @@ bool MonsterReader::apply_size(
         return false;
     }
     verified_percent = multiplier_percent(read_back);
-    return verified_percent == request.target_percent;
+    if (verified_percent != request.target_percent) {
+        return false;
+    }
+
+    ResolvedMonster verified_identity{};
+    std::uint8_t verified_location{};
+    if (!read_value(
+            memory_,
+            request.handle + profile_.monster.location_flag,
+            verified_location
+        ) ||
+        !is_known_location(profile_, verified_location) ||
+        !monster_identity(request.handle, verified_identity)) {
+        verified_percent = 0;
+        return false;
+    }
+    if (verified_identity.monster_id != request.monster_id) {
+        verified_percent = 0;
+        return false;
+    }
+    return true;
 }
 
 bool MonsterReader::contains_heap_range(

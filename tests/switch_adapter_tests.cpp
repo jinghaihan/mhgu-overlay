@@ -138,7 +138,7 @@ int main() {
     assert(locale_from_switch_language(7) == core::Locale::English);
     assert(locale_from_switch_language(2) == core::Locale::English);
 
-    MonsterReader reader(memory, profile, 0, 0xC000);
+    MonsterReader reader(memory, profile, 0, 0x18000);
     assert(reader.find_pointer_list() == kList);
     assert(reader.validate_pointer_list(kList));
 
@@ -159,7 +159,7 @@ int main() {
         rathian->gold_percent,
     };
     std::uint16_t verified{};
-    assert(reader.apply_size(request, verified));
+    assert(reader.apply_size(kList, request, verified));
     assert(verified == rathian->gold_percent);
 
     core::GameSnapshot changed{};
@@ -167,12 +167,12 @@ int main() {
     assert(changed.monsters[0].size_percent == rathian->gold_percent);
 
     request.target_percent = rathian->legal_max_percent + 1;
-    assert(!reader.apply_size(request, verified));
+    assert(!reader.apply_size(kList, request, verified));
     core::GameSnapshot rejected{};
     assert(reader.read_snapshot(kList, core::Locale::English, rejected));
     assert(rejected.monsters[0].size_percent == rathian->gold_percent);
 
-    constexpr std::uint64_t kOutsideHeap = 0xC000;
+    constexpr std::uint64_t kOutsideHeap = 0x18000;
     memory.store(
         kOutsideHeap + profile.monster.location_flag,
         current_location
@@ -192,20 +192,97 @@ int main() {
     request.handle = kOutsideHeap;
     request.target_percent = rathian->mini_percent;
     const auto writes_before_rejection = memory.write_count();
-    assert(!reader.apply_size(request, verified));
+    assert(!reader.apply_size(kList, request, verified));
     assert(memory.write_count() == writes_before_rejection);
     request.handle = kMonster;
 
-    const std::uint8_t inactive_location = 0x44;
+    const auto remote_location = profile.monster.remote_location_value;
     memory.store(
         kMonster + profile.monster.location_flag,
-        inactive_location
+        remote_location
     );
-    core::GameSnapshot inactive{};
-    assert(reader.read_snapshot(kList, core::Locale::English, inactive));
-    assert(inactive.monster_count == 0);
+    core::GameSnapshot remote{};
+    assert(reader.read_snapshot(kList, core::Locale::English, remote));
+    assert(remote.monster_count == 1);
     request.target_percent = rathian->mini_percent;
-    assert(!reader.apply_size(request, verified));
+    assert(reader.apply_size(kList, request, verified));
+    assert(verified == rathian->mini_percent);
+
+    memory.store(kMonster + profile.monster.size_multiplier, size);
+    assert(reader.apply_size(kList, request, verified));
+    core::GameSnapshot reapplied{};
+    assert(reader.read_snapshot(kList, core::Locale::English, reapplied));
+    assert(reapplied.monsters[0].size_percent == rathian->mini_percent);
+
+    const std::uint8_t unknown_location = 0x55;
+    memory.store(
+        kMonster + profile.monster.location_flag,
+        unknown_location
+    );
+    core::GameSnapshot unknown{};
+    assert(reader.read_snapshot(kList, core::Locale::English, unknown));
+    assert(unknown.monster_count == 0);
+    auto writes_before_guard = memory.write_count();
+    assert(!reader.apply_size(kList, request, verified));
+    assert(memory.write_count() == writes_before_guard);
+
+    const std::uint32_t no_health = 0;
+    memory.store(kMonster + profile.monster.location_flag, remote_location);
+    memory.store(kMonster + profile.monster.health, no_health);
+    core::GameSnapshot defeated{};
+    assert(reader.read_snapshot(kList, core::Locale::English, defeated));
+    assert(defeated.monster_count == 0);
+    writes_before_guard = memory.write_count();
+    assert(!reader.apply_size(kList, request, verified));
+    assert(memory.write_count() == writes_before_guard);
+    memory.store(kMonster + profile.monster.health, health);
+
+    constexpr std::uint32_t kSecondMonster = 0xC000;
+    memory.store(
+        kSecondMonster + profile.monster.location_flag,
+        remote_location
+    );
+    memory.store(
+        kSecondMonster + profile.monster.secondary_identifier,
+        secondary
+    );
+    memory.store(
+        kSecondMonster + profile.monster.primary_identifier,
+        primary
+    );
+    memory.store(kSecondMonster + profile.monster.health, health);
+    memory.store(
+        kSecondMonster + profile.monster.maximum_health,
+        maximum_health
+    );
+    memory.store(kSecondMonster + profile.monster.size_multiplier, size);
+
+    request.handle = kSecondMonster;
+    writes_before_guard = memory.write_count();
+    assert(!reader.apply_size(kList, request, verified));
+    assert(memory.write_count() == writes_before_guard);
+
+    const std::uint8_t two = 2;
+    memory.store(
+        kList + profile.pointer_list.pointers + sizeof(std::uint32_t),
+        kSecondMonster
+    );
+    memory.store(kList + profile.pointer_list.count, two);
+    memory.store(
+        kMonster + profile.monster.location_flag,
+        current_location
+    );
+    core::GameSnapshot multi{};
+    assert(reader.read_snapshot(kList, core::Locale::English, multi));
+    assert(multi.monster_count == 2);
+    assert(multi.monsters[0].handle == kMonster);
+    assert(multi.monsters[1].handle == kSecondMonster);
+
+    request.target_percent = rathian->gold_percent;
+    assert(reader.apply_size(kList, request, verified));
+    writes_before_guard = memory.write_count();
+    assert(reader.apply_size(kList, request, verified));
+    assert(memory.write_count() == writes_before_guard);
 
     std::cout << "switch adapter tests passed\n";
 }

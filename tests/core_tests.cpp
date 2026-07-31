@@ -109,6 +109,11 @@ int main() {
     assert(output.write_count == 1);
     assert(output.writes[0].target_percent == 123);
 
+    snapshot.monsters[0].hp = 0;
+    const auto defeated = engine.update(snapshot, settings);
+    assert(defeated.write_count == 0);
+
+    snapshot.monsters[0].hp = 4000;
     snapshot.monsters[0].size_percent = 123;
     const auto verified = engine.update(snapshot, settings);
     assert(verified.write_count == 0);

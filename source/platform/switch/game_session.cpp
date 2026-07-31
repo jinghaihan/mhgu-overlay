@@ -136,7 +136,11 @@ void GameSession::poll(const core::CoreSettings& settings) {
          index < view_.output.write_count;
          ++index) {
         std::uint16_t verified{};
-        if (!reader_->apply_size(view_.output.writes[index], verified)) {
+        if (!reader_->apply_size(
+                view_.pointer_list,
+                view_.output.writes[index],
+                verified
+            )) {
             view_.status = SessionStatus::WriteFailed;
         }
     }

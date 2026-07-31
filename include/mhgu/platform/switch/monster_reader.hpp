@@ -42,6 +42,7 @@ public:
         core::GameSnapshot& snapshot
     );
     bool apply_size(
+        std::uint64_t pointer_list_address,
         const core::SizeWriteRequest& request,
         std::uint16_t& verified_percent
     );
@@ -54,6 +55,10 @@ private:
     bool monster_identity(
         std::uint64_t address,
         ResolvedMonster& resolved
+    );
+    bool pointer_list_contains(
+        std::uint64_t pointer_list_address,
+        core::MonsterHandle handle
     );
     bool contains_heap_range(
         std::uint64_t address,
