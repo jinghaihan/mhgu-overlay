@@ -218,7 +218,7 @@ map.
 branch, run the interactive release helper:
 
 ```sh
-./tools/release.sh
+uv run tools/release.py
 ```
 
 Choose `patch`, `minor`, or `major`, then confirm the plan. The script checks
@@ -230,10 +230,14 @@ The release type can also be supplied directly while keeping the final
 confirmation:
 
 ```sh
-./tools/release.sh patch
-./tools/release.sh minor
-./tools/release.sh major
+uv run tools/release.py patch
+uv run tools/release.py minor
+uv run tools/release.py major
 ```
+
+The interactive prompt uses the arrow keys and Enter. Its pinned `questionary`
+and `semver` dependencies are declared directly in the script and installed in
+an isolated environment by `uv`.
 
 Pushing a tag beginning with `v` starts `.github/workflows/release.yml`. The
 workflow rejects a tag that does not equal `v` plus the value in `VERSION`,

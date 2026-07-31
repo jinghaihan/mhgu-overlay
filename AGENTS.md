@@ -82,7 +82,7 @@
   user explicitly requests it.
 - `VERSION` is the single release version source. Release tags must equal
   `v<VERSION>`.
-- Use `tools/release.sh` for normal releases. It creates the version commit,
+- Use `uv run tools/release.py` for normal releases. It creates the version commit,
   annotated tag, and explicit pushes after running the host checks.
 - Push release tags explicitly, for example
   `git push upstream v0.1.0`. Never use `git push --tags`.
