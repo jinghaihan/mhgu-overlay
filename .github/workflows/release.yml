@@ -64,3 +64,16 @@ jobs:
         run: gh release upload "${GITHUB_REF_NAME}" mhgu-overlay.ovl mhgu-overlay.ovl.sha256 --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify downloadable release asset
+        run: |
+          mkdir release-download
+          gh release download "${GITHUB_REF_NAME}" \
+            --pattern mhgu-overlay.ovl \
+            --dir release-download
+          test -s release-download/mhgu-overlay.ovl
+          expected_sha="$(cut -d ' ' -f 1 mhgu-overlay.ovl.sha256)"
+          actual_sha="$(sha256sum release-download/mhgu-overlay.ovl | cut -d ' ' -f 1)"
+          test "${actual_sha}" = "${expected_sha}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
