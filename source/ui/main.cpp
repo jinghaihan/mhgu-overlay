@@ -82,6 +82,7 @@ public:
     explicit HudElement(Model& model) : model_(model) {}
 
     void draw(tsl::gfx::Renderer* renderer) override {
+        renderer->clearScreen();
         const auto view = model_.session_view();
         const auto locale = model_.display_locale();
         const auto count = std::min<std::size_t>(
