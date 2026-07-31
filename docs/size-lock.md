@@ -27,10 +27,13 @@ written in any mode.
 - Kiranico's Mini and Gold thresholds define the conservative per-monster
   write range.
 - Both the portable core and Switch adapter reject values outside that range.
-- The adapter rechecks monster identity and current-map state just before a
-  write.
+- The adapter accepts only known remote (`0x44`) or current-area (`0x4C`)
+  monster states.
+- It rechecks list membership, identity, live health, the existing multiplier,
+  and location state immediately before writing.
 - Only the size multiplier field is written.
-- Every successful write must pass an immediate read-back check.
+- Every successful write must pass an immediate read-back check followed by
+  another identity and location-state check.
 
 Legal ranges are global per monster, not separated by map or quest. A chosen
 threshold can therefore be applied in a quest that would not normally roll
@@ -39,9 +42,10 @@ disagreement never widens a Kiranico-derived range.
 
 ## Testing status
 
-Automated tests cover preset selection, range checks, identity validation,
-and read-back behavior. A successful CI build proves compilation and host-test
-success only.
+Automated tests cover preset selection, remote and current-area objects,
+unknown states, stale list members, defeated objects, range checks, identity
+validation, idempotence, and read-back behavior. A successful CI build proves
+compilation and host-test success only.
 
 Real-hardware testing is still required for firmware behavior, model scale,
 hitboxes, crown registration, quest records, special-event monsters, and save

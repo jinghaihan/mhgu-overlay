@@ -127,12 +127,14 @@ These values are reverse-engineering facts derived from community prior art and 
 3. require the MHGU 1.4.0 Title ID and build ID profile;
 4. scan the profile's bounded heap range in 64 KiB chunks;
 5. validate candidate list markers, padding, pointer continuity, count, and the first monster identity;
-6. read each monster field individually and retain only objects marked as
-   present in the current map.
+6. read each monster field individually and retain live objects marked either
+   remote (`0x44`) or present in the current area (`0x4C`).
 
 Candidate validation prevents a coincidental byte pattern from becoming a
 write target. A failed list validation discards the address and forces a new
-scan. The current-map flag is checked again immediately before a size write.
+scan. Unknown location states and defeated objects are rejected. Immediately
+before a size write, the adapter rechecks list membership, location state,
+identity, health, the existing multiplier, and the per-monster legal range.
 
 ### Monster identity
 
@@ -178,13 +180,14 @@ sequenceDiagram
 
     User->>Model: Select Gold before quest
     Model->>Model: Persist settings
-    Game-->>SwitchAdapter: Monster object appears
+    Game-->>SwitchAdapter: Remote monster object appears (0x44)
     SwitchAdapter->>Core: GameSnapshot(size, identity, health)
     Core->>Core: Resolve and validate per-monster Gold threshold
     Core-->>SwitchAdapter: SizeWriteRequest
     SwitchAdapter->>SwitchAdapter: Re-check per-monster range and identity
     SwitchAdapter->>Game: Write multiplier
     SwitchAdapter->>Game: Read multiplier back
+    Game->>Game: Load monster into current area (0x4C)
     Game-->>Core: Next snapshot matches target
     Core-->>SwitchAdapter: No further write
 ```
@@ -193,13 +196,16 @@ The overlay cannot edit a monster that does not exist yet. “Before quest”
 therefore means the user's choice is saved before loading; application occurs
 immediately after the runtime object becomes available. The single selector
 cycles through Off, Mini, Silver, and Gold; Off makes the core emit no writes.
+If area loading replaces or resets the multiplier, the next snapshot differs
+from the preset and the same validated request is emitted again.
 
 Size legality is global per monster rather than map- or quest-specific. The
-current-map check protects object identity and lifetime; it does not choose a
-different legal range. “Silver” means the large silver crown; MHGU has no
-small silver crown category. Fixed-size monsters, Off mode, unknown identities,
-implausible health, invalid multipliers, and targets outside the selected
-monster's conservative Kiranico range all stop the write path.
+location-state allowlist protects object identity and lifetime; it does not
+choose a different legal range. “Silver” means the large silver crown; MHGU
+has no small silver crown category. Fixed-size monsters, Off mode, unknown
+identities or location states, defeated objects, implausible health, invalid
+multipliers, and targets outside the selected monster's conservative Kiranico
+range all stop the write path.
 
 ## Future adapters
 
