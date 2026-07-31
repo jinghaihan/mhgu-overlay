@@ -214,19 +214,26 @@ map.
 
 ## Release version
 
-`VERSION` is the single version source. For a release:
+`VERSION` is the single version source. From a clean, synchronized `main`
+branch, run the interactive release helper:
 
-1. Replace its contents with the intended `X.Y.Z` version.
-2. Run the complete tests and Switch build.
-3. Replace `X.Y.Z` below with that same version, then commit and tag:
+```sh
+./tools/release.sh
+```
 
-   ```sh
-   git add VERSION
-   git commit -m "chore(release): prepare vX.Y.Z"
-   git tag vX.Y.Z
-   git push upstream main
-   git push upstream vX.Y.Z
-   ```
+Choose `patch`, `minor`, or `major`, then confirm the plan. The script checks
+the repository state, updates `VERSION`, regenerates the catalog, runs host
+tests, creates a `chore: release vX.Y.Z` commit and annotated tag, and pushes
+`main` followed by that exact tag to `upstream`.
+
+The release type can also be supplied directly while keeping the final
+confirmation:
+
+```sh
+./tools/release.sh patch
+./tools/release.sh minor
+./tools/release.sh major
+```
 
 Pushing a tag beginning with `v` starts `.github/workflows/release.yml`. The
 workflow rejects a tag that does not equal `v` plus the value in `VERSION`,
