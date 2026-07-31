@@ -26,6 +26,8 @@ jobs:
           submodules: recursive
       - name: Build overlay
         run: make -j2
+      - name: Verify overlay package
+        run: python3 tools/verify_overlay.py mhgu-overlay.ovl
       - uses: actions/upload-artifact@v7
         with:
           name: mhgu-overlay
