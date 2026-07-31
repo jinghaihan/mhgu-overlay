@@ -577,6 +577,20 @@ public:
         refresh_mode();
     }
 
+    bool handleInput(
+        const u64 keys_down,
+        u64,
+        const HidTouchState&,
+        JoystickPosition,
+        JoystickPosition
+    ) override {
+        if ((keys_down & HidNpadButton_B) != 0) {
+            tsl::goBack();
+            return true;
+        }
+        return false;
+    }
+
 private:
     void refresh_mode() {
         FullMode = true;
