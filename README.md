@@ -1,159 +1,93 @@
 # MHGU Overlay
 
-A multilingual Monster Hunter Generations Ultimate overlay for Nintendo Switch, with live health, crown-aware size data, and experimental quest size presets.
+A multilingual monster HUD and crown-size controller for MHGU on Nintendo
+Switch.
 
 [![build](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml/badge.svg)](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+> [!IMPORTANT]
+> The current target is **MHGU 1.4.0 on Nintendo Switch**. The overlay builds
+> successfully in CI, but its memory profile and size-writing behavior still
+> require systematic testing on real hardware.
+
+## Screenshot
+
+<!-- Replace this note only with a screenshot captured from this project. -->
+
+> Project-owned hardware screenshot coming soon.
+
 ## Features
 
-- Compact lower-left HUD with one translucent label per monster, showing health, health percentage, size multiplier, actual size, crown class, and Hyper status.
-- English, Simplified Chinese, and Japanese monster names and UI.
-- Automatic language detection from the game's application control data. Unsupported languages and detection failures fall back to English.
-- Use one size-lock selector for Off, Mini, Silver, or Gold. The selected value is resolved separately for each monster and verified after writing.
-- Portable C++ core with platform-specific memory, language, persistence, and UI adapters.
-- Normalized data for 94 large monsters, generated from independent catalog and locale files.
-
-The size-writing feature is experimental and disabled by default. Read [Size presets](#size-presets) before enabling it.
-
-## Compatibility
-
-| Target | Status |
-| --- | --- |
-| MHGU 1.4.0 on Atmosphère | Primary target; Title ID and build ID are checked, hardware verification is still required |
-| MHXX Nintendo Switch | Not currently supported; it requires a separately verified profile |
-| Ryujinx | This Tesla build does not run in Ryujinx; the portable core is designed for a future emulator adapter |
-| Windows | Not included; a future adapter can reuse the core without depending on Tesla or libnx |
-
-This repository is under active development. A successful CI build proves that the overlay compiles, not that every memory operation has been validated on every firmware, region, or game build.
+- Lower-left compact HUD for health, size, crown class, and Hyper status.
+- English, Simplified Chinese, and Japanese, with automatic detection and
+  English fallback.
+- Per-monster size presets: Off, Mini, Silver, and Gold.
+- Conservative, version-gated memory access with bounds checks and immediate
+  write verification.
+- Portable gameplay core separated from the Switch and Tesla adapters.
 
 ## Requirements
 
-- A Nintendo Switch running a current Atmosphère release.
-- Tesla Menu / ovlmenu.
-- Atmosphère's `dmnt:cht` service.
-- MHGU 1.4.0 for Nintendo Switch.
+- MHGU 1.4.0 for Nintendo Switch
+- Atmosphère with `dmnt:cht`
+- Tesla Menu / ovlmenu
 
 ## Install
 
 1. Download `mhgu-overlay.ovl` from the
    [latest release](https://github.com/jinghaihan/mhgu-overlay/releases/latest),
-   or use the latest successful GitHub Actions artifact before the first
-   release is published.
-2. Copy it to:
+   or download the `mhgu-overlay` artifact from a successful
+   [build workflow](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml).
+2. Copy it to `sdmc:/switch/.overlays/mhgu-overlay.ovl`.
+3. Start MHGU 1.4.0, open Tesla Menu, and select **MHGU Overlay**.
 
-   ```text
-   sdmc:/switch/.overlays/mhgu-overlay.ovl
-   ```
+## Use
 
-3. Start MHGU 1.4.0.
-4. Open Tesla Menu and select **MHGU Overlay**.
-5. Enter a quest containing a large monster. The first scan may take a moment.
+- **Open compact HUD** hides the settings page and returns input to the game.
+- Hold `L3 + R3` in the compact HUD to return to settings.
+- Press `B` on the settings page to close the overlay.
+- Choose the language manually or leave it on **Auto**.
+- Choose a size preset before entering a quest; **Off** is the default.
+- Use **Find monster list** to discard the cached pointer and scan again.
 
-Settings are stored at:
+Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.
 
-```text
-sdmc:/config/mhgu-overlay/settings.ini
-```
+> [!WARNING]
+> Size presets modify live game memory. They do not edit quest definitions or
+> support arbitrary multipliers. Back up your save, avoid online use, and read
+> [Size presets and safety](docs/size-lock.md) before enabling them.
 
-## Usage
+## Documentation
 
-The main screen contains:
-
-- **Open compact HUD**: switches to a transparent, low-refresh HUD and returns input focus to the game.
-- **Language**: cycles through Auto, English, Simplified Chinese, and Japanese.
-- **Size lock**: cycles through Off, Mini (small gold), Silver (large
-  silver), and Gold (large gold).
-- **Find monster list**: discards the cached in-memory pointer and scans again.
-
-In compact HUD mode, hold the left and right sticks together to return to the settings screen.
-
-## Size presets
-
-Choose **Size lock** before entering the quest. The overlay does not edit a
-quest definition or save file in advance. It waits for each large monster's
-runtime object, verifies its identity, writes the selected crown threshold,
-and reads it back. Choose **Off** to disable all size writes.
-
-Safety rules in the current implementation:
-
-- Off is the default.
-- No free-form multiplier can be entered.
-- Fixed-size monsters do not receive write requests.
-- Each target comes from that monster's Kiranico Mini, Silver, or Gold
-  threshold and must remain inside its independent conservative write range.
-- Both the portable core and the Switch adapter reject a target outside that
-  monster's range.
-- The adapter verifies the game build, current-map state, and monster identity
-  immediately before writing.
-- Only the size multiplier field is written.
-- A successful write must pass an immediate read-back check.
-
-The range is global per monster; it is not split by map or quest. This means a
-selected crown threshold may be applied in a quest that would not normally
-roll that crown. Back up your save before testing. Crown registration, model
-scale, hitboxes, quest completion records, and special-event monsters still
-need systematic hardware validation. Do not assume this feature is safe for
-online or competitive use.
-
-## Languages and data
-
-Localization is intentionally separate from gameplay data:
-
-```text
-data/
-├── catalog/          # IDs, crown facts, legal write ranges, adapter aliases
-├── locales/          # en, zh-Hans, ja
-└── schema/           # validation contracts
-```
-
-To refresh public numeric facts and regenerate C++ tables:
-
-```sh
-python3 tools/refresh_catalog.py
-python3 tools/refresh_legal_sizes.py
-python3 tools/generate_catalog.py
-make -f Makefile.host test
-```
-
-Kiranico is authoritative for base sizes and crown thresholds. The legal-range
-refresh uses MH Crown only as a recorded cross-check; a disagreement never
-widens Kiranico's conservative per-monster range. These tools import factual
-values only and do not mirror page prose, quest tables, or media. Locale files
-remain authoritative for all user-facing names and messages.
-
-## Development
-
-Clone the submodules, run the portable tests, and build the Switch overlay:
-
-```sh
-git clone --recurse-submodules https://github.com/jinghaihan/mhgu-overlay.git
-cd mhgu-overlay
-make -f Makefile.host test
-make -j2
-```
-
-If you do not have devkitPro, push the branch and download the build artifact
-from the latest successful GitHub Actions run. Version tags beginning with `v`
-build and publish a GitHub Release automatically.
-
-- [Development guide](docs/development.md) — setup, Docker, data,
-  localization, releases, and troubleshooting
-- [Architecture](docs/architecture.md) — module boundaries, data flow,
-  memory safety, and future platform adapters
+- [Development guide](docs/development.md) — setup, testing, building, data,
+  localization, and releases
+- [Architecture](docs/architecture.md) — module boundaries, runtime flow, and
+  future adapters
+- [Size presets and safety](docs/size-lock.md) — behavior, validation, and
+  hardware-testing limits
 
 ## Credits
 
-This project is an independent implementation. It does not copy source code, documentation, screenshots, or other assets from the reference projects below.
+This is an independent implementation. The following projects and sites were
+used as prior art or factual references; their source, documentation,
+screenshots, and media are not copied into this repository.
 
-- [minazuki19/MHGU-Monster-Info-Overlay](https://github.com/minazuki19/MHGU-Monster-Info-Overlay) — Switch prior art and a reference for previously researched MHGU memory behavior.
-- [Alexander-Lancellott/MHGU-MHXX-HP-Overlay-For-Switch-Emulator](https://github.com/Alexander-Lancellott/MHGU-MHXX-HP-Overlay-For-Switch-Emulator) — Windows/emulator prior art and a reference for desktop presentation and monster-size investigation.
-- [3096/feth-overlays](https://github.com/3096/feth-overlays) — reference for version-gated Switch memory-editing interaction and validation patterns.
-- [Kiranico MHXX](https://mhxx.kiranico.com/) — monster names, base sizes, and crown thresholds used by the catalog refresh pipeline.
+- [minazuki19/MHGU-Monster-Info-Overlay](https://github.com/minazuki19/MHGU-Monster-Info-Overlay)
+  — prior research into MHGU memory behavior on Switch.
+- [Alexander-Lancellott/MHGU-MHXX-HP-Overlay-For-Switch-Emulator](https://github.com/Alexander-Lancellott/MHGU-MHXX-HP-Overlay-For-Switch-Emulator)
+  — desktop overlay and monster-size prior art.
+- [3096/feth-overlays](https://github.com/3096/feth-overlays) — prior art for
+  version-gated Switch memory editing.
+- [Kiranico MHXX](https://mhxx.kiranico.com/) — authoritative base sizes and
+  crown thresholds used by the catalog pipeline.
 - [MH Crown](https://mhcrown.com/) — independent crown-size cross-checks.
-- [libtesla](https://github.com/minazuki19/libtesla) and [Atmosphere-libs](https://github.com/Atmosphere-NX/Atmosphere-libs) — third-party Switch runtime dependencies, included as Git submodules under their respective licenses.
+- [libtesla](https://github.com/minazuki19/libtesla) and
+  [Atmosphere-libs](https://github.com/Atmosphere-NX/Atmosphere-libs) — Switch
+  runtime dependencies included as Git submodules under their own licenses.
 
-Monster Hunter and all related names are trademarks of Capcom. This is an unofficial fan project and is not affiliated with or endorsed by Capcom.
+Monster Hunter and related names are trademarks of Capcom. This unofficial
+fan project is not affiliated with or endorsed by Capcom.
 
 ## License
 
