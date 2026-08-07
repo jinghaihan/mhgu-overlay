@@ -66,6 +66,11 @@ constexpr MainWordPatchSet kUnlockHunterArtSlotsPatches{
   1,
 };
 
+constexpr MainWordPatchSet kUnlimitedHunterArtsPatches{
+  {{{0x002A26E8, 0xE18020B3}, {0x002A26EC, 0xE1500000}}},
+  2,
+};
+
 constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
   kRuntimePatches{
     kMapAndLargeMonstersPatches,
@@ -75,6 +80,7 @@ constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
     kStaminaNoDecreasePatches,
     kSharpnessNoDecreasePatches,
     kUnlockHunterArtSlotsPatches,
+    kUnlimitedHunterArtsPatches,
 };
 
 constexpr GameProfile kProfiles[]{

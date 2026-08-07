@@ -31,6 +31,7 @@ Generations Ultimate on Nintendo Switch.
 - Adds invincibility plus health, stamina, and sharpness protection under the
   grouped battle-functions menu.
 - Unlocks all three Hunter Art slots when enabled.
+- Allows repeated Hunter Art use without consuming the gauge.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -72,6 +73,8 @@ Generations Ultimate on Nintendo Switch.
   patches.
 - **Unlock Hunter Art slots** is also one-way and returns to the original
   behavior only after restarting the game.
+- **Unlimited Hunter Arts** applies two one-way instruction patches and also
+  requires a game restart to restore.
 - Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.

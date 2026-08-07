@@ -32,6 +32,7 @@
     "staminaNoDecrease": "耐力不减",
     "sharpnessNoDecrease": "斩味不减",
     "unlockHunterArtSlots": "解锁狩技槽",
+    "unlimitedHunterArts": "狩技无限使用",
     "openOverlay": "打开 Overlay"
   },
   "monsters": {

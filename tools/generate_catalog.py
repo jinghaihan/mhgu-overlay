@@ -50,6 +50,7 @@ UI_KEYS = [
   "staminaNoDecrease",
   "sharpnessNoDecrease",
   "unlockHunterArtSlots",
+  "unlimitedHunterArts",
   "openOverlay",
 ]
 

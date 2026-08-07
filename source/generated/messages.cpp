@@ -37,6 +37,7 @@ constexpr const char* kMessages[][3] = {
   {"Stamina does not decrease", "耐力不减", "スタミナ減少なし"},
   {"Sharpness does not decrease", "斩味不减", "斬れ味減少なし"},
   {"Unlock Hunter Art slots", "解锁狩技槽", "狩技スロット解放"},
+  {"Unlimited Hunter Arts", "狩技无限使用", "狩技無限使用"},
   {"Open overlay", "打开 Overlay", "オーバーレイを開く"},
 };
 
