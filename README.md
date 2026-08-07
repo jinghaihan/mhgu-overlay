@@ -14,8 +14,7 @@ appearance, hunter and Palico combat values, resources, and item-pouch edits.
 > [Size presets and safety](docs/size-lock.md).
 > One-way code patches cannot be disabled from the menu after they have been
 > applied. Exit the overlay and restart the game to restore the original game
-> code. Current builds pass automated host tests and Switch compilation, but
-> the new memory tools still require validation on real Switch hardware.
+> code.
 
 <p align="center">
   <img src="./assets/screenshot.jpg" alt="MHGU monster overlay" width="520" />
@@ -139,8 +138,8 @@ Both transmog options are one-way code patches for the current game process.
   localization, and releases
 - [Architecture](docs/architecture.md) — module boundaries, runtime flow, and
   future adapters
-- [Size presets and safety](docs/size-lock.md) — behavior, validation, and
-  hardware-testing limits
+- [Size presets and safety](docs/size-lock.md) — behavior and write-safety
+  limits
 
 ## Credits
 
