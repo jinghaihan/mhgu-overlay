@@ -31,6 +31,7 @@ The main menu is ordered as follows:
 | **Language** | Uses automatic game-language detection or selects English, Simplified Chinese, or Japanese manually. |
 | **Status** | Shows whether MHGU 1.4.0 is detected, scanning, ready, unsupported, or unable to read or write memory. |
 | **Monster info overlay** | Opens the low-profile hunting HUD. Each active large monster gets a lower-left card with its name, health bar, current and maximum health, health percentage, size multiplier, calculated size, crown class, and Hyper status. |
+| **Damage display** | Shows animated damage values near the upper center of the hunting HUD when a large monster's health decreases. |
 | **Frame rate** | Switches the game's frame-rate target between 30 FPS and 60 FPS. This setting can be changed in either direction. |
 | **Size lock** | Selects **Off**, **Mini crown**, **Silver crown**, or **Gold crown**. The chosen per-monster crown threshold is applied when a valid monster object appears; **Off** is the default. |
 | **Map & large monster locations** | Automatically displays the map and marks large-monster locations. |
@@ -122,8 +123,8 @@ Both transmog options are one-way code patches for the current game process.
 - **Monster info overlay** returns input to the game. Hold `L3 + R3` to return
   to settings, and press `B` on a settings page to go back or close the
   overlay.
-- Language, frame rate, size lock, selected numeric values, and the two
-  item-pouch inputs are saved to
+- Language, monster info overlay, damage display, frame rate, size lock,
+  selected numeric values, and the two item-pouch inputs are saved to
   `sdmc:/config/mhgu-overlay/settings.ini`.
 - Runtime patch enabled states and monster damage mode are not saved. Numeric
   rows save the selected value, but pressing `A` is required to enable that
@@ -153,6 +154,9 @@ screenshots, and media are not copied into this repository.
   — desktop overlay and monster-size prior art.
 - [FETH Overlays](https://github.com/3096/feth-overlays) — prior art for
   version-gated Switch memory editing.
+- [旧大陆的革新之风：3G/4G/GU现代化工具下载&教程](https://www.bilibili.com/video/BV1A8Gw6yEHg/)
+  by [hua莱士](https://space.bilibili.com/16486100) — prior art for the
+  damage-display behavior.
 - [Kiranico](https://mhxx.kiranico.com/) — authoritative base sizes and
   crown thresholds used by the catalog pipeline.
 - [MH Crown](https://mhcrown.com/) — independent crown-size cross-checks.

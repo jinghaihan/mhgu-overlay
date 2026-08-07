@@ -183,12 +183,14 @@ not selected by the current Switch adapter.
 Tesla rendering and memory scanning have different timing requirements.
 
 - The UI thread reads immutable copies of `SessionView` and edits settings.
-- A worker thread polls the game every 250 ms.
+- A worker thread performs a full game poll every 250 ms. When damage display
+  is enabled, it also samples current and maximum large-monster health every
+  33 ms from the already validated monster handles.
 - Settings and view copies are protected by a short-held mutex.
 - The potentially slow heap scan and all `dmnt:cht` calls remain on the worker.
 - Settings are persisted atomically through a temporary file and rename.
 
-The compact HUD draws a bottom-aligned stack of independent translucent monster labels at the left edge of the Tesla layer. Its information hierarchy is inspired by desktop overlays, while the implementation and visual treatment are native to this project. It lowers Tesla's refresh rate and releases foreground input to the game. Holding both sticks returns to the full settings UI.
+The compact HUD draws a bottom-aligned stack of independent translucent monster labels at the left edge of the Tesla layer. Its information hierarchy is inspired by desktop overlays, while the implementation and visual treatment are native to this project. An optional portable damage tracker converts decreases between health samples into short-lived events; Tesla renders those events as animated values at a fixed screen position rather than attempting to project monster coordinates. The HUD releases foreground input to the game, renders at a higher refresh rate while damage display is enabled, and otherwise uses the lower refresh rate. Holding both sticks returns to the full settings UI.
 
 ## Quest size preset flow
 
