@@ -15,6 +15,7 @@ int main() {
   assert(defaults.locale_mode == core::LocaleMode::Auto);
   assert(defaults.size_preset == core::SizePreset::Off);
   assert(defaults.frame_rate == core::FrameRate::Fps30);
+  assert(!defaults.damage_display_enabled);
   assert(defaults.monster_damage_mode == core::MonsterDamageMode::Off);
   assert(defaults.item_pouch_slot == 1);
   assert(defaults.item_pouch_quantity == 99);
@@ -75,6 +76,7 @@ int main() {
   expected.locale_mode = core::LocaleMode::SimplifiedChinese;
   expected.size_preset = core::SizePreset::Gold;
   expected.frame_rate = core::FrameRate::Fps60;
+  expected.damage_display_enabled = true;
   expected.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
   expected.item_pouch_slot = 7;
   expected.item_pouch_quantity = 42;
@@ -94,6 +96,7 @@ int main() {
   assert(restored.locale_mode == expected.locale_mode);
   assert(restored.size_preset == expected.size_preset);
   assert(restored.frame_rate == expected.frame_rate);
+  assert(restored.damage_display_enabled);
   assert(restored.monster_damage_mode == core::MonsterDamageMode::Off);
   assert(restored.item_pouch_slot == 7);
   assert(restored.item_pouch_quantity == 42);

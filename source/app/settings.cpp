@@ -224,6 +224,8 @@ core::CoreSettings SettingsStore::load() const {
       settings.size_preset = parse_preset(value);
     } else if (std::strcmp(key, "frame_rate") == 0) {
       settings.frame_rate = parse_frame_rate(value);
+    } else if (std::strcmp(key, "damage_display") == 0) {
+      settings.damage_display_enabled = std::strcmp(value, "1") == 0;
     } else if (std::strcmp(key, "hunter_affinity") == 0) {
       settings.numeric_features[core::numeric_feature_index(
         core::NumericFeature::HunterAffinity
@@ -289,6 +291,11 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
   std::fprintf(file, "language=%s\n", locale_value(settings.locale_mode));
   std::fprintf(file, "size_preset=%s\n", preset_value(settings.size_preset));
   std::fprintf(file, "frame_rate=%s\n", frame_rate_value(settings.frame_rate));
+  std::fprintf(
+    file,
+    "damage_display=%u\n",
+    settings.damage_display_enabled ? 1U : 0U
+  );
   std::fprintf(
     file,
     "hunter_affinity=%u\n",

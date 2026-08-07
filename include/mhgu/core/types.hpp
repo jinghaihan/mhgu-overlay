@@ -177,6 +177,7 @@ struct CoreSettings {
   LocaleMode locale_mode{LocaleMode::Auto};
   SizePreset size_preset{SizePreset::Off};
   FrameRate frame_rate{FrameRate::Fps30};
+  bool damage_display_enabled{};
   MonsterDamageMode monster_damage_mode{MonsterDamageMode::Off};
   std::uint8_t item_pouch_slot{1};
   std::uint8_t item_pouch_quantity{99};

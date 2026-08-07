@@ -87,6 +87,16 @@ void Model::cycle_frame_rate() {
   persist(changed);
 }
 
+void Model::toggle_damage_display() {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    settings_.damage_display_enabled = !settings_.damage_display_enabled;
+    changed = settings_;
+  }
+  persist(changed);
+}
+
 void Model::cycle_monster_damage_mode(const int direction) {
   const std::scoped_lock lock(mutex_);
   if (direction < 0) {
@@ -231,14 +241,39 @@ void Model::persist(const core::CoreSettings& settings) {
 }
 
 void Model::worker_main() {
+  using Clock = std::chrono::steady_clock;
+  constexpr auto kFullPollInterval = std::chrono::milliseconds(250);
+  constexpr auto kDamagePollInterval = std::chrono::milliseconds(33);
+
   platform::switch_adapter::GameSession session;
   session.initialize();
+  auto next_full_poll = Clock::now();
+  auto next_damage_poll = next_full_poll;
   while (running_) {
+    const auto now = Clock::now();
     if (rescan_requested_.exchange(false)) {
       session.request_rescan();
+      next_full_poll = now;
     }
     const auto current_settings = settings();
-    session.poll(current_settings);
+    if (now >= next_full_poll) {
+      session.poll(current_settings);
+      next_full_poll = Clock::now() + kFullPollInterval;
+    }
+    const auto damage_now = Clock::now();
+    if (current_settings.damage_display_enabled &&
+        damage_now >= next_damage_poll) {
+      const auto now_ms = static_cast<std::uint64_t>(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+          damage_now.time_since_epoch()
+        ).count()
+      );
+      session.poll_damage(true, now_ms);
+      next_damage_poll = Clock::now() + kDamagePollInterval;
+    } else if (!current_settings.damage_display_enabled) {
+      session.poll_damage(false, 0);
+      next_damage_poll = now;
+    }
     const auto item_pouch_write_request =
       item_pouch_write_request_.exchange(0);
     if (item_pouch_write_request != 0) {
@@ -251,7 +286,12 @@ void Model::worker_main() {
       const std::scoped_lock lock(mutex_);
       view_ = session.view();
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
+    auto next_wake = next_full_poll;
+    if (current_settings.damage_display_enabled) {
+      next_wake = std::min(next_wake, next_damage_poll);
+    }
+    std::this_thread::sleep_until(next_wake);
   }
   session.shutdown();
 }
