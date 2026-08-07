@@ -29,6 +29,7 @@
     "hunter": "猎人",
     "invincible": "无敌",
     "healthNoDecrease": "体力不减",
+    "staminaNoDecrease": "耐力不减",
     "openOverlay": "打开 Overlay"
   },
   "monsters": {

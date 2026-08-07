@@ -54,6 +54,7 @@ enum class RuntimeFeature : std::uint8_t {
   CarryItemsIntoPouch,
   Invincible,
   HealthNoDecrease,
+  StaminaNoDecrease,
   Count,
 };
 

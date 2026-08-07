@@ -29,6 +29,7 @@
     "hunter": "Hunter",
     "invincible": "Invincible",
     "healthNoDecrease": "Health does not decrease",
+    "staminaNoDecrease": "Stamina does not decrease",
     "openOverlay": "Open overlay"
   },
   "monsters": {

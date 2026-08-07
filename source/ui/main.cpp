@@ -505,6 +505,11 @@ public:
     );
     list->addItem(health_item_);
 
+    stamina_item_ = runtime_feature_item(
+      model_, UiMessage::StaminaNoDecrease, RuntimeFeature::StaminaNoDecrease
+    );
+    list->addItem(stamina_item_);
+
     frame->setContent(list);
     return frame;
   }
@@ -527,6 +532,7 @@ private:
   Model& model_;
   tsl::elm::ListItem* invincible_item_{};
   tsl::elm::ListItem* health_item_{};
+  tsl::elm::ListItem* stamina_item_{};
 };
 
 class MainGui final : public tsl::Gui {

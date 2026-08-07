@@ -47,6 +47,7 @@ UI_KEYS = [
   "hunter",
   "invincible",
   "healthNoDecrease",
+  "staminaNoDecrease",
   "openOverlay",
 ]
 

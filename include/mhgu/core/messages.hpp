@@ -34,6 +34,7 @@ enum class UiMessage : std::uint8_t {
   Hunter,
   Invincible,
   HealthNoDecrease,
+  StaminaNoDecrease,
   OpenOverlay,
 };
 
