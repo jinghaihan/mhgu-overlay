@@ -53,6 +53,7 @@ enum class RuntimeFeature : std::uint8_t {
   MapAndLargeMonsters,
   CarryItemsIntoPouch,
   Invincible,
+  HealthNoDecrease,
   Count,
 };
 

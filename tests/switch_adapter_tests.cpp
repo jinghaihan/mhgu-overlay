@@ -102,10 +102,23 @@ int main() {
   const auto invincible_index = core::runtime_feature_index(
     core::RuntimeFeature::Invincible
   );
+  const auto health_index = core::runtime_feature_index(
+    core::RuntimeFeature::HealthNoDecrease
+  );
+  assert(matched_profile->runtime_patches[health_index].count == 1);
+  assert(
+    matched_profile->runtime_patches[health_index].patches[0].offset ==
+    0x002F0CFC
+  );
+  assert(
+    matched_profile->runtime_patches[health_index].patches[0].value ==
+    0xE302170F
+  );
   profile.runtime_patches[map_index].patches[0].offset = 0x100;
   profile.runtime_patches[map_index].patches[1].offset = 0x104;
   profile.runtime_patches[carry_index].patches[0].offset = 0x108;
   profile.runtime_patches[invincible_index].patches[0].offset = 0x10C;
+  profile.runtime_patches[health_index].patches[0].offset = 0x110;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -121,6 +134,7 @@ int main() {
   constexpr std::uint32_t kOriginalMarkInstruction = 0xE3A00000;
   constexpr std::uint32_t kOriginalCarryInstruction = 0x1A000001;
   constexpr std::uint32_t kOriginalInvincibleInstruction = 0xE3500000;
+  constexpr std::uint32_t kOriginalHealthInstruction = 0xE1A01000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -136,6 +150,10 @@ int main() {
   memory.store(
     kMainBase + profile.runtime_patches[invincible_index].patches[0].offset,
     kOriginalInvincibleInstruction
+  );
+  memory.store(
+    kMainBase + profile.runtime_patches[health_index].patches[0].offset,
+    kOriginalHealthInstruction
   );
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
@@ -276,6 +294,17 @@ int main() {
     core::RuntimeFeature::Invincible
   ));
   assert(memory.write_count() == patch_writes);
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_runtime_feature(
+    core::RuntimeFeature::HealthNoDecrease
+  ));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.runtime_patches[health_index].patches[0].offset
+    ) == profile.runtime_patches[health_index].patches[0].value
+  );
 
   const std::uint8_t one = 1;
   memory.store(kList, one);

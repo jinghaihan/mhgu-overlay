@@ -478,6 +478,30 @@ public:
     });
     list->addItem(invincible_item_);
 
+    health_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::HealthNoDecrease, locale)
+    );
+    health_item_->setValue(mhgu::core::ui_message(
+      runtime_feature_enabled(model_, RuntimeFeature::HealthNoDecrease)
+        ? UiMessage::On
+        : UiMessage::Off,
+      locale
+    ));
+    health_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0 &&
+          !runtime_feature_enabled(
+            model_, RuntimeFeature::HealthNoDecrease
+          )) {
+        model_.enable_runtime_feature(RuntimeFeature::HealthNoDecrease);
+        health_item_->setValue(mhgu::core::ui_message(
+          UiMessage::On, model_.display_locale()
+        ));
+        return true;
+      }
+      return false;
+    });
+    list->addItem(health_item_);
+
     frame->setContent(list);
     return frame;
   }
@@ -499,6 +523,7 @@ public:
 private:
   Model& model_;
   tsl::elm::ListItem* invincible_item_{};
+  tsl::elm::ListItem* health_item_{};
 };
 
 class MainGui final : public tsl::Gui {

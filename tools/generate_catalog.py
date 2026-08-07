@@ -46,6 +46,7 @@ UI_KEYS = [
   "battleFunctions",
   "hunter",
   "invincible",
+  "healthNoDecrease",
   "openOverlay",
 ]
 

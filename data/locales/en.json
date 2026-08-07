@@ -28,6 +28,7 @@
     "battleFunctions": "Battle functions",
     "hunter": "Hunter",
     "invincible": "Invincible",
+    "healthNoDecrease": "Health does not decrease",
     "openOverlay": "Open overlay"
   },
   "monsters": {

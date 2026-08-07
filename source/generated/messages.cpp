@@ -33,6 +33,7 @@ constexpr const char* kMessages[][3] = {
   {"Battle functions", "战斗功能", "戦闘機能"},
   {"Hunter", "猎人", "ハンター"},
   {"Invincible", "无敌", "無敵"},
+  {"Health does not decrease", "体力不减", "体力減少なし"},
   {"Open overlay", "打开 Overlay", "オーバーレイを開く"},
 };
 

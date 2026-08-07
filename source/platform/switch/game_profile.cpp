@@ -46,11 +46,17 @@ constexpr MainWordPatchSet kInvinciblePatches{
   1,
 };
 
+constexpr MainWordPatchSet kHealthNoDecreasePatches{
+  {{{0x002F0CFC, 0xE302170F}}},
+  1,
+};
+
 constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
   kRuntimePatches{
     kMapAndLargeMonstersPatches,
     kCarryItemsIntoPouchPatches,
     kInvinciblePatches,
+    kHealthNoDecreasePatches,
 };
 
 constexpr GameProfile kProfiles[]{
