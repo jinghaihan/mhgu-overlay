@@ -16,6 +16,7 @@ namespace {
 using mhgu::app::Model;
 using mhgu::core::Locale;
 using mhgu::core::LocaleMode;
+using mhgu::core::RuntimeFeature;
 using mhgu::core::SizePreset;
 using mhgu::core::UiMessage;
 using mhgu::platform::switch_adapter::SessionStatus;
@@ -50,6 +51,15 @@ const char* frame_rate_value(Model& model) {
       ? UiMessage::Fps60
       : UiMessage::Fps30
   );
+}
+
+bool runtime_feature_enabled(
+  Model& model, const RuntimeFeature feature
+) {
+  const auto settings = model.settings();
+  const auto index = mhgu::core::runtime_feature_index(feature);
+  return index < settings.runtime_features.size() &&
+         settings.runtime_features[index];
 }
 
 const char* status_value(const SessionStatus status, const Locale locale) {
@@ -450,11 +460,15 @@ public:
       mhgu::core::ui_message(UiMessage::Invincible, locale)
     );
     invincible_item_->setValue(mhgu::core::ui_message(
-      model_.settings().invincible ? UiMessage::On : UiMessage::Off, locale
+      runtime_feature_enabled(model_, RuntimeFeature::Invincible)
+        ? UiMessage::On
+        : UiMessage::Off,
+      locale
     ));
     invincible_item_->setClickListener([this](const u64 keys) {
-      if ((keys & HidNpadButton_A) != 0 && !model_.settings().invincible) {
-        model_.enable_invincible();
+      if ((keys & HidNpadButton_A) != 0 &&
+          !runtime_feature_enabled(model_, RuntimeFeature::Invincible)) {
+        model_.enable_runtime_feature(RuntimeFeature::Invincible);
         invincible_item_->setValue(mhgu::core::ui_message(
           UiMessage::On, model_.display_locale()
         ));
@@ -592,14 +606,17 @@ public:
       mhgu::core::ui_message(UiMessage::MapAndLargeMonsters, locale)
     );
     map_item_->setValue(mhgu::core::ui_message(
-      model_.settings().show_map_and_large_monsters ? UiMessage::On
-                                                    : UiMessage::Off,
+      runtime_feature_enabled(model_, RuntimeFeature::MapAndLargeMonsters)
+        ? UiMessage::On
+        : UiMessage::Off,
       locale
     ));
     map_item_->setClickListener([this](const u64 keys) {
       if ((keys & HidNpadButton_A) != 0 &&
-          !model_.settings().show_map_and_large_monsters) {
-        model_.enable_map_and_large_monsters();
+          !runtime_feature_enabled(
+            model_, RuntimeFeature::MapAndLargeMonsters
+          )) {
+        model_.enable_runtime_feature(RuntimeFeature::MapAndLargeMonsters);
         refresh_labels();
         return true;
       }
@@ -611,14 +628,17 @@ public:
       mhgu::core::ui_message(UiMessage::CarryItemsIntoPouch, locale)
     );
     carry_item_->setValue(mhgu::core::ui_message(
-      model_.settings().carry_items_into_pouch ? UiMessage::On
-                                               : UiMessage::Off,
+      runtime_feature_enabled(model_, RuntimeFeature::CarryItemsIntoPouch)
+        ? UiMessage::On
+        : UiMessage::Off,
       locale
     ));
     carry_item_->setClickListener([this](const u64 keys) {
       if ((keys & HidNpadButton_A) != 0 &&
-          !model_.settings().carry_items_into_pouch) {
-        model_.enable_carry_items_into_pouch();
+          !runtime_feature_enabled(
+            model_, RuntimeFeature::CarryItemsIntoPouch
+          )) {
+        model_.enable_runtime_feature(RuntimeFeature::CarryItemsIntoPouch);
         refresh_labels();
         return true;
       }
@@ -704,16 +724,18 @@ private:
       mhgu::core::ui_message(UiMessage::MapAndLargeMonsters, locale)
     );
     map_item_->setValue(mhgu::core::ui_message(
-      model_.settings().show_map_and_large_monsters ? UiMessage::On
-                                                    : UiMessage::Off,
+      runtime_feature_enabled(model_, RuntimeFeature::MapAndLargeMonsters)
+        ? UiMessage::On
+        : UiMessage::Off,
       locale
     ));
     carry_item_->setText(
       mhgu::core::ui_message(UiMessage::CarryItemsIntoPouch, locale)
     );
     carry_item_->setValue(mhgu::core::ui_message(
-      model_.settings().carry_items_into_pouch ? UiMessage::On
-                                               : UiMessage::Off,
+      runtime_feature_enabled(model_, RuntimeFeature::CarryItemsIntoPouch)
+        ? UiMessage::On
+        : UiMessage::Off,
       locale
     ));
     battle_item_->setText(

@@ -49,6 +49,20 @@ enum class FrameRate : std::uint8_t {
   Fps60,
 };
 
+enum class RuntimeFeature : std::uint8_t {
+  MapAndLargeMonsters,
+  CarryItemsIntoPouch,
+  Invincible,
+  Count,
+};
+
+constexpr std::size_t kRuntimeFeatureCount =
+  static_cast<std::size_t>(RuntimeFeature::Count);
+
+constexpr std::size_t runtime_feature_index(const RuntimeFeature feature) {
+  return static_cast<std::size_t>(feature);
+}
+
 struct LocalizedNames {
   const char* english;
   const char* simplified_chinese;
@@ -88,9 +102,7 @@ struct CoreSettings {
   LocaleMode locale_mode{LocaleMode::Auto};
   SizePreset size_preset{SizePreset::Off};
   FrameRate frame_rate{FrameRate::Fps30};
-  bool show_map_and_large_monsters{};
-  bool carry_items_into_pouch{};
-  bool invincible{};
+  std::array<bool, kRuntimeFeatureCount> runtime_features{};
 };
 
 struct MonsterView {

@@ -147,6 +147,11 @@ instruction through the same validated path. These selectors are intentionally
 one-way and are not persisted. Reapplying them is idempotent, while restoring
 the original instructions is left to a game restart.
 
+One-way selectors are represented as bounded patch sets keyed by a portable
+runtime-feature identifier. The application model and session track requested
+and applied features in fixed-size arrays, while all raw offsets and
+instructions remain inside the MHGU build profile.
+
 Candidate validation prevents a coincidental byte pattern from becoming a
 write target. A failed list validation discards the address and forces a new
 scan. Unknown location states and defeated objects are rejected. Immediately

@@ -89,9 +89,7 @@ bool GameSession::attach() {
       memory_, *profile_, heap_base_, heap_size_
     );
     applied_frame_rate_ = core::FrameRate::Fps30;
-    map_and_large_monsters_applied_ = false;
-    carry_items_into_pouch_applied_ = false;
-    invincible_applied_ = false;
+    applied_runtime_features_ = {};
     view_ = {};
     view_.status = SessionStatus::Searching;
     view_.game = profile_->game;
@@ -118,9 +116,7 @@ void GameSession::detach(const SessionStatus status) {
   address_space_base_ = 0;
   address_space_size_ = 0;
   applied_frame_rate_ = core::FrameRate::Fps30;
-  map_and_large_monsters_applied_ = false;
-  carry_items_into_pouch_applied_ = false;
-  invincible_applied_ = false;
+  applied_runtime_features_ = {};
   view_ = {};
   view_.status = status;
 }
@@ -136,38 +132,24 @@ bool GameSession::sync_frame_rate(const core::FrameRate frame_rate) {
   return true;
 }
 
-bool GameSession::sync_map_and_large_monsters(const bool enabled) {
-  if (!enabled || map_and_large_monsters_applied_) {
-    return true;
+bool GameSession::sync_runtime_features(
+  const core::CoreSettings& settings
+) {
+  bool success = true;
+  for (std::size_t index = 0; index < core::kRuntimeFeatureCount; ++index) {
+    if (!settings.runtime_features[index] ||
+        applied_runtime_features_[index]) {
+      continue;
+    }
+    if (patches_ == nullptr || !patches_->enable_runtime_feature(
+                                 static_cast<core::RuntimeFeature>(index)
+                               )) {
+      success = false;
+      continue;
+    }
+    applied_runtime_features_[index] = true;
   }
-  if (patches_ == nullptr ||
-      !patches_->enable_map_and_large_monsters()) {
-    return false;
-  }
-  map_and_large_monsters_applied_ = true;
-  return true;
-}
-
-bool GameSession::sync_carry_items_into_pouch(const bool enabled) {
-  if (!enabled || carry_items_into_pouch_applied_) {
-    return true;
-  }
-  if (patches_ == nullptr || !patches_->enable_carry_items_into_pouch()) {
-    return false;
-  }
-  carry_items_into_pouch_applied_ = true;
-  return true;
-}
-
-bool GameSession::sync_invincible(const bool enabled) {
-  if (!enabled || invincible_applied_) {
-    return true;
-  }
-  if (patches_ == nullptr || !patches_->enable_invincible()) {
-    return false;
-  }
-  invincible_applied_ = true;
-  return true;
+  return success;
 }
 
 void GameSession::poll(const core::CoreSettings& settings) {
@@ -179,15 +161,8 @@ void GameSession::poll(const core::CoreSettings& settings) {
     return;
   }
   const auto frame_rate_ok = sync_frame_rate(settings.frame_rate);
-  const auto map_ok = sync_map_and_large_monsters(
-    settings.show_map_and_large_monsters
-  );
-  const auto carry_items_ok = sync_carry_items_into_pouch(
-    settings.carry_items_into_pouch
-  );
-  const auto invincible_ok = sync_invincible(settings.invincible);
-  const auto runtime_patches_ok =
-    frame_rate_ok && map_ok && carry_items_ok && invincible_ok;
+  const auto runtime_features_ok = sync_runtime_features(settings);
+  const auto runtime_patches_ok = frame_rate_ok && runtime_features_ok;
 
   if (view_.pointer_list == 0) {
     view_.status = SessionStatus::Searching;

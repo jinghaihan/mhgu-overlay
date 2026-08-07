@@ -42,6 +42,13 @@ struct MainWordPatch {
   std::uint32_t value;
 };
 
+constexpr std::size_t kMaxMainWordPatchesPerFeature = 8;
+
+struct MainWordPatchSet {
+  std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> patches;
+  std::size_t count;
+};
+
 struct GameProfile {
   const char* name;
   core::GameId game;
@@ -52,10 +59,7 @@ struct GameProfile {
   MonsterLayout monster;
   PointerListLayout pointer_list;
   FrameRatePatch frame_rate;
-  MainWordPatch show_map;
-  MainWordPatch mark_large_monsters;
-  MainWordPatch carry_items_into_pouch;
-  MainWordPatch invincible;
+  std::array<MainWordPatchSet, core::kRuntimeFeatureCount> runtime_patches;
 };
 
 constexpr std::uint64_t kMhguTitleId = 0x0100770008DD8000ULL;

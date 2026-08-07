@@ -86,19 +86,12 @@ void Model::cycle_frame_rate() {
   persist(changed);
 }
 
-void Model::enable_map_and_large_monsters() {
+void Model::enable_runtime_feature(const core::RuntimeFeature feature) {
   const std::scoped_lock lock(mutex_);
-  settings_.show_map_and_large_monsters = true;
-}
-
-void Model::enable_carry_items_into_pouch() {
-  const std::scoped_lock lock(mutex_);
-  settings_.carry_items_into_pouch = true;
-}
-
-void Model::enable_invincible() {
-  const std::scoped_lock lock(mutex_);
-  settings_.invincible = true;
+  const auto index = core::runtime_feature_index(feature);
+  if (index < settings_.runtime_features.size()) {
+    settings_.runtime_features[index] = true;
+  }
 }
 
 void Model::cycle_size_preset() {

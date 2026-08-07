@@ -31,24 +31,26 @@ constexpr FrameRatePatch kFrameRatePatch{
   0x42700000,
 };
 
-constexpr MainWordPatch kShowMapPatch{
-  0x0061BAD0,
-  0xE1A00000,
+constexpr MainWordPatchSet kMapAndLargeMonstersPatches{
+  {{{0x0061BAD0, 0xE1A00000}, {0x0061CC94, 0xE3A00001}}},
+  2,
 };
 
-constexpr MainWordPatch kMarkLargeMonstersPatch{
-  0x0061CC94,
-  0xE3A00001,
+constexpr MainWordPatchSet kCarryItemsIntoPouchPatches{
+  {{{0x001943CC, 0x33000000}}},
+  1,
 };
 
-constexpr MainWordPatch kCarryItemsIntoPouchPatch{
-  0x001943CC,
-  0x33000000,
+constexpr MainWordPatchSet kInvinciblePatches{
+  {{{0x0016B2A4, 0xE3A00000}}},
+  1,
 };
 
-constexpr MainWordPatch kInvinciblePatch{
-  0x0016B2A4,
-  0xE3A00000,
+constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
+  kRuntimePatches{
+    kMapAndLargeMonstersPatches,
+    kCarryItemsIntoPouchPatches,
+    kInvinciblePatches,
 };
 
 constexpr GameProfile kProfiles[]{
@@ -62,10 +64,7 @@ constexpr GameProfile kProfiles[]{
     kMonsterLayout,
     kPointerListLayout,
     kFrameRatePatch,
-    kShowMapPatch,
-    kMarkLargeMonstersPatch,
-    kCarryItemsIntoPouchPatch,
-    kInvinciblePatch,
+    kRuntimePatches,
   },
 };
 

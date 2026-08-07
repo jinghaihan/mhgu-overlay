@@ -1,5 +1,6 @@
 #include "mhgu/platform/switch/game_patches.hpp"
 
+#include <array>
 #include <limits>
 
 namespace mhgu::platform::switch_adapter {
@@ -120,35 +121,32 @@ bool GamePatches::set_frame_rate(const core::FrameRate frame_rate) {
          verified == desired;
 }
 
-bool GamePatches::enable_map_and_large_monsters() {
-  std::uint64_t show_map_address{};
-  std::uint64_t mark_monsters_address{};
-  if (!main_word_patch_address(profile_.show_map, show_map_address) ||
-      !main_word_patch_address(
-        profile_.mark_large_monsters, mark_monsters_address
-      )) {
+bool GamePatches::enable_runtime_feature(
+  const core::RuntimeFeature feature
+) {
+  const auto feature_index = core::runtime_feature_index(feature);
+  if (feature_index >= profile_.runtime_patches.size()) {
     return false;
   }
-  return apply_main_word_patch(profile_.show_map, show_map_address) &&
-         apply_main_word_patch(
-           profile_.mark_large_monsters, mark_monsters_address
-         );
-}
+  const auto& patch_set = profile_.runtime_patches[feature_index];
+  if (patch_set.count == 0 || patch_set.count > patch_set.patches.size()) {
+    return false;
+  }
 
-bool GamePatches::enable_carry_items_into_pouch() {
-  std::uint64_t address{};
-  if (!main_word_patch_address(profile_.carry_items_into_pouch, address)) {
-    return false;
+  std::array<std::uint64_t, kMaxMainWordPatchesPerFeature> addresses{};
+  for (std::size_t index = 0; index < patch_set.count; ++index) {
+    if (!main_word_patch_address(patch_set.patches[index], addresses[index])) {
+      return false;
+    }
   }
-  return apply_main_word_patch(profile_.carry_items_into_pouch, address);
-}
-
-bool GamePatches::enable_invincible() {
-  std::uint64_t address{};
-  if (!main_word_patch_address(profile_.invincible, address)) {
-    return false;
+  for (std::size_t index = 0; index < patch_set.count; ++index) {
+    if (!apply_main_word_patch(
+          patch_set.patches[index], addresses[index]
+        )) {
+      return false;
+    }
   }
-  return apply_main_word_patch(profile_.invincible, address);
+  return true;
 }
 
 }  // namespace mhgu::platform::switch_adapter

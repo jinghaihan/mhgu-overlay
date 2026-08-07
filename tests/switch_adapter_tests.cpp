@@ -93,10 +93,19 @@ int main() {
   constexpr std::uint64_t kFrameRateTargetOffset = 0x20;
   profile.frame_rate.pointer_from_main = kFrameRatePointer;
   profile.frame_rate.target_from_pointer = kFrameRateTargetOffset;
-  profile.show_map.offset = 0x100;
-  profile.mark_large_monsters.offset = 0x104;
-  profile.carry_items_into_pouch.offset = 0x108;
-  profile.invincible.offset = 0x10C;
+  const auto map_index = core::runtime_feature_index(
+    core::RuntimeFeature::MapAndLargeMonsters
+  );
+  const auto carry_index = core::runtime_feature_index(
+    core::RuntimeFeature::CarryItemsIntoPouch
+  );
+  const auto invincible_index = core::runtime_feature_index(
+    core::RuntimeFeature::Invincible
+  );
+  profile.runtime_patches[map_index].patches[0].offset = 0x100;
+  profile.runtime_patches[map_index].patches[1].offset = 0x104;
+  profile.runtime_patches[carry_index].patches[0].offset = 0x108;
+  profile.runtime_patches[invincible_index].patches[0].offset = 0x10C;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -113,22 +122,25 @@ int main() {
   constexpr std::uint32_t kOriginalCarryInstruction = 0x1A000001;
   constexpr std::uint32_t kOriginalInvincibleInstruction = 0xE3500000;
   memory.store(
-    kMainBase + profile.show_map.offset, kOriginalShowMapInstruction
+    kMainBase + profile.runtime_patches[map_index].patches[0].offset,
+    kOriginalShowMapInstruction
   );
   memory.store(
-    kMainBase + profile.mark_large_monsters.offset,
+    kMainBase + profile.runtime_patches[map_index].patches[1].offset,
     kOriginalMarkInstruction
   );
   memory.store(
-    kMainBase + profile.carry_items_into_pouch.offset,
+    kMainBase + profile.runtime_patches[carry_index].patches[0].offset,
     kOriginalCarryInstruction
   );
   memory.store(
-    kMainBase + profile.invincible.offset, kOriginalInvincibleInstruction
+    kMainBase + profile.runtime_patches[invincible_index].patches[0].offset,
+    kOriginalInvincibleInstruction
   );
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
   );
+  assert(!patches.enable_runtime_feature(core::RuntimeFeature::Count));
   auto patch_writes = memory.write_count();
   assert(patches.set_frame_rate(core::FrameRate::Fps60));
   assert(memory.write_count() == patch_writes + 1);
@@ -177,72 +189,92 @@ int main() {
   );
 
   patch_writes = memory.write_count();
-  assert(patches.enable_map_and_large_monsters());
+  assert(patches.enable_runtime_feature(
+    core::RuntimeFeature::MapAndLargeMonsters
+  ));
   assert(memory.write_count() == patch_writes + 2);
   assert(
-    memory.load<std::uint32_t>(kMainBase + profile.show_map.offset) ==
-    profile.show_map.value
+    memory.load<std::uint32_t>(
+      kMainBase + profile.runtime_patches[map_index].patches[0].offset
+    ) == profile.runtime_patches[map_index].patches[0].value
   );
   assert(
     memory.load<std::uint32_t>(
-      kMainBase + profile.mark_large_monsters.offset
-    ) == profile.mark_large_monsters.value
+      kMainBase + profile.runtime_patches[map_index].patches[1].offset
+    ) == profile.runtime_patches[map_index].patches[1].value
   );
   patch_writes = memory.write_count();
-  assert(patches.enable_map_and_large_monsters());
+  assert(patches.enable_runtime_feature(
+    core::RuntimeFeature::MapAndLargeMonsters
+  ));
   assert(memory.write_count() == patch_writes);
 
   auto invalid_map_profile = profile;
-  invalid_map_profile.mark_large_monsters.offset = 0x1000;
+  invalid_map_profile.runtime_patches[map_index].patches[1].offset = 0x1000;
   memory.store(
-    kMainBase + profile.show_map.offset, kOriginalShowMapInstruction
+    kMainBase + profile.runtime_patches[map_index].patches[0].offset,
+    kOriginalShowMapInstruction
   );
   GamePatches invalid_map(
     memory, invalid_map_profile, kMainBase, 0x1000, 0, 0x20000
   );
   patch_writes = memory.write_count();
-  assert(!invalid_map.enable_map_and_large_monsters());
+  assert(!invalid_map.enable_runtime_feature(
+    core::RuntimeFeature::MapAndLargeMonsters
+  ));
   assert(memory.write_count() == patch_writes);
 
   patch_writes = memory.write_count();
-  assert(patches.enable_carry_items_into_pouch());
+  assert(patches.enable_runtime_feature(
+    core::RuntimeFeature::CarryItemsIntoPouch
+  ));
   assert(memory.write_count() == patch_writes + 1);
   assert(
     memory.load<std::uint32_t>(
-      kMainBase + profile.carry_items_into_pouch.offset
-    ) == profile.carry_items_into_pouch.value
+      kMainBase + profile.runtime_patches[carry_index].patches[0].offset
+    ) == profile.runtime_patches[carry_index].patches[0].value
   );
   patch_writes = memory.write_count();
-  assert(patches.enable_carry_items_into_pouch());
+  assert(patches.enable_runtime_feature(
+    core::RuntimeFeature::CarryItemsIntoPouch
+  ));
   assert(memory.write_count() == patch_writes);
 
   auto invalid_carry_profile = profile;
-  invalid_carry_profile.carry_items_into_pouch.offset = 0x1000;
+  invalid_carry_profile.runtime_patches[carry_index].patches[0].offset =
+    0x1000;
   GamePatches invalid_carry(
     memory, invalid_carry_profile, kMainBase, 0x1000, 0, 0x20000
   );
   patch_writes = memory.write_count();
-  assert(!invalid_carry.enable_carry_items_into_pouch());
+  assert(!invalid_carry.enable_runtime_feature(
+    core::RuntimeFeature::CarryItemsIntoPouch
+  ));
   assert(memory.write_count() == patch_writes);
 
   patch_writes = memory.write_count();
-  assert(patches.enable_invincible());
+  assert(patches.enable_runtime_feature(core::RuntimeFeature::Invincible));
   assert(memory.write_count() == patch_writes + 1);
   assert(
-    memory.load<std::uint32_t>(kMainBase + profile.invincible.offset) ==
-    profile.invincible.value
+    memory.load<std::uint32_t>(
+      kMainBase + profile.runtime_patches[invincible_index].patches[0].offset
+    ) == profile.runtime_patches[invincible_index].patches[0].value
   );
   patch_writes = memory.write_count();
-  assert(patches.enable_invincible());
+  assert(patches.enable_runtime_feature(core::RuntimeFeature::Invincible));
   assert(memory.write_count() == patch_writes);
 
   auto invalid_invincible_profile = profile;
-  invalid_invincible_profile.invincible.offset = 0x1000;
+  invalid_invincible_profile.runtime_patches[invincible_index]
+    .patches[0]
+    .offset = 0x1000;
   GamePatches invalid_invincible(
     memory, invalid_invincible_profile, kMainBase, 0x1000, 0, 0x20000
   );
   patch_writes = memory.write_count();
-  assert(!invalid_invincible.enable_invincible());
+  assert(!invalid_invincible.enable_runtime_feature(
+    core::RuntimeFeature::Invincible
+  ));
   assert(memory.write_count() == patch_writes);
 
   const std::uint8_t one = 1;

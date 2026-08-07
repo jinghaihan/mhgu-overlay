@@ -23,9 +23,7 @@ public:
 
   void cycle_language();
   void cycle_frame_rate();
-  void enable_map_and_large_monsters();
-  void enable_carry_items_into_pouch();
-  void enable_invincible();
+  void enable_runtime_feature(core::RuntimeFeature feature);
   void cycle_size_preset();
   void request_rescan();
 
