@@ -28,8 +28,8 @@ Generations Ultimate on Nintendo Switch.
 - Switches between the original 30 FPS target and a 60 FPS target.
 - Automatically displays the map and marks large-monster locations.
 - Allows carried items, such as eggs, to enter the item pouch.
-- Adds invincibility, no-health-decrease, and no-stamina-decrease options under
-  the grouped battle-functions menu.
+- Adds invincibility plus health, stamina, and sharpness protection under the
+  grouped battle-functions menu.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -66,8 +66,9 @@ Generations Ultimate on Nintendo Switch.
 - **Carry items into pouch** is also a one-way, non-persistent selector;
   restarting the game restores the original carrying behavior.
 - **Battle functions** groups hunter, combat-parameter, and Palico modifiers.
-  **Invincible**, **Health does not decrease**, and **Stamina does not
-  decrease** are one-way, non-persistent instruction patches.
+  **Invincible**, **Health does not decrease**, **Stamina does not decrease**,
+  and **Sharpness does not decrease** are one-way, non-persistent instruction
+  patches.
 - Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.

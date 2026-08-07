@@ -55,6 +55,7 @@ enum class RuntimeFeature : std::uint8_t {
   Invincible,
   HealthNoDecrease,
   StaminaNoDecrease,
+  SharpnessNoDecrease,
   Count,
 };
 

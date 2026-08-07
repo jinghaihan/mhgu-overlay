@@ -30,6 +30,7 @@
     "invincible": "無敵",
     "healthNoDecrease": "体力減少なし",
     "staminaNoDecrease": "スタミナ減少なし",
+    "sharpnessNoDecrease": "斬れ味減少なし",
     "openOverlay": "オーバーレイを開く"
   },
   "monsters": {

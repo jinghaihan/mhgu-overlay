@@ -35,6 +35,7 @@ constexpr const char* kMessages[][3] = {
   {"Invincible", "无敌", "無敵"},
   {"Health does not decrease", "体力不减", "体力減少なし"},
   {"Stamina does not decrease", "耐力不减", "スタミナ減少なし"},
+  {"Sharpness does not decrease", "斩味不减", "斬れ味減少なし"},
   {"Open overlay", "打开 Overlay", "オーバーレイを開く"},
 };
 

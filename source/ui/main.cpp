@@ -510,6 +510,13 @@ public:
     );
     list->addItem(stamina_item_);
 
+    sharpness_item_ = runtime_feature_item(
+      model_,
+      UiMessage::SharpnessNoDecrease,
+      RuntimeFeature::SharpnessNoDecrease
+    );
+    list->addItem(sharpness_item_);
+
     frame->setContent(list);
     return frame;
   }
@@ -533,6 +540,7 @@ private:
   tsl::elm::ListItem* invincible_item_{};
   tsl::elm::ListItem* health_item_{};
   tsl::elm::ListItem* stamina_item_{};
+  tsl::elm::ListItem* sharpness_item_{};
 };
 
 class MainGui final : public tsl::Gui {

@@ -56,6 +56,11 @@ constexpr MainWordPatchSet kStaminaNoDecreasePatches{
   1,
 };
 
+constexpr MainWordPatchSet kSharpnessNoDecreasePatches{
+  {{{0x002AD3E0, 0xE6BF1070}}},
+  1,
+};
+
 constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
   kRuntimePatches{
     kMapAndLargeMonstersPatches,
@@ -63,6 +68,7 @@ constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
     kInvinciblePatches,
     kHealthNoDecreasePatches,
     kStaminaNoDecreasePatches,
+    kSharpnessNoDecreasePatches,
 };
 
 constexpr GameProfile kProfiles[]{

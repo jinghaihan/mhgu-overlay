@@ -30,6 +30,7 @@
     "invincible": "无敌",
     "healthNoDecrease": "体力不减",
     "staminaNoDecrease": "耐力不减",
+    "sharpnessNoDecrease": "斩味不减",
     "openOverlay": "打开 Overlay"
   },
   "monsters": {

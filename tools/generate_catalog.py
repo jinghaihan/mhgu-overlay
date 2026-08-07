@@ -48,6 +48,7 @@ UI_KEYS = [
   "invincible",
   "healthNoDecrease",
   "staminaNoDecrease",
+  "sharpnessNoDecrease",
   "openOverlay",
 ]
 
