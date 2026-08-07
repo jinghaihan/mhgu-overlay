@@ -138,6 +138,9 @@ int main() {
   const auto palico_affinity_index = core::numeric_feature_index(
     core::NumericFeature::PalicoAffinity
   );
+  const auto sp_level_index = core::numeric_feature_index(
+    core::NumericFeature::SpLevel
+  );
   const auto weapon_transmog_index = core::runtime_feature_index(
     core::RuntimeFeature::WeaponTransmog
   );
@@ -302,6 +305,20 @@ int main() {
         .patches[1]
         .offset == 0x000E5C38
   );
+  assert(matched_profile->numeric_patches[sp_level_index].count == 1);
+  assert(
+    matched_profile->numeric_patches[sp_level_index].patches[0].offset ==
+    0x002AC5AC
+  );
+  assert(
+    matched_profile->numeric_patches[sp_level_index].patches[0].base_value ==
+    0xE3A02000
+  );
+  assert(
+    matched_profile->numeric_patches[sp_level_index].patches[0].addend == -1
+  );
+  assert(matched_profile->numeric_patches[sp_level_index].minimum == 1);
+  assert(matched_profile->numeric_patches[sp_level_index].maximum == 4);
   assert(
     matched_profile->runtime_patches[weapon_transmog_index].count == 8
   );
@@ -364,6 +381,7 @@ int main() {
   }
   profile.numeric_patches[palico_affinity_index].patches[0].offset = 0x190;
   profile.numeric_patches[palico_affinity_index].patches[1].offset = 0x194;
+  profile.numeric_patches[sp_level_index].patches[0].offset = 0x198;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -400,6 +418,7 @@ int main() {
   constexpr std::uint32_t kOriginalArmorTransmogInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalPalicoHealthInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalPalicoAffinityInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalSpLevelInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -493,6 +512,10 @@ int main() {
       kOriginalArmorTransmogInstruction
     );
   }
+  memory.store(
+    kMainBase + profile.numeric_patches[sp_level_index].patches[0].offset,
+    kOriginalSpLevelInstruction
+  );
   for (std::size_t index = 0; index < 6; ++index) {
     memory.store(
       kMainBase + profile.runtime_patches[palico_health_index]
@@ -850,6 +873,27 @@ int main() {
   assert(!patches.set_numeric_feature(
     core::NumericFeature::PalicoAffinity, 101
   ));
+
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(core::NumericFeature::SpLevel, 4));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[sp_level_index].patches[0].offset
+    ) == 0xE3A02003
+  );
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(core::NumericFeature::SpLevel, 4));
+  assert(memory.write_count() == patch_writes);
+  assert(patches.set_numeric_feature(core::NumericFeature::SpLevel, 1));
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[sp_level_index].patches[0].offset
+    ) == 0xE3A02000
+  );
+  patch_writes = memory.write_count();
+  assert(!patches.set_numeric_feature(core::NumericFeature::SpLevel, 0));
+  assert(memory.write_count() == patch_writes);
 
   auto invalid_palico_affinity_profile = profile;
   invalid_palico_affinity_profile.numeric_patches[palico_affinity_index]

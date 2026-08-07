@@ -50,6 +50,7 @@ constexpr const char* kMessages[][3] = {
   {"Palico health does not decrease", "随从艾露猫体力不减", "オトモ体力減少なし"},
   {"Palico affinity", "随从艾露猫会心率", "オトモ会心率"},
   {"Hunter affinity", "猎人会心率", "ハンター会心率"},
+  {"SP level", "SP等级", "SPレベル"},
   {"Monster info overlay", "怪物信息 Overlay", "モンスター情報オーバーレイ"},
 };
 

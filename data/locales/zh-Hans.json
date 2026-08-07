@@ -45,6 +45,7 @@
     "palicoHealthNoDecrease": "随从艾露猫体力不减",
     "palicoAffinity": "随从艾露猫会心率",
     "hunterAffinity": "猎人会心率",
+    "spLevel": "SP等级",
     "monsterInfoOverlay": "怪物信息 Overlay"
   },
   "monsters": {

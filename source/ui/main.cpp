@@ -122,15 +122,14 @@ void refresh_numeric_feature_item(
   const auto locale = model.display_locale();
   const auto setting = numeric_feature_setting(model, feature);
   char value[32]{};
-  std::snprintf(
-    value,
-    sizeof(value),
-    "%s / %u%%",
-    mhgu::core::ui_message(
-      setting.enabled ? UiMessage::On : UiMessage::Off, locale
-    ),
-    setting.value
+  const auto state = mhgu::core::ui_message(
+    setting.enabled ? UiMessage::On : UiMessage::Off, locale
   );
+  if (feature == NumericFeature::SpLevel) {
+    std::snprintf(value, sizeof(value), "%s / Lv. %u", state, setting.value);
+  } else {
+    std::snprintf(value, sizeof(value), "%s / %u%%", state, setting.value);
+  }
   item->setText(mhgu::core::ui_message(label, locale));
   item->setValue(value);
 }
@@ -152,9 +151,9 @@ tsl::elm::ListItem* numeric_feature_item(
       } else if ((keys & HidNpadButton_Right) != 0) {
         delta = 1;
       } else if ((keys & HidNpadButton_L) != 0) {
-        delta = -10;
+        delta = feature == NumericFeature::SpLevel ? -1 : -10;
       } else if ((keys & HidNpadButton_R) != 0) {
-        delta = 10;
+        delta = feature == NumericFeature::SpLevel ? 1 : 10;
       } else if ((keys & HidNpadButton_A) != 0) {
         model_ptr->enable_numeric_feature(feature);
         refresh_numeric_feature_item(
@@ -613,6 +612,11 @@ public:
     );
     list->addItem(alchemy_item_);
 
+    sp_level_item_ = numeric_feature_item(
+      model_, UiMessage::SpLevel, NumericFeature::SpLevel
+    );
+    list->addItem(sp_level_item_);
+
     sp_status_item_ = runtime_feature_item(
       model_, UiMessage::SpStatusNoExpire, RuntimeFeature::SpStatusNoExpire
     );
@@ -675,6 +679,7 @@ private:
   tsl::elm::ListItem* hunter_arts_item_{};
   tsl::elm::ListItem* valor_item_{};
   tsl::elm::ListItem* alchemy_item_{};
+  tsl::elm::ListItem* sp_level_item_{};
   tsl::elm::ListItem* sp_status_item_{};
   tsl::elm::ListItem* hunter_affinity_item_{};
   tsl::elm::ListItem* bowgun_item_{};

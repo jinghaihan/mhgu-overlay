@@ -50,6 +50,7 @@ enum class UiMessage : std::uint8_t {
   PalicoHealthNoDecrease,
   PalicoAffinity,
   HunterAffinity,
+  SpLevel,
   MonsterInfoOverlay,
 };
 

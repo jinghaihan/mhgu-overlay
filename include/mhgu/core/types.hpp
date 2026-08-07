@@ -72,6 +72,7 @@ enum class RuntimeFeature : std::uint8_t {
 enum class NumericFeature : std::uint8_t {
   HunterAffinity,
   PalicoAffinity,
+  SpLevel,
   Count,
 };
 
@@ -101,6 +102,8 @@ constexpr NumericFeatureRange numeric_feature_range(
     case NumericFeature::HunterAffinity:
     case NumericFeature::PalicoAffinity:
       return {0, 100};
+    case NumericFeature::SpLevel:
+      return {1, 4};
     default:
       return {0, 0};
   }
@@ -154,6 +157,7 @@ struct CoreSettings {
   std::array<NumericFeatureSetting, kNumericFeatureCount> numeric_features{{
     {100, false},
     {100, false},
+    {4, false},
   }};
 };
 

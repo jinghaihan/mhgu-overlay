@@ -58,6 +58,21 @@ std::uint16_t parse_percentage(const char* value) {
   return static_cast<std::uint16_t>(parsed);
 }
 
+std::uint16_t parse_sp_level(const char* value) {
+  char* end{};
+  const auto parsed = std::strtol(value, &end, 10);
+  if (end == value || *end != '\0') {
+    return 4;
+  }
+  if (parsed < 1) {
+    return 1;
+  }
+  if (parsed > 4) {
+    return 4;
+  }
+  return static_cast<std::uint16_t>(parsed);
+}
+
 const char* locale_value(const core::LocaleMode mode) {
   switch (mode) {
     case core::LocaleMode::English:
@@ -123,6 +138,10 @@ core::CoreSettings SettingsStore::load() const {
       settings.numeric_features[core::numeric_feature_index(
         core::NumericFeature::PalicoAffinity
       )].value = parse_percentage(value);
+    } else if (std::strcmp(key, "sp_level") == 0) {
+      settings.numeric_features[core::numeric_feature_index(
+        core::NumericFeature::SpLevel
+      )].value = parse_sp_level(value);
     } else if (std::strcmp(key, "size_lock") == 0) {
       has_legacy_size_lock = true;
       legacy_size_lock_enabled = std::strcmp(value, "1") == 0;
@@ -160,6 +179,13 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
     "palico_affinity=%u\n",
     settings.numeric_features[core::numeric_feature_index(
       core::NumericFeature::PalicoAffinity
+    )].value
+  );
+  std::fprintf(
+    file,
+    "sp_level=%u\n",
+    settings.numeric_features[core::numeric_feature_index(
+      core::NumericFeature::SpLevel
     )].value
   );
   const auto close_result = std::fclose(file);

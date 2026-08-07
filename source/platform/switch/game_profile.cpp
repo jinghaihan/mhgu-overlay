@@ -172,10 +172,22 @@ constexpr NumericWordPatchSet kPalicoAffinityPatches{
   100,
 };
 
+constexpr NumericWordPatchSet kSpLevelPatches{
+  {{{0x002AC5AC,
+     0xE3A02000,
+     NumericWordEncoding::LinearImmediate,
+     1,
+     -1}}},
+  1,
+  1,
+  4,
+};
+
 constexpr std::array<NumericWordPatchSet, core::kNumericFeatureCount>
   kNumericPatches{
     kHunterAffinityPatches,
     kPalicoAffinityPatches,
+    kSpLevelPatches,
   };
 
 constexpr GameProfile kProfiles[]{

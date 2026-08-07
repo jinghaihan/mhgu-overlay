@@ -63,6 +63,7 @@ UI_KEYS = [
   "palicoHealthNoDecrease",
   "palicoAffinity",
   "hunterAffinity",
+  "spLevel",
   "monsterInfoOverlay",
 ]
 

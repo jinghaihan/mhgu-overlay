@@ -45,6 +45,7 @@
     "palicoHealthNoDecrease": "オトモ体力減少なし",
     "palicoAffinity": "オトモ会心率",
     "hunterAffinity": "ハンター会心率",
+    "spLevel": "SPレベル",
     "monsterInfoOverlay": "モンスター情報オーバーレイ"
   },
   "monsters": {

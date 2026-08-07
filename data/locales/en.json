@@ -45,6 +45,7 @@
     "palicoHealthNoDecrease": "Palico health does not decrease",
     "palicoAffinity": "Palico affinity",
     "hunterAffinity": "Hunter affinity",
+    "spLevel": "SP level",
     "monsterInfoOverlay": "Monster info overlay"
   },
   "monsters": {
