@@ -63,15 +63,32 @@ bool GameSession::attach() {
   }
 
   if (profile_ != next_profile || process_id_ != metadata.process_id ||
+      main_base_ != metadata.main_nso_extents.base ||
+      main_size_ != metadata.main_nso_extents.size ||
       heap_base_ != metadata.heap_extents.base ||
-      heap_size_ != metadata.heap_extents.size) {
+      heap_size_ != metadata.heap_extents.size ||
+      address_space_base_ != metadata.address_space_extents.base ||
+      address_space_size_ != metadata.address_space_extents.size) {
     profile_ = next_profile;
     process_id_ = metadata.process_id;
+    main_base_ = metadata.main_nso_extents.base;
+    main_size_ = metadata.main_nso_extents.size;
     heap_base_ = metadata.heap_extents.base;
     heap_size_ = metadata.heap_extents.size;
+    address_space_base_ = metadata.address_space_extents.base;
+    address_space_size_ = metadata.address_space_extents.size;
+    patches_ = std::make_unique<GamePatches>(
+      memory_,
+      *profile_,
+      main_base_,
+      main_size_,
+      address_space_base_,
+      address_space_size_
+    );
     reader_ = std::make_unique<MonsterReader>(
       memory_, *profile_, heap_base_, heap_size_
     );
+    applied_frame_rate_ = core::FrameRate::Fps30;
     view_ = {};
     view_.status = SessionStatus::Searching;
     view_.game = profile_->game;
@@ -87,13 +104,30 @@ bool GameSession::attach() {
 }
 
 void GameSession::detach(const SessionStatus status) {
+  patches_.reset();
   reader_.reset();
   profile_ = nullptr;
   process_id_ = 0;
+  main_base_ = 0;
+  main_size_ = 0;
   heap_base_ = 0;
   heap_size_ = 0;
+  address_space_base_ = 0;
+  address_space_size_ = 0;
+  applied_frame_rate_ = core::FrameRate::Fps30;
   view_ = {};
   view_.status = status;
+}
+
+bool GameSession::sync_frame_rate(const core::FrameRate frame_rate) {
+  if (frame_rate == applied_frame_rate_) {
+    return true;
+  }
+  if (patches_ == nullptr || !patches_->set_frame_rate(frame_rate)) {
+    return false;
+  }
+  applied_frame_rate_ = frame_rate;
+  return true;
 }
 
 void GameSession::poll(const core::CoreSettings& settings) {
@@ -104,11 +138,15 @@ void GameSession::poll(const core::CoreSettings& settings) {
   if (!attach() || reader_ == nullptr) {
     return;
   }
+  const auto frame_rate_ok = sync_frame_rate(settings.frame_rate);
 
   if (view_.pointer_list == 0) {
     view_.status = SessionStatus::Searching;
     view_.pointer_list = reader_->find_pointer_list();
     if (view_.pointer_list == 0) {
+      if (!frame_rate_ok) {
+        view_.status = SessionStatus::WriteFailed;
+      }
       return;
     }
   }
@@ -125,7 +163,8 @@ void GameSession::poll(const core::CoreSettings& settings) {
   }
 
   view_.output = engine_.update(snapshot, settings);
-  view_.status = SessionStatus::Ready;
+  view_.status = frame_rate_ok ? SessionStatus::Ready
+                               : SessionStatus::WriteFailed;
   for (std::size_t index = 0; index < view_.output.write_count; ++index) {
     std::uint16_t verified{};
     if (!reader_->apply_size(

@@ -14,15 +14,18 @@ int main() {
   const auto defaults = store.load();
   assert(defaults.locale_mode == core::LocaleMode::Auto);
   assert(defaults.size_preset == core::SizePreset::Off);
+  assert(defaults.frame_rate == core::FrameRate::Fps30);
 
   core::CoreSettings expected{};
   expected.locale_mode = core::LocaleMode::SimplifiedChinese;
   expected.size_preset = core::SizePreset::Gold;
+  expected.frame_rate = core::FrameRate::Fps60;
   assert(store.save(expected));
 
   const auto restored = store.load();
   assert(restored.locale_mode == expected.locale_mode);
   assert(restored.size_preset == expected.size_preset);
+  assert(restored.frame_rate == expected.frame_rate);
 
   auto* legacy = std::fopen(kPath, "w");
   assert(legacy != nullptr);

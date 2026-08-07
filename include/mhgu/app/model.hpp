@@ -22,6 +22,7 @@ public:
   core::Locale display_locale() const;
 
   void cycle_language();
+  void cycle_frame_rate();
   void cycle_size_preset();
   void request_rescan();
 

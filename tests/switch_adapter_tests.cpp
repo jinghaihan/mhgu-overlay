@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "mhgu/core/catalog.hpp"
+#include "mhgu/platform/switch/game_patches.hpp"
 #include "mhgu/platform/switch/game_profile.hpp"
 #include "mhgu/platform/switch/language.hpp"
 #include "mhgu/platform/switch/memory.hpp"
@@ -45,6 +46,12 @@ public:
     assert(write(address, &value, sizeof(value)));
   }
 
+  template <typename T> T load(const std::size_t address) {
+    T value{};
+    assert(read(address, &value, sizeof(value)));
+    return value;
+  }
+
   std::size_t write_count() const {
     return write_count_;
   }
@@ -80,9 +87,73 @@ int main() {
   profile.scan_start_from_heap = 0x100;
   profile.scan_end_from_heap = 0x1000;
 
+  constexpr std::uint64_t kMainBase = 0x1000;
+  constexpr std::uint64_t kFrameRatePointer = 0x80;
+  constexpr std::uint64_t kFrameRateTargetBase = 0x18000;
+  constexpr std::uint64_t kFrameRateTargetOffset = 0x20;
+  profile.frame_rate.pointer_from_main = kFrameRatePointer;
+  profile.frame_rate.target_from_pointer = kFrameRateTargetOffset;
+
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
   FakeMemory memory(0x20000);
+  memory.store(
+    kMainBase + kFrameRatePointer, kFrameRateTargetBase
+  );
+  memory.store(
+    kFrameRateTargetBase + kFrameRateTargetOffset,
+    profile.frame_rate.fps30_value
+  );
+  GamePatches patches(
+    memory, profile, kMainBase, 0x1000, 0, 0x20000
+  );
+  auto patch_writes = memory.write_count();
+  assert(patches.set_frame_rate(core::FrameRate::Fps60));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kFrameRateTargetBase + kFrameRateTargetOffset
+    ) == profile.frame_rate.fps60_value
+  );
+  patch_writes = memory.write_count();
+  assert(patches.set_frame_rate(core::FrameRate::Fps60));
+  assert(memory.write_count() == patch_writes);
+  assert(patches.set_frame_rate(core::FrameRate::Fps30));
+  assert(
+    memory.load<std::uint32_t>(
+      kFrameRateTargetBase + kFrameRateTargetOffset
+    ) == profile.frame_rate.fps30_value
+  );
+
+  constexpr std::uint32_t kUnexpectedFrameRate = 0xDEADBEEF;
+  memory.store(
+    kFrameRateTargetBase + kFrameRateTargetOffset, kUnexpectedFrameRate
+  );
+  patch_writes = memory.write_count();
+  assert(!patches.set_frame_rate(core::FrameRate::Fps60));
+  assert(memory.write_count() == patch_writes);
+  memory.store(
+    kFrameRateTargetBase + kFrameRateTargetOffset,
+    profile.frame_rate.fps30_value
+  );
+
+  auto invalid_profile = profile;
+  invalid_profile.frame_rate.pointer_from_main = 0x1000;
+  GamePatches invalid_source(
+    memory, invalid_profile, kMainBase, 0x1000, 0, 0x20000
+  );
+  patch_writes = memory.write_count();
+  assert(!invalid_source.set_frame_rate(core::FrameRate::Fps60));
+  assert(memory.write_count() == patch_writes);
+
+  memory.store(kMainBase + kFrameRatePointer, std::uint64_t{0x1FFF0});
+  patch_writes = memory.write_count();
+  assert(!patches.set_frame_rate(core::FrameRate::Fps60));
+  assert(memory.write_count() == patch_writes);
+  memory.store(
+    kMainBase + kFrameRatePointer, kFrameRateTargetBase
+  );
+
   const std::uint8_t one = 1;
   memory.store(kList, one);
   memory.store(kList + 1, one);

@@ -30,6 +30,13 @@ struct PointerListLayout {
   std::uint32_t byte_size;
 };
 
+struct FrameRatePatch {
+  std::uint64_t pointer_from_main;
+  std::uint64_t target_from_pointer;
+  std::uint32_t fps30_value;
+  std::uint32_t fps60_value;
+};
+
 struct GameProfile {
   const char* name;
   core::GameId game;
@@ -39,6 +46,7 @@ struct GameProfile {
   std::uint64_t scan_end_from_heap;
   MonsterLayout monster;
   PointerListLayout pointer_list;
+  FrameRatePatch frame_rate;
 };
 
 constexpr std::uint64_t kMhguTitleId = 0x0100770008DD8000ULL;

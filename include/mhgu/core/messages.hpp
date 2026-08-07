@@ -24,6 +24,9 @@ enum class UiMessage : std::uint8_t {
   Unsupported,
   WriteFailed,
   Hyper,
+  FrameRate,
+  Fps30,
+  Fps60,
   OpenOverlay,
 };
 

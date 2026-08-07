@@ -17,8 +17,11 @@
     "scanning": "ゲームメモリを検索中",
     "ready": "準備完了",
     "unsupported": "未対応のゲームバージョン",
-    "writeFailed": "サイズの書き込みに失敗",
+    "writeFailed": "メモリの書き込みに失敗",
     "hyper": "獰猛",
+    "frameRate": "フレームレート",
+    "fps30": "30 FPS",
+    "fps60": "60 FPS",
     "openOverlay": "オーバーレイを開く"
   },
   "monsters": {

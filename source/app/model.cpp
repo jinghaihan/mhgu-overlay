@@ -73,6 +73,19 @@ void Model::cycle_language() {
   persist(changed);
 }
 
+void Model::cycle_frame_rate() {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    settings_.frame_rate =
+      settings_.frame_rate == core::FrameRate::Fps30
+        ? core::FrameRate::Fps60
+        : core::FrameRate::Fps30;
+    changed = settings_;
+  }
+  persist(changed);
+}
+
 void Model::cycle_size_preset() {
   core::CoreSettings changed{};
   {

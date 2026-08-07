@@ -43,6 +43,15 @@ const char* language_value(Model& model) {
   }
 }
 
+const char* frame_rate_value(Model& model) {
+  return text(
+    model,
+    model.settings().frame_rate == mhgu::core::FrameRate::Fps60
+      ? UiMessage::Fps60
+      : UiMessage::Fps30
+  );
+}
+
 const char* status_value(const SessionStatus status, const Locale locale) {
   switch (status) {
     case SessionStatus::Unsupported:
@@ -469,6 +478,20 @@ public:
     });
     list->addItem(hud_item_);
 
+    frame_rate_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::FrameRate, locale)
+    );
+    frame_rate_item_->setValue(frame_rate_value(model_));
+    frame_rate_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0) {
+        model_.cycle_frame_rate();
+        refresh_labels();
+        return true;
+      }
+      return false;
+    });
+    list->addItem(frame_rate_item_);
+
     preset_item_ = new tsl::elm::ListItem(
       mhgu::core::ui_message(UiMessage::SizePreset, locale)
     );
@@ -533,6 +556,10 @@ private:
     hud_item_->setText(
       mhgu::core::ui_message(UiMessage::OpenOverlay, locale)
     );
+    frame_rate_item_->setText(
+      mhgu::core::ui_message(UiMessage::FrameRate, locale)
+    );
+    frame_rate_item_->setValue(frame_rate_value(model_));
     language_item_->setText(
       mhgu::core::ui_message(UiMessage::Language, locale)
     );
@@ -550,6 +577,7 @@ private:
   LocalizedOverlayFrame* frame_{};
   tsl::elm::ListItem* hud_item_{};
   tsl::elm::ListItem* language_item_{};
+  tsl::elm::ListItem* frame_rate_item_{};
   tsl::elm::ListItem* preset_item_{};
   tsl::elm::ListItem* scan_item_{};
 };

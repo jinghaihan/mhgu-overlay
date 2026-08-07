@@ -17,8 +17,11 @@
     "scanning": "Scanning game memory",
     "ready": "Ready",
     "unsupported": "Unsupported game version",
-    "writeFailed": "Size write failed",
+    "writeFailed": "Memory write failed",
     "hyper": "Hyper",
+    "frameRate": "Frame rate",
+    "fps30": "30 FPS",
+    "fps60": "60 FPS",
     "openOverlay": "Open overlay"
   },
   "monsters": {

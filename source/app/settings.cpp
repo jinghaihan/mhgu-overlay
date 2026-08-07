@@ -37,6 +37,11 @@ core::SizePreset parse_preset(const char* value) {
   return core::SizePreset::Off;
 }
 
+core::FrameRate parse_frame_rate(const char* value) {
+  return std::strcmp(value, "60") == 0 ? core::FrameRate::Fps60
+                                       : core::FrameRate::Fps30;
+}
+
 const char* locale_value(const core::LocaleMode mode) {
   switch (mode) {
     case core::LocaleMode::English:
@@ -61,6 +66,10 @@ const char* preset_value(const core::SizePreset preset) {
     default:
       return "off";
   }
+}
+
+const char* frame_rate_value(const core::FrameRate frame_rate) {
+  return frame_rate == core::FrameRate::Fps60 ? "60" : "30";
 }
 
 }  // namespace
@@ -88,6 +97,8 @@ core::CoreSettings SettingsStore::load() const {
       settings.locale_mode = parse_locale(value);
     } else if (std::strcmp(key, "size_preset") == 0) {
       settings.size_preset = parse_preset(value);
+    } else if (std::strcmp(key, "frame_rate") == 0) {
+      settings.frame_rate = parse_frame_rate(value);
     } else if (std::strcmp(key, "size_lock") == 0) {
       has_legacy_size_lock = true;
       legacy_size_lock_enabled = std::strcmp(value, "1") == 0;
@@ -112,6 +123,7 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
   }
   std::fprintf(file, "language=%s\n", locale_value(settings.locale_mode));
   std::fprintf(file, "size_preset=%s\n", preset_value(settings.size_preset));
+  std::fprintf(file, "frame_rate=%s\n", frame_rate_value(settings.frame_rate));
   const auto close_result = std::fclose(file);
   if (close_result != 0) {
     std::remove(temporary.c_str());

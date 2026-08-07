@@ -37,6 +37,9 @@ UI_KEYS = [
   "unsupported",
   "writeFailed",
   "hyper",
+  "frameRate",
+  "fps30",
+  "fps60",
   "openOverlay",
 ]
 

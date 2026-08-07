@@ -5,6 +5,7 @@
 
 #include "mhgu/core/engine.hpp"
 #include "mhgu/platform/switch/dmnt_memory.hpp"
+#include "mhgu/platform/switch/game_patches.hpp"
 #include "mhgu/platform/switch/game_profile.hpp"
 #include "mhgu/platform/switch/monster_reader.hpp"
 
@@ -41,16 +42,23 @@ public:
 private:
   bool attach();
   void detach(SessionStatus status);
+  bool sync_frame_rate(core::FrameRate frame_rate);
 
   bool initialized_{};
   DmntMemoryAccess memory_{};
   const GameProfile* profile_{};
+  std::unique_ptr<GamePatches> patches_{};
   std::unique_ptr<MonsterReader> reader_{};
   core::Engine engine_{};
   SessionView view_{};
   std::uint64_t process_id_{};
+  std::uint64_t main_base_{};
+  std::uint64_t main_size_{};
   std::uint64_t heap_base_{};
   std::uint64_t heap_size_{};
+  std::uint64_t address_space_base_{};
+  std::uint64_t address_space_size_{};
+  core::FrameRate applied_frame_rate_{core::FrameRate::Fps30};
 };
 
 }  // namespace mhgu::platform::switch_adapter

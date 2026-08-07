@@ -37,6 +37,7 @@ $(SWITCH_TEST_BINARY): source/generated/catalog.cpp \
 		source/core/locale.cpp \
 		source/core/size.cpp \
 		source/platform/switch/dmnt_memory.cpp \
+		source/platform/switch/game_patches.cpp \
 		source/platform/switch/game_profile.cpp \
 		source/platform/switch/game_session.cpp \
 		source/platform/switch/language.cpp \

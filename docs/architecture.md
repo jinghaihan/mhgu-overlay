@@ -130,6 +130,15 @@ These values are reverse-engineering facts derived from community prior art and 
 6. read each monster field individually and retain live objects marked either
    remote (`0x44`) or present in the current area (`0x4C`).
 
+The recognized build profile also contains the 30/60 FPS pointer chain and
+its two legal float bit patterns. The adapter bounds the pointer read to the
+main NSO, bounds the resolved target to the process address space, rejects an
+unexpected current value, and immediately reads every write back. A saved
+60 FPS preference is reapplied when a recognized game process attaches. The
+default 30 FPS preference does not write on first attachment, so the overlay
+does not override an unrelated external patch unless the user changes the
+selector.
+
 Candidate validation prevents a coincidental byte pattern from becoming a
 write target. A failed list validation discards the address and forces a new
 scan. Unknown location states and defeated objects are rejected. Immediately
@@ -237,6 +246,7 @@ Host CI checks:
 - identifier normalization and Hyper resolution;
 - pointer-list validation and scanning;
 - bounded, verified size writes;
+- bounded, verified 30/60 FPS writes;
 - settings persistence.
 
 Switch CI compiles the complete `.ovl` with devkitA64 and both submodules. Hardware testing remains necessary for process permissions, firmware behavior, pointer profiles, visual layout, hitboxes, crown registration, and save effects.

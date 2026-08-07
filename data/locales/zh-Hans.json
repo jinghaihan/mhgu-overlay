@@ -17,8 +17,11 @@
     "scanning": "正在扫描游戏内存",
     "ready": "已就绪",
     "unsupported": "不支持的游戏版本",
-    "writeFailed": "体型写入失败",
+    "writeFailed": "内存写入失败",
     "hyper": "狞猛",
+    "frameRate": "帧率",
+    "fps30": "30 FPS",
+    "fps60": "60 FPS",
     "openOverlay": "打开 Overlay"
   },
   "monsters": {

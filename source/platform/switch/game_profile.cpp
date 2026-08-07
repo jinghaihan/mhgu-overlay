@@ -24,6 +24,13 @@ constexpr PointerListLayout kPointerListLayout{
   0x41,
 };
 
+constexpr FrameRatePatch kFrameRatePatch{
+  0x018A6210,
+  0x0000243C,
+  0x41F00000,
+  0x42700000,
+};
+
 constexpr GameProfile kProfiles[]{
   {
     "MHGU 1.4.0",
@@ -34,6 +41,7 @@ constexpr GameProfile kProfiles[]{
     0x10F00000,
     kMonsterLayout,
     kPointerListLayout,
+    kFrameRatePatch,
   },
 };
 

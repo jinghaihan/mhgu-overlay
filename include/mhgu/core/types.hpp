@@ -44,6 +44,11 @@ enum class SizePreset : std::uint8_t {
   Gold,
 };
 
+enum class FrameRate : std::uint8_t {
+  Fps30,
+  Fps60,
+};
+
 struct LocalizedNames {
   const char* english;
   const char* simplified_chinese;
@@ -82,6 +87,7 @@ struct GameSnapshot {
 struct CoreSettings {
   LocaleMode locale_mode{LocaleMode::Auto};
   SizePreset size_preset{SizePreset::Off};
+  FrameRate frame_rate{FrameRate::Fps30};
 };
 
 struct MonsterView {
