@@ -33,6 +33,9 @@ int main() {
   const auto attack_multiplier_index = core::numeric_feature_index(
     core::NumericFeature::AttackMultiplier
   );
+  const auto defense_multiplier_index = core::numeric_feature_index(
+    core::NumericFeature::DefenseMultiplier
+  );
   assert(defaults.numeric_features[affinity_index].value == 100);
   assert(!defaults.numeric_features[affinity_index].enabled);
   assert(defaults.numeric_features[palico_affinity_index].value == 100);
@@ -43,6 +46,8 @@ int main() {
   assert(!defaults.numeric_features[long_sword_spirit_index].enabled);
   assert(defaults.numeric_features[attack_multiplier_index].value == 2);
   assert(!defaults.numeric_features[attack_multiplier_index].enabled);
+  assert(defaults.numeric_features[defense_multiplier_index].value == 2);
+  assert(!defaults.numeric_features[defense_multiplier_index].enabled);
 
   core::CoreSettings expected{};
   expected.locale_mode = core::LocaleMode::SimplifiedChinese;
@@ -54,6 +59,7 @@ int main() {
   expected.numeric_features[sp_level_index] = {3, true};
   expected.numeric_features[long_sword_spirit_index] = {77, true};
   expected.numeric_features[attack_multiplier_index] = {5, true};
+  expected.numeric_features[defense_multiplier_index] = {5, true};
   assert(store.save(expected));
 
   const auto restored = store.load();
@@ -73,6 +79,8 @@ int main() {
   assert(!restored.numeric_features[long_sword_spirit_index].enabled);
   assert(restored.numeric_features[attack_multiplier_index].value == 5);
   assert(!restored.numeric_features[attack_multiplier_index].enabled);
+  assert(restored.numeric_features[defense_multiplier_index].value == 5);
+  assert(!restored.numeric_features[defense_multiplier_index].enabled);
 
   auto* numeric = std::fopen(kPath, "w");
   assert(numeric != nullptr);
@@ -105,6 +113,14 @@ int main() {
   std::fprintf(numeric, "attack_multiplier=11\n");
   assert(std::fclose(numeric) == 0);
   assert(store.load().numeric_features[attack_multiplier_index].value == 10);
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(numeric, "defense_multiplier=11\n");
+  assert(std::fclose(numeric) == 0);
+  assert(
+    store.load().numeric_features[defense_multiplier_index].value == 10
+  );
 
   numeric = std::fopen(kPath, "w");
   assert(numeric != nullptr);

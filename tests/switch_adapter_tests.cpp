@@ -147,6 +147,9 @@ int main() {
   const auto attack_multiplier_index = core::numeric_feature_index(
     core::NumericFeature::AttackMultiplier
   );
+  const auto defense_multiplier_index = core::numeric_feature_index(
+    core::NumericFeature::DefenseMultiplier
+  );
   const auto weapon_transmog_index = core::runtime_feature_index(
     core::RuntimeFeature::WeaponTransmog
   );
@@ -385,6 +388,48 @@ int main() {
     matched_profile->numeric_patches[attack_multiplier_index].maximum == 10
   );
   assert(
+    matched_profile->numeric_patches[defense_multiplier_index].count == 9
+  );
+  assert(
+    matched_profile->numeric_patches[defense_multiplier_index]
+        .patches[0]
+        .offset == 0x013F1E70
+  );
+  assert(
+    matched_profile->numeric_patches[defense_multiplier_index]
+        .patches[7]
+        .encoding == NumericWordEncoding::LinearWord
+  );
+  assert(
+    matched_profile->numeric_patches[defense_multiplier_index]
+        .patches[8]
+        .offset == 0x000E3680
+  );
+  constexpr std::array<std::uint32_t, 9> kDefensePatchValues{
+    0xE1DF11B4,
+    0xE0000190,
+    0xE3500C7F,
+    0xC3A00C7F,
+    0xE1C500B0,
+    0xE1A00004,
+    0xE12FFF1E,
+    0x00000000,
+    0xEB4C39FA,
+  };
+  for (std::size_t index = 0; index < kDefensePatchValues.size(); ++index) {
+    assert(
+      matched_profile->numeric_patches[defense_multiplier_index]
+        .patches[index]
+        .base_value == kDefensePatchValues[index]
+    );
+  }
+  assert(
+    matched_profile->numeric_patches[defense_multiplier_index].minimum == 1
+  );
+  assert(
+    matched_profile->numeric_patches[defense_multiplier_index].maximum == 10
+  );
+  assert(
     matched_profile->runtime_patches[weapon_transmog_index].count == 8
   );
   assert(
@@ -453,6 +498,10 @@ int main() {
     profile.numeric_patches[attack_multiplier_index].patches[index].offset =
       0x1A8 + index * sizeof(std::uint32_t);
   }
+  for (std::size_t index = 0; index < 9; ++index) {
+    profile.numeric_patches[defense_multiplier_index].patches[index].offset =
+      0x1CC + index * sizeof(std::uint32_t);
+  }
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -492,6 +541,7 @@ int main() {
   constexpr std::uint32_t kOriginalSpLevelInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalLongSwordSpiritInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalAttackMultiplierInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalDefenseMultiplierInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -601,6 +651,13 @@ int main() {
       kMainBase + profile.numeric_patches[attack_multiplier_index]
         .patches[index].offset,
       kOriginalAttackMultiplierInstruction
+    );
+  }
+  for (std::size_t index = 0; index < 9; ++index) {
+    memory.store(
+      kMainBase + profile.numeric_patches[defense_multiplier_index]
+        .patches[index].offset,
+      kOriginalDefenseMultiplierInstruction
     );
   }
   for (std::size_t index = 0; index < 6; ++index) {
@@ -1079,6 +1136,72 @@ int main() {
   assert(
     memory.load<std::uint32_t>(
       kMainBase + profile.numeric_patches[attack_multiplier_index]
+        .patches[7].offset
+    ) == 5
+  );
+
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::DefenseMultiplier, 2
+  ));
+  assert(memory.write_count() == patch_writes + 9);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[defense_multiplier_index]
+        .patches[0].offset
+    ) == 0xE1DF11B4
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[defense_multiplier_index]
+        .patches[7].offset
+    ) == 2
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[defense_multiplier_index]
+        .patches[8].offset
+    ) == 0xEB4C39FA
+  );
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::DefenseMultiplier, 2
+  ));
+  assert(memory.write_count() == patch_writes);
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::DefenseMultiplier, 5
+  ));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[defense_multiplier_index]
+        .patches[7].offset
+    ) == 5
+  );
+  patch_writes = memory.write_count();
+  assert(!patches.set_numeric_feature(
+    core::NumericFeature::DefenseMultiplier, 0
+  ));
+  assert(!patches.set_numeric_feature(
+    core::NumericFeature::DefenseMultiplier, 11
+  ));
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_defense_profile = profile;
+  invalid_defense_profile.numeric_patches[defense_multiplier_index]
+    .patches[8]
+    .offset = 0x1000;
+  GamePatches invalid_defense(
+    memory, invalid_defense_profile, kMainBase, 0x1000, 0, 0x20000
+  );
+  patch_writes = memory.write_count();
+  assert(!invalid_defense.set_numeric_feature(
+    core::NumericFeature::DefenseMultiplier, 3
+  ));
+  assert(memory.write_count() == patch_writes);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[defense_multiplier_index]
         .patches[7].offset
     ) == 5
   );

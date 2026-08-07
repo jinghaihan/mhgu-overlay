@@ -49,6 +49,7 @@
     "longSwordSpiritGauge": "太刀練気ゲージ",
     "combatParameters": "戦闘パラメータ",
     "attackMultiplier": "攻撃倍率",
+    "defenseMultiplier": "防御倍率",
     "monsterInfoOverlay": "モンスター情報オーバーレイ"
   },
   "monsters": {

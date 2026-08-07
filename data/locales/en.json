@@ -49,6 +49,7 @@
     "longSwordSpiritGauge": "Long Sword Spirit Gauge",
     "combatParameters": "Combat parameters",
     "attackMultiplier": "Attack multiplier",
+    "defenseMultiplier": "Defense multiplier",
     "monsterInfoOverlay": "Monster info overlay"
   },
   "monsters": {

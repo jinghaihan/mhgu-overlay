@@ -127,7 +127,8 @@ void refresh_numeric_feature_item(
   );
   if (feature == NumericFeature::SpLevel) {
     std::snprintf(value, sizeof(value), "%s / Lv. %u", state, setting.value);
-  } else if (feature == NumericFeature::AttackMultiplier) {
+  } else if (feature == NumericFeature::AttackMultiplier ||
+             feature == NumericFeature::DefenseMultiplier) {
     std::snprintf(value, sizeof(value), "%s / x%u", state, setting.value);
   } else {
     std::snprintf(value, sizeof(value), "%s / %u%%", state, setting.value);
@@ -138,7 +139,8 @@ void refresh_numeric_feature_item(
 
 int numeric_feature_large_step(const NumericFeature feature) {
   return feature == NumericFeature::SpLevel ||
-             feature == NumericFeature::AttackMultiplier
+             feature == NumericFeature::AttackMultiplier ||
+             feature == NumericFeature::DefenseMultiplier
            ? 1
            : 10;
 }
@@ -660,6 +662,10 @@ public:
       model_, UiMessage::AttackMultiplier, NumericFeature::AttackMultiplier
     );
     list->addItem(attack_multiplier_item_);
+    defense_multiplier_item_ = numeric_feature_item(
+      model_, UiMessage::DefenseMultiplier, NumericFeature::DefenseMultiplier
+    );
+    list->addItem(defense_multiplier_item_);
 
     list->addItem(section_header(model_, UiMessage::Palico), 44);
     palico_health_item_ = runtime_feature_item(
@@ -708,6 +714,7 @@ private:
   tsl::elm::ListItem* bowgun_item_{};
   tsl::elm::ListItem* consumable_item_{};
   tsl::elm::ListItem* attack_multiplier_item_{};
+  tsl::elm::ListItem* defense_multiplier_item_{};
   tsl::elm::ListItem* palico_health_item_{};
   tsl::elm::ListItem* palico_affinity_item_{};
 };

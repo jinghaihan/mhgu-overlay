@@ -54,6 +54,7 @@ constexpr const char* kMessages[][3] = {
   {"Long Sword Spirit Gauge", "太刀练气槽", "太刀練気ゲージ"},
   {"Combat parameters", "战斗参数", "戦闘パラメータ"},
   {"Attack multiplier", "攻击倍率", "攻撃倍率"},
+  {"Defense multiplier", "防御倍率", "防御倍率"},
   {"Monster info overlay", "怪物信息 Overlay", "モンスター情報オーバーレイ"},
 };
 

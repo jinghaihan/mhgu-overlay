@@ -88,6 +88,21 @@ std::uint16_t parse_attack_multiplier(const char* value) {
   return static_cast<std::uint16_t>(parsed);
 }
 
+std::uint16_t parse_defense_multiplier(const char* value) {
+  char* end{};
+  const auto parsed = std::strtol(value, &end, 10);
+  if (end == value || *end != '\0') {
+    return 2;
+  }
+  if (parsed < 1) {
+    return 1;
+  }
+  if (parsed > 10) {
+    return 10;
+  }
+  return static_cast<std::uint16_t>(parsed);
+}
+
 const char* locale_value(const core::LocaleMode mode) {
   switch (mode) {
     case core::LocaleMode::English:
@@ -165,6 +180,10 @@ core::CoreSettings SettingsStore::load() const {
       settings.numeric_features[core::numeric_feature_index(
         core::NumericFeature::AttackMultiplier
       )].value = parse_attack_multiplier(value);
+    } else if (std::strcmp(key, "defense_multiplier") == 0) {
+      settings.numeric_features[core::numeric_feature_index(
+        core::NumericFeature::DefenseMultiplier
+      )].value = parse_defense_multiplier(value);
     } else if (std::strcmp(key, "size_lock") == 0) {
       has_legacy_size_lock = true;
       legacy_size_lock_enabled = std::strcmp(value, "1") == 0;
@@ -223,6 +242,13 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
     "attack_multiplier=%u\n",
     settings.numeric_features[core::numeric_feature_index(
       core::NumericFeature::AttackMultiplier
+    )].value
+  );
+  std::fprintf(
+    file,
+    "defense_multiplier=%u\n",
+    settings.numeric_features[core::numeric_feature_index(
+      core::NumericFeature::DefenseMultiplier
     )].value
   );
   const auto close_result = std::fclose(file);

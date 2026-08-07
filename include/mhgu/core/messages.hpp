@@ -54,6 +54,7 @@ enum class UiMessage : std::uint8_t {
   LongSwordSpiritGauge,
   CombatParameters,
   AttackMultiplier,
+  DefenseMultiplier,
   MonsterInfoOverlay,
 };
 

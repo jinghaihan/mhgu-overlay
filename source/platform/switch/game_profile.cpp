@@ -214,6 +214,21 @@ constexpr NumericWordPatchSet kAttackMultiplierPatches{
   10,
 };
 
+constexpr NumericWordPatchSet kDefenseMultiplierPatches{
+  {{{0x013F1E70, 0xE1DF11B4, NumericWordEncoding::Fixed, 0, 0},
+    {0x013F1E74, 0xE0000190, NumericWordEncoding::Fixed, 0, 0},
+    {0x013F1E78, 0xE3500C7F, NumericWordEncoding::Fixed, 0, 0},
+    {0x013F1E7C, 0xC3A00C7F, NumericWordEncoding::Fixed, 0, 0},
+    {0x013F1E80, 0xE1C500B0, NumericWordEncoding::Fixed, 0, 0},
+    {0x013F1E84, 0xE1A00004, NumericWordEncoding::Fixed, 0, 0},
+    {0x013F1E88, 0xE12FFF1E, NumericWordEncoding::Fixed, 0, 0},
+    {0x013F1E8C, 0x00000000, NumericWordEncoding::LinearWord, 1, 0},
+    {0x000E3680, 0xEB4C39FA, NumericWordEncoding::Fixed, 0, 0}}},
+  9,
+  1,
+  10,
+};
+
 constexpr std::array<NumericWordPatchSet, core::kNumericFeatureCount>
   kNumericPatches{
     kHunterAffinityPatches,
@@ -221,6 +236,7 @@ constexpr std::array<NumericWordPatchSet, core::kNumericFeatureCount>
     kSpLevelPatches,
     kLongSwordSpiritGaugePatches,
     kAttackMultiplierPatches,
+    kDefenseMultiplierPatches,
   };
 
 constexpr GameProfile kProfiles[]{

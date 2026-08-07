@@ -67,6 +67,7 @@ UI_KEYS = [
   "longSwordSpiritGauge",
   "combatParameters",
   "attackMultiplier",
+  "defenseMultiplier",
   "monsterInfoOverlay",
 ]
 
