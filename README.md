@@ -35,6 +35,7 @@ Generations Ultimate on Nintendo Switch.
 - Prevents the Valor gauge from decreasing.
 - Fills the Alchemy gauge when enabled.
 - Keeps the SP status from expiring.
+- Enables automatic Bowgun reload.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -81,6 +82,7 @@ Generations Ultimate on Nintendo Switch.
 - **Valor gauge does not decrease** applies three one-way instruction patches.
 - **Fill Alchemy gauge** applies two one-way instruction patches.
 - **SP status does not expire** is a one-way instruction patch.
+- **Bowgun auto reload** is a one-way instruction patch.
 - Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.

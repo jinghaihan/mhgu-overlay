@@ -126,6 +126,9 @@ int main() {
   const auto sp_status_index = core::runtime_feature_index(
     core::RuntimeFeature::SpStatusNoExpire
   );
+  const auto bowgun_index = core::runtime_feature_index(
+    core::RuntimeFeature::BowgunAutoReload
+  );
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -238,6 +241,15 @@ int main() {
     matched_profile->runtime_patches[sp_status_index].patches[0].value ==
     0xE3A00000
   );
+  assert(matched_profile->runtime_patches[bowgun_index].count == 1);
+  assert(
+    matched_profile->runtime_patches[bowgun_index].patches[0].offset ==
+    0x002FE3A8
+  );
+  assert(
+    matched_profile->runtime_patches[bowgun_index].patches[0].value ==
+    0xE1C120B2
+  );
   profile.runtime_patches[map_index].patches[0].offset = 0x100;
   profile.runtime_patches[map_index].patches[1].offset = 0x104;
   profile.runtime_patches[carry_index].patches[0].offset = 0x108;
@@ -256,6 +268,7 @@ int main() {
   profile.runtime_patches[alchemy_index].patches[0].offset = 0x134;
   profile.runtime_patches[alchemy_index].patches[1].offset = 0x138;
   profile.runtime_patches[sp_status_index].patches[0].offset = 0x13C;
+  profile.runtime_patches[bowgun_index].patches[0].offset = 0x140;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -285,6 +298,7 @@ int main() {
   constexpr std::uint32_t kOriginalAlchemyInstruction0 = 0xE1A00000;
   constexpr std::uint32_t kOriginalAlchemyInstruction1 = 0xE3500000;
   constexpr std::uint32_t kOriginalSpStatusInstruction = 0xE3500000;
+  constexpr std::uint32_t kOriginalBowgunInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -351,6 +365,10 @@ int main() {
   memory.store(
     kMainBase + profile.runtime_patches[sp_status_index].patches[0].offset,
     kOriginalSpStatusInstruction
+  );
+  memory.store(
+    kMainBase + profile.runtime_patches[bowgun_index].patches[0].offset,
+    kOriginalBowgunInstruction
   );
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
@@ -590,6 +608,15 @@ int main() {
     memory.load<std::uint32_t>(
       kMainBase + profile.runtime_patches[sp_status_index].patches[0].offset
     ) == profile.runtime_patches[sp_status_index].patches[0].value
+  );
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_runtime_feature(core::RuntimeFeature::BowgunAutoReload));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.runtime_patches[bowgun_index].patches[0].offset
+    ) == profile.runtime_patches[bowgun_index].patches[0].value
   );
 
   const std::uint8_t one = 1;

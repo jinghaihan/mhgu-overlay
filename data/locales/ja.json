@@ -36,6 +36,7 @@
     "valorGaugeNoDecrease": "ブレイヴゲージ減少なし",
     "alchemyGaugeFull": "錬金ゲージ満タン",
     "spStatusNoExpire": "SP状態時間無制限",
+    "bowgunAutoReload": "ボウガン自動装填",
     "monsterInfoOverlay": "モンスター情報オーバーレイ"
   },
   "monsters": {
