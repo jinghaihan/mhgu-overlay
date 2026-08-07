@@ -537,6 +537,11 @@ public:
     );
     list->addItem(valor_item_);
 
+    alchemy_item_ = runtime_feature_item(
+      model_, UiMessage::AlchemyGaugeFull, RuntimeFeature::AlchemyGaugeFull
+    );
+    list->addItem(alchemy_item_);
+
     frame->setContent(list);
     return frame;
   }
@@ -564,6 +569,7 @@ private:
   tsl::elm::ListItem* hunter_art_slots_item_{};
   tsl::elm::ListItem* hunter_arts_item_{};
   tsl::elm::ListItem* valor_item_{};
+  tsl::elm::ListItem* alchemy_item_{};
 };
 
 class MainGui final : public tsl::Gui {

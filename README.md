@@ -33,6 +33,7 @@ Generations Ultimate on Nintendo Switch.
 - Unlocks all three Hunter Art slots when enabled.
 - Allows repeated Hunter Art use without consuming the gauge.
 - Prevents the Valor gauge from decreasing.
+- Fills the Alchemy gauge when enabled.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -77,6 +78,7 @@ Generations Ultimate on Nintendo Switch.
 - **Unlimited Hunter Arts** applies two one-way instruction patches and also
   requires a game restart to restore.
 - **Valor gauge does not decrease** applies three one-way instruction patches.
+- **Fill Alchemy gauge** applies two one-way instruction patches.
 - Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.

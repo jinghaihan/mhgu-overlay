@@ -120,6 +120,9 @@ int main() {
   const auto valor_index = core::runtime_feature_index(
     core::RuntimeFeature::ValorGaugeNoDecrease
   );
+  const auto alchemy_index = core::runtime_feature_index(
+    core::RuntimeFeature::AlchemyGaugeFull
+  );
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -206,6 +209,23 @@ int main() {
     matched_profile->runtime_patches[valor_index].patches[2].value ==
     0xED841A18
   );
+  assert(matched_profile->runtime_patches[alchemy_index].count == 2);
+  assert(
+    matched_profile->runtime_patches[alchemy_index].patches[0].offset ==
+    0x0029E980
+  );
+  assert(
+    matched_profile->runtime_patches[alchemy_index].patches[0].value ==
+    0xE3440800
+  );
+  assert(
+    matched_profile->runtime_patches[alchemy_index].patches[1].offset ==
+    0x0029E984
+  );
+  assert(
+    matched_profile->runtime_patches[alchemy_index].patches[1].value ==
+    0xE5860000
+  );
   profile.runtime_patches[map_index].patches[0].offset = 0x100;
   profile.runtime_patches[map_index].patches[1].offset = 0x104;
   profile.runtime_patches[carry_index].patches[0].offset = 0x108;
@@ -221,6 +241,8 @@ int main() {
   profile.runtime_patches[valor_index].patches[0].offset = 0x128;
   profile.runtime_patches[valor_index].patches[1].offset = 0x12C;
   profile.runtime_patches[valor_index].patches[2].offset = 0x130;
+  profile.runtime_patches[alchemy_index].patches[0].offset = 0x134;
+  profile.runtime_patches[alchemy_index].patches[1].offset = 0x138;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -247,6 +269,8 @@ int main() {
   constexpr std::uint32_t kOriginalValorInstruction0 = 0xE1A00000;
   constexpr std::uint32_t kOriginalValorInstruction1 = 0xE3500000;
   constexpr std::uint32_t kOriginalValorInstruction2 = 0xE1A00000;
+  constexpr std::uint32_t kOriginalAlchemyInstruction0 = 0xE1A00000;
+  constexpr std::uint32_t kOriginalAlchemyInstruction1 = 0xE3500000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -301,6 +325,14 @@ int main() {
   memory.store(
     kMainBase + profile.runtime_patches[valor_index].patches[2].offset,
     kOriginalValorInstruction2
+  );
+  memory.store(
+    kMainBase + profile.runtime_patches[alchemy_index].patches[0].offset,
+    kOriginalAlchemyInstruction0
+  );
+  memory.store(
+    kMainBase + profile.runtime_patches[alchemy_index].patches[1].offset,
+    kOriginalAlchemyInstruction1
   );
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
@@ -515,6 +547,19 @@ int main() {
       memory.load<std::uint32_t>(
         kMainBase + profile.runtime_patches[valor_index].patches[index].offset
       ) == profile.runtime_patches[valor_index].patches[index].value
+    );
+  }
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_runtime_feature(
+    core::RuntimeFeature::AlchemyGaugeFull
+  ));
+  assert(memory.write_count() == patch_writes + 2);
+  for (std::size_t index = 0; index < 2; ++index) {
+    assert(
+      memory.load<std::uint32_t>(
+        kMainBase + profile.runtime_patches[alchemy_index].patches[index].offset
+      ) == profile.runtime_patches[alchemy_index].patches[index].value
     );
   }
 

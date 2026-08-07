@@ -39,6 +39,7 @@ constexpr const char* kMessages[][3] = {
   {"Unlock Hunter Art slots", "解锁狩技槽", "狩技スロット解放"},
   {"Unlimited Hunter Arts", "狩技无限使用", "狩技無限使用"},
   {"Valor gauge does not decrease", "勇气槽不减", "ブレイヴゲージ減少なし"},
+  {"Fill Alchemy gauge", "炼金槽全满", "錬金ゲージ満タン"},
   {"Open overlay", "打开 Overlay", "オーバーレイを開く"},
 };
 

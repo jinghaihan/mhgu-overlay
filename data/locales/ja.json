@@ -34,6 +34,7 @@
     "unlockHunterArtSlots": "狩技スロット解放",
     "unlimitedHunterArts": "狩技無限使用",
     "valorGaugeNoDecrease": "ブレイヴゲージ減少なし",
+    "alchemyGaugeFull": "錬金ゲージ満タン",
     "openOverlay": "オーバーレイを開く"
   },
   "monsters": {

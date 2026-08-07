@@ -59,6 +59,7 @@ enum class RuntimeFeature : std::uint8_t {
   UnlockHunterArtSlots,
   UnlimitedHunterArts,
   ValorGaugeNoDecrease,
+  AlchemyGaugeFull,
   Count,
 };
 

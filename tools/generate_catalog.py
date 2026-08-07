@@ -52,6 +52,7 @@ UI_KEYS = [
   "unlockHunterArtSlots",
   "unlimitedHunterArts",
   "valorGaugeNoDecrease",
+  "alchemyGaugeFull",
   "openOverlay",
 ]
 
