@@ -1,7 +1,9 @@
 # MHGU Overlay
 
-A multilingual monster HUD and crown-size controller for Monster Hunter
-Generations Ultimate on Nintendo Switch.
+An in-game hunting companion for Monster Hunter Generations Ultimate 1.4.0 on
+Nintendo Switch. It combines a low-profile large-monster HUD and crown-size
+controller with version-gated gameplay tools for frame rate, equipment
+appearance, hunter and Palico combat values, resources, and item-pouch edits.
 
 [![build](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml/badge.svg)](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -10,54 +12,89 @@ Generations Ultimate on Nintendo Switch.
 > Overlay features modify live game memory. Back up your save before enabling
 > memory features, avoid online use, and read
 > [Size presets and safety](docs/size-lock.md).
-> One-way code patches, including automatic map display, large-monster
-> locations, carrying items into the pouch, and battle modifiers remain
-> enabled until the game is restarted.
+> One-way code patches cannot be disabled from the menu after they have been
+> applied. Exit the overlay and restart the game to restore the original game
+> code. Current builds pass automated host tests and Switch compilation, but
+> the new memory tools still require validation on real Switch hardware.
 
 <p align="center">
   <img src="./assets/screenshot.jpg" alt="MHGU monster overlay" width="520" />
 </p>
 
-## Features
+## Menu and features
 
-- Displays each active large monster in a separate lower-left HUD card.
-- Shows the localized monster name, current and maximum health, health bar,
-  and health percentage in real time.
-- Shows the size multiplier, calculated actual size, crown class, and Hyper
-  status.
-- Switches between the original 30 FPS target and a 60 FPS target.
-- Automatically displays the map and marks large-monster locations.
-- Allows carried items, such as eggs, to enter the item pouch.
-- Adds invincibility plus health, stamina, and sharpness protection under the
-  grouped battle-functions menu.
-- Unlocks all three Hunter Art slots when enabled.
-- Allows repeated Hunter Art use without consuming the gauge.
-- Prevents the Valor gauge from decreasing.
-- Fills the Alchemy gauge when enabled.
-- Keeps the SP status from expiring.
-- Enables automatic Bowgun reload.
-- Prevents consumable items from decreasing.
-- Sets hunter affinity to a user-selected value from 0% to 100%.
-- Adds a one-way weapon transmog switch under Equipment transmog.
-- Adds a one-way armor transmog switch under Equipment transmog.
-- Prevents Palico health from decreasing under the Palico section.
-- Sets Palico affinity to a user-selected value from 0% to 100%.
-- Sets the SP level from 1 to 4.
-- Sets the Long Sword Spirit Gauge from 0% to 100%.
-- Sets the attack multiplier from x1 to x10.
-- Sets the defense multiplier from x1 to x10.
-- Sets the movement speed multiplier from x1.0 to x5.0.
-- Selects an exclusive monster damage mode: Instant kill or leave the monster
-  at 1 HP after taking damage.
-- Sets Zenny to a user-selected value from 0 to 9,999,999.
-- Sets Wycademy Points to a user-selected value from 0 to 9,999,999.
-- Applies a user-selected quantity to one of the first 10 item pouch slots.
-- Optionally locks each monster to its own Mini, Silver, or Gold crown
-  threshold; **Off** remains the default.
-- English, Simplified Chinese, and Japanese, with automatic detection and
-  English fallback.
-- Conservative, version-gated memory access with bounds checks and immediate
-  write verification.
+### Main menu
+
+The main menu is ordered as follows:
+
+| Menu item | What it does |
+| --- | --- |
+| **Language** | Uses automatic game-language detection or selects English, Simplified Chinese, or Japanese manually. |
+| **Status** | Shows whether MHGU 1.4.0 is detected, scanning, ready, unsupported, or unable to read or write memory. |
+| **Monster info overlay** | Opens the low-profile hunting HUD. Each active large monster gets a lower-left card with its name, health bar, current and maximum health, health percentage, size multiplier, calculated size, crown class, and Hyper status. |
+| **Frame rate** | Switches the game's frame-rate target between 30 FPS and 60 FPS. This setting can be changed in either direction. |
+| **Size lock** | Selects **Off**, **Mini crown**, **Silver crown**, or **Gold crown**. The chosen per-monster crown threshold is applied when a valid monster object appears; **Off** is the default. |
+| **Map & large monster locations** | Automatically displays the map and marks large-monster locations. |
+| **Carry items into pouch** | Allows carried objects such as eggs to be placed in the item pouch. |
+| **Equipment transmog** | Opens the weapon and armor appearance submenu. |
+| **Battle functions** | Opens the grouped hunter, combat-parameter, resource, and Palico tools. |
+| **Rescan** | Discards the cached monster-list pointer and scans for it again. |
+
+### Equipment transmog
+
+| Menu item | What it does |
+| --- | --- |
+| **Weapon transmog** | Enables the game's weapon appearance/transmog path. |
+| **Armor transmog** | Enables the game's armor appearance/transmog path. |
+
+Both transmog options are one-way code patches for the current game process.
+
+### Battle functions
+
+#### Hunter
+
+| Menu item | What it does |
+| --- | --- |
+| **Invincible** | Enables the hunter invincibility patch. |
+| **Health does not decrease** | Prevents hunter health from decreasing. |
+| **Stamina does not decrease** | Prevents hunter stamina from decreasing. |
+| **Sharpness does not decrease** | Prevents weapon sharpness from decreasing. |
+| **Unlock Hunter Art slots** | Unlocks all three Hunter Art slots. |
+| **Unlimited Hunter Arts** | Allows Hunter Arts to be used without consuming their gauge. |
+| **Valor gauge does not decrease** | Prevents the Valor gauge from decreasing. |
+| **Fill Alchemy gauge** | Keeps the Alchemy gauge filled. |
+| **Long Sword Spirit Gauge** | Sets the gauge from 0% to 100%. |
+| **SP level** | Sets SP level from 1 to 4. |
+| **SP status does not expire** | Prevents SP status from expiring. |
+| **Hunter affinity** | Sets hunter affinity from 0% to 100%. |
+| **Bowgun auto reload** | Enables automatic Bowgun reload. |
+| **Consumable items do not decrease** | Prevents consumable-item counts from decreasing. |
+
+#### Combat parameters
+
+| Menu item | What it does |
+| --- | --- |
+| **Monster damage mode** | Selects **Off**, **Instant kill**, or **Leave monster at 1 HP**. The two active modes are mutually exclusive and can replace one another immediately. |
+| **Attack multiplier** | Sets the attack multiplier from x1 to x10. |
+| **Defense multiplier** | Sets the defense multiplier from x1 to x10. |
+| **Movement speed multiplier** | Sets movement speed from x1.0 to x5.0. |
+
+#### Resources
+
+| Menu item | What it does |
+| --- | --- |
+| **Zenny** | Sets a selected value from 0 to 9,999,999. |
+| **Wycademy Points** | Sets a selected value from 0 to 9,999,999. |
+| **Item pouch slot** | Selects one of the first 10 item-pouch slots. |
+| **Quantity** | Selects a quantity from 1 to 99. |
+| **Apply item quantity** | Performs one bounded, verified byte write to the selected slot. It does not repeat the write automatically. |
+
+#### Palico
+
+| Menu item | What it does |
+| --- | --- |
+| **Palico health does not decrease** | Prevents Palico health from decreasing. |
+| **Palico affinity** | Sets Palico affinity from 0% to 100%. |
 
 ## Requirements
 
@@ -74,74 +111,27 @@ Generations Ultimate on Nintendo Switch.
 2. Copy it to `sdmc:/switch/.overlays/mhgu-overlay.ovl`.
 3. Start MHGU 1.4.0, open Tesla Menu, and select **MHGU Overlay**.
 
-## Use
+## Controls and persistence
 
-- **Monster info overlay** hides the settings page and returns input to the game.
-- Hold `L3 + R3` in the overlay to return to settings.
-- Press `B` on the settings page to close the overlay.
-- Choose the language manually or leave it on **Auto**.
-- Choose **30 FPS** or **60 FPS**; **30 FPS** is the default.
-- Choose a size preset before entering a quest; **Off** is the default.
-- **Map & large monster locations** combines automatic map display and large
-  monster markers. Its enabled state is not saved, and restarting the game
-  restores the original behavior.
-- **Carry items into pouch** is also a one-way, non-persistent selector;
-  restarting the game restores the original carrying behavior.
-- **Battle functions** groups hunter, combat-parameter, and Palico modifiers.
-  **Invincible**, **Health does not decrease**, **Stamina does not decrease**,
-  and **Sharpness does not decrease** are one-way, non-persistent instruction
-  patches.
-- **Unlock Hunter Art slots** is also one-way and returns to the original
-  behavior only after restarting the game.
-- **Unlimited Hunter Arts** applies two one-way instruction patches and also
-  requires a game restart to restore.
-- **Valor gauge does not decrease** applies three one-way instruction patches.
-- **Fill Alchemy gauge** applies two one-way instruction patches.
-- **SP status does not expire** is a one-way instruction patch.
-- **Bowgun auto reload** is a one-way instruction patch.
-- **Consumable items do not decrease** is a one-way instruction patch.
-- **Hunter affinity** uses Left/Right for 1% adjustments and L/R for 10%
-  adjustments. Press A to enable the selected value. The percentage is saved,
-  but the enabled state is not; restarting the game restores the original
-  instruction.
-- **Weapon transmog** is a one-way instruction patch under **Equipment
-  transmog** and remains active until the game is restarted.
-- **Armor transmog** is a one-way instruction patch under **Equipment
-  transmog** and remains active until the game is restarted.
-- **Palico health does not decrease** is a one-way instruction patch and
-  remains active until the game is restarted.
-- **Palico affinity** uses the same controls and persistence behavior as
-  **Hunter affinity**, and updates both affinity instructions together.
-- **SP level** uses the left/right and L/R buttons to adjust one level at a
-  time. Its selected level is saved, but its enabled state is not.
-- **Long Sword Spirit Gauge** uses the same percentage controls as affinity
-  settings and applies its dynamic and fixed instructions together.
-- **Attack multiplier** uses Left/Right or L/R for one-step adjustments from
-  x1 to x10. The selected multiplier is saved, but its enabled state is not.
-- **Defense multiplier** uses the same controls and persistence behavior as
-  **Attack multiplier**.
-- **Movement speed multiplier** uses Left/Right for 0.1-step adjustments and
-  L/R for 0.5-step adjustments from x1.0 to x5.0. Its selected value is saved,
-  but its enabled state is not.
-- **Monster damage mode** cycles between **Off**, **Instant kill**, and
-  **Leave monster at 1 HP**. The two active modes are mutually exclusive and
-  can replace one another immediately. After either patch has been applied,
-  selecting **Off** stops further writes but the original instruction returns
-  only after restarting the game. The selection is not saved.
-- **Zenny** uses Left/Right for 10,000-step adjustments and L/R for
-  1,000,000-step adjustments. The default selected value is 7,777,777; the
-  value is saved, but the enabled state is not. Restart the game to restore
-  the original instruction.
-- **Wycademy Points** uses the same controls and persistence behavior as
-  **Zenny**. Restart the game to restore the original instruction.
-- **Item pouch slot** selects one slot from 1 to 10. **Quantity** selects a
-  value from 1 to 99. Left/Right changes either value by one; L/R changes the
-  slot by five or the quantity by ten. **Apply item quantity** performs one
-  verified byte write to the selected slot. The two selected values are saved,
-  but the write is not repeated automatically.
-- Use **Rescan** to discard the cached pointer and scan again.
-
-Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.
+- Press `A` to open a submenu, cycle a selector, enable a patch, or apply the
+  selected value.
+- Use Left/Right for small numeric adjustments and `L`/`R` for larger steps.
+  Affinity and gauge percentages use steps of 1/10; movement speed uses
+  0.1/0.5; Zenny and Wycademy Points use 10,000/1,000,000; item-pouch slot and
+  quantity use 1/5 and 1/10 respectively. SP level, attack, and defense change
+  by one with either control.
+- **Monster info overlay** returns input to the game. Hold `L3 + R3` to return
+  to settings, and press `B` on a settings page to go back or close the
+  overlay.
+- Language, frame rate, size lock, selected numeric values, and the two
+  item-pouch inputs are saved to
+  `sdmc:/config/mhgu-overlay/settings.ini`.
+- Runtime patch enabled states and monster damage mode are not saved. Numeric
+  rows save the selected value, but pressing `A` is required to enable that
+  value again after reloading the overlay.
+- Selecting **Off** for monster damage mode stops further writes. If an active
+  damage mode or another one-way patch has already changed game code, exit the
+  overlay and restart the game to restore the original instruction.
 
 ## Documentation
 
