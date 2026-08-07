@@ -304,6 +304,44 @@ bool MonsterReader::read_snapshot(
   return true;
 }
 
+bool MonsterReader::read_health(
+  const core::MonsterHandle handle,
+  const std::uint32_t expected_max_hp,
+  std::uint32_t& health
+) {
+  health = 0;
+  if (handle == 0 || expected_max_hp == 0 ||
+      expected_max_hp > 20'000'000U || !contains_monster(handle)) {
+    return false;
+  }
+
+  std::uint32_t current{};
+  std::uint32_t maximum{};
+  const auto health_address = handle + profile_.monster.health;
+  if (profile_.monster.maximum_health ==
+      profile_.monster.health + sizeof(std::uint32_t)) {
+    std::array<std::uint8_t, sizeof(std::uint32_t) * 2> values{};
+    if (!memory_.read(health_address, values.data(), values.size())) {
+      return false;
+    }
+    current = read_u32(values.data());
+    maximum = read_u32(values.data() + sizeof(std::uint32_t));
+  } else if (!read_value(memory_, health_address, current) ||
+             !read_value(
+               memory_,
+               handle + profile_.monster.maximum_health,
+               maximum
+             )) {
+    return false;
+  }
+
+  if (maximum != expected_max_hp || current > maximum) {
+    return false;
+  }
+  health = current;
+  return true;
+}
+
 bool MonsterReader::apply_size(
   const std::uint64_t pointer_list_address,
   const core::SizeWriteRequest& request,

@@ -39,6 +39,11 @@ public:
     core::Locale detected_locale,
     core::GameSnapshot& snapshot
   );
+  bool read_health(
+    core::MonsterHandle handle,
+    std::uint32_t expected_max_hp,
+    std::uint32_t& health
+  );
   bool apply_size(
     std::uint64_t pointer_list_address,
     const core::SizeWriteRequest& request,

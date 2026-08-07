@@ -1,5 +1,7 @@
 #include "mhgu/platform/switch/game_session.hpp"
 
+#include <algorithm>
+
 #ifdef __SWITCH__
 #include <switch.h>
 
@@ -95,6 +97,7 @@ bool GameSession::attach() {
     applied_monster_damage_mode_ = core::MonsterDamageMode::Off;
     applied_runtime_features_ = {};
     applied_numeric_features_ = {};
+    damage_tracker_.reset();
     view_ = {};
     view_.status = SessionStatus::Searching;
     view_.game = profile_->game;
@@ -125,6 +128,7 @@ void GameSession::detach(const SessionStatus status) {
   applied_monster_damage_mode_ = core::MonsterDamageMode::Off;
   applied_runtime_features_ = {};
   applied_numeric_features_ = {};
+  damage_tracker_.reset();
   view_ = {};
   view_.status = status;
 }
@@ -250,9 +254,45 @@ void GameSession::poll(const core::CoreSettings& settings) {
   }
 }
 
+void GameSession::poll_damage(
+  const bool enabled, const std::uint64_t now_ms
+) {
+  if (!enabled) {
+    damage_tracker_.reset();
+    view_.damage = {};
+    return;
+  }
+  if (reader_ == nullptr) {
+    view_.damage = damage_tracker_.current(now_ms);
+    return;
+  }
+
+  core::HealthSnapshot snapshot{};
+  const auto count = std::min(
+    view_.output.monster_count, snapshot.monsters.size()
+  );
+  for (std::size_t index = 0; index < count; ++index) {
+    const auto& monster = view_.output.monsters[index];
+    std::uint32_t health{};
+    if (!reader_->read_health(monster.handle, monster.max_hp, health)) {
+      view_.damage = damage_tracker_.current(now_ms);
+      return;
+    }
+    snapshot.monsters[snapshot.monster_count++] = {
+      monster.handle,
+      monster.monster_id,
+      health,
+      monster.max_hp,
+    };
+  }
+  view_.damage = damage_tracker_.update(snapshot, now_ms);
+}
+
 void GameSession::request_rescan() {
   view_.pointer_list = 0;
   view_.output = {};
+  view_.damage = {};
+  damage_tracker_.reset();
   if (profile_ != nullptr) {
     view_.status = SessionStatus::Searching;
   }

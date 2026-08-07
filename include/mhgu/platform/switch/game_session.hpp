@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 
+#include "mhgu/core/damage.hpp"
 #include "mhgu/core/engine.hpp"
 #include "mhgu/platform/switch/dmnt_memory.hpp"
 #include "mhgu/platform/switch/game_patches.hpp"
@@ -26,6 +27,7 @@ struct SessionView {
   core::GameId game{core::GameId::Unknown};
   core::Locale detected_locale{core::Locale::English};
   core::CoreOutput output{};
+  core::DamageOutput damage{};
   const char* profile_name{};
   std::uint64_t title_id{};
   std::uint64_t pointer_list{};
@@ -36,6 +38,7 @@ public:
   bool initialize();
   void shutdown();
   void poll(const core::CoreSettings& settings);
+  void poll_damage(bool enabled, std::uint64_t now_ms);
   void request_rescan();
   bool apply_item_pouch_quantity(std::uint8_t slot, std::uint8_t quantity);
 
@@ -55,6 +58,7 @@ private:
   std::unique_ptr<GamePatches> patches_{};
   std::unique_ptr<MonsterReader> reader_{};
   core::Engine engine_{};
+  core::DamageTracker damage_tracker_{};
   SessionView view_{};
   std::uint64_t process_id_{};
   std::uint64_t main_base_{};

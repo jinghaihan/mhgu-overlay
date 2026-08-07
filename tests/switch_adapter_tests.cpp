@@ -1851,6 +1851,12 @@ int main() {
   assert(snapshot.monsters[0].max_hp == maximum_health);
   assert(snapshot.monsters[0].size_percent == 100);
 
+  std::uint32_t sampled_health{};
+  assert(reader.read_health(kMonster, maximum_health, sampled_health));
+  assert(sampled_health == health);
+  assert(!reader.read_health(kMonster, maximum_health + 1, sampled_health));
+  assert(!reader.read_health(0x18000, maximum_health, sampled_health));
+
   const auto* rathian = core::find_monster_by_key("rathian");
   assert(rathian != nullptr);
   assert(snapshot.monsters[0].monster_id == rathian->id);
@@ -1912,6 +1918,8 @@ int main() {
   const std::uint32_t no_health = 0;
   memory.store(kMonster + profile.monster.location_flag, remote_location);
   memory.store(kMonster + profile.monster.health, no_health);
+  assert(reader.read_health(kMonster, maximum_health, sampled_health));
+  assert(sampled_health == 0);
   core::GameSnapshot defeated{};
   assert(reader.read_snapshot(kList, core::Locale::English, defeated));
   assert(defeated.monster_count == 0);

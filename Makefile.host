@@ -40,6 +40,7 @@ $(CATALOG_TEST_BINARY): source/core/locale.cpp source/generated/catalog.cpp \
 $(SWITCH_TEST_BINARY): source/generated/catalog.cpp \
 		source/generated/messages.cpp \
 		source/generated/switch_aliases.cpp \
+		source/core/damage.cpp \
 		source/core/engine.cpp \
 		source/core/locale.cpp \
 		source/core/size.cpp \
