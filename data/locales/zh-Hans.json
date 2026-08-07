@@ -47,6 +47,8 @@
     "hunterAffinity": "猎人会心率",
     "spLevel": "SP等级",
     "longSwordSpiritGauge": "太刀练气槽",
+    "combatParameters": "战斗参数",
+    "attackMultiplier": "攻击倍率",
     "monsterInfoOverlay": "怪物信息 Overlay"
   },
   "monsters": {

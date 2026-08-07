@@ -127,11 +127,20 @@ void refresh_numeric_feature_item(
   );
   if (feature == NumericFeature::SpLevel) {
     std::snprintf(value, sizeof(value), "%s / Lv. %u", state, setting.value);
+  } else if (feature == NumericFeature::AttackMultiplier) {
+    std::snprintf(value, sizeof(value), "%s / x%u", state, setting.value);
   } else {
     std::snprintf(value, sizeof(value), "%s / %u%%", state, setting.value);
   }
   item->setText(mhgu::core::ui_message(label, locale));
   item->setValue(value);
+}
+
+int numeric_feature_large_step(const NumericFeature feature) {
+  return feature == NumericFeature::SpLevel ||
+             feature == NumericFeature::AttackMultiplier
+           ? 1
+           : 10;
 }
 
 tsl::elm::ListItem* numeric_feature_item(
@@ -151,9 +160,9 @@ tsl::elm::ListItem* numeric_feature_item(
       } else if ((keys & HidNpadButton_Right) != 0) {
         delta = 1;
       } else if ((keys & HidNpadButton_L) != 0) {
-        delta = feature == NumericFeature::SpLevel ? -1 : -10;
+        delta = -numeric_feature_large_step(feature);
       } else if ((keys & HidNpadButton_R) != 0) {
-        delta = feature == NumericFeature::SpLevel ? 1 : 10;
+        delta = numeric_feature_large_step(feature);
       } else if ((keys & HidNpadButton_A) != 0) {
         model_ptr->enable_numeric_feature(feature);
         refresh_numeric_feature_item(
@@ -646,6 +655,12 @@ public:
     );
     list->addItem(consumable_item_);
 
+    list->addItem(section_header(model_, UiMessage::CombatParameters), 44);
+    attack_multiplier_item_ = numeric_feature_item(
+      model_, UiMessage::AttackMultiplier, NumericFeature::AttackMultiplier
+    );
+    list->addItem(attack_multiplier_item_);
+
     list->addItem(section_header(model_, UiMessage::Palico), 44);
     palico_health_item_ = runtime_feature_item(
       model_,
@@ -692,6 +707,7 @@ private:
   tsl::elm::ListItem* hunter_affinity_item_{};
   tsl::elm::ListItem* bowgun_item_{};
   tsl::elm::ListItem* consumable_item_{};
+  tsl::elm::ListItem* attack_multiplier_item_{};
   tsl::elm::ListItem* palico_health_item_{};
   tsl::elm::ListItem* palico_affinity_item_{};
 };

@@ -47,6 +47,8 @@
     "hunterAffinity": "Hunter affinity",
     "spLevel": "SP level",
     "longSwordSpiritGauge": "Long Sword Spirit Gauge",
+    "combatParameters": "Combat parameters",
+    "attackMultiplier": "Attack multiplier",
     "monsterInfoOverlay": "Monster info overlay"
   },
   "monsters": {

@@ -47,6 +47,8 @@
     "hunterAffinity": "ハンター会心率",
     "spLevel": "SPレベル",
     "longSwordSpiritGauge": "太刀練気ゲージ",
+    "combatParameters": "戦闘パラメータ",
+    "attackMultiplier": "攻撃倍率",
     "monsterInfoOverlay": "モンスター情報オーバーレイ"
   },
   "monsters": {

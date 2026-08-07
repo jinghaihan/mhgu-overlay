@@ -52,6 +52,8 @@ constexpr const char* kMessages[][3] = {
   {"Hunter affinity", "猎人会心率", "ハンター会心率"},
   {"SP level", "SP等级", "SPレベル"},
   {"Long Sword Spirit Gauge", "太刀练气槽", "太刀練気ゲージ"},
+  {"Combat parameters", "战斗参数", "戦闘パラメータ"},
+  {"Attack multiplier", "攻击倍率", "攻撃倍率"},
   {"Monster info overlay", "怪物信息 Overlay", "モンスター情報オーバーレイ"},
 };
 

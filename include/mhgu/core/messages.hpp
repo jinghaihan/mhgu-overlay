@@ -52,6 +52,8 @@ enum class UiMessage : std::uint8_t {
   HunterAffinity,
   SpLevel,
   LongSwordSpiritGauge,
+  CombatParameters,
+  AttackMultiplier,
   MonsterInfoOverlay,
 };
 

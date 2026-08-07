@@ -42,7 +42,7 @@ struct MainWordPatch {
   std::uint32_t value;
 };
 
-constexpr std::size_t kMaxMainWordPatchesPerFeature = 8;
+constexpr std::size_t kMaxMainWordPatchesPerFeature = 12;
 
 struct MainWordPatchSet {
   std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> patches;
@@ -52,6 +52,7 @@ struct MainWordPatchSet {
 enum class NumericWordEncoding : std::uint8_t {
   Fixed,
   LinearImmediate,
+  LinearWord,
 };
 
 struct NumericWordPatch {

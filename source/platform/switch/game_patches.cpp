@@ -28,18 +28,25 @@ bool encode_numeric_word_patch(
     encoded.value = patch.base_value;
     return true;
   }
-  if (patch.encoding != NumericWordEncoding::LinearImmediate ||
-      (patch.base_value & 0xFFU) != 0) {
+  if (patch.encoding != NumericWordEncoding::LinearImmediate &&
+      patch.encoding != NumericWordEncoding::LinearWord) {
     return false;
   }
 
-  const auto immediate =
+  const auto computed =
     static_cast<std::int64_t>(input) * patch.multiplier + patch.addend;
-  if (immediate < 0 || immediate > 0xFF) {
+  if (computed < 0 ||
+      computed > std::numeric_limits<std::uint32_t>::max()) {
     return false;
   }
-  encoded.value =
-    patch.base_value | static_cast<std::uint32_t>(immediate);
+  if (patch.encoding == NumericWordEncoding::LinearWord) {
+    encoded.value = static_cast<std::uint32_t>(computed);
+    return true;
+  }
+  if ((patch.base_value & 0xFFU) != 0 || computed > 0xFF) {
+    return false;
+  }
+  encoded.value = patch.base_value | static_cast<std::uint32_t>(computed);
   return true;
 }
 

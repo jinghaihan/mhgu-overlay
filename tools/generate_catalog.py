@@ -65,6 +65,8 @@ UI_KEYS = [
   "hunterAffinity",
   "spLevel",
   "longSwordSpiritGauge",
+  "combatParameters",
+  "attackMultiplier",
   "monsterInfoOverlay",
 ]
 

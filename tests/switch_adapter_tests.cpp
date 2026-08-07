@@ -144,6 +144,9 @@ int main() {
   const auto long_sword_spirit_index = core::numeric_feature_index(
     core::NumericFeature::LongSwordSpiritGauge
   );
+  const auto attack_multiplier_index = core::numeric_feature_index(
+    core::NumericFeature::AttackMultiplier
+  );
   const auto weapon_transmog_index = core::runtime_feature_index(
     core::RuntimeFeature::WeaponTransmog
   );
@@ -341,6 +344,47 @@ int main() {
         .encoding == NumericWordEncoding::Fixed
   );
   assert(
+    matched_profile->numeric_patches[attack_multiplier_index].count == 9
+  );
+  assert(
+    matched_profile->numeric_patches[attack_multiplier_index]
+        .patches[0]
+        .offset == 0x013F1E50
+  );
+  assert(
+    matched_profile->numeric_patches[attack_multiplier_index]
+        .patches[7]
+        .encoding == NumericWordEncoding::LinearWord
+  );
+  assert(
+    matched_profile->numeric_patches[attack_multiplier_index]
+        .patches[8]
+        .offset == 0x000E2C38
+  );
+  constexpr std::array<std::uint32_t, 9> kAttackPatchValues{
+    0xE1DF11B4,
+    0xE0000190,
+    0xE3500C7F,
+    0xC3A00C7F,
+    0xE1C400B0,
+    0xE1A00009,
+    0xE12FFF1E,
+    0x00000000,
+    0xEB4C3C84,
+  };
+  for (std::size_t index = 0; index < kAttackPatchValues.size(); ++index) {
+    assert(
+      matched_profile->numeric_patches[attack_multiplier_index]
+        .patches[index].base_value == kAttackPatchValues[index]
+    );
+  }
+  assert(
+    matched_profile->numeric_patches[attack_multiplier_index].minimum == 1
+  );
+  assert(
+    matched_profile->numeric_patches[attack_multiplier_index].maximum == 10
+  );
+  assert(
     matched_profile->runtime_patches[weapon_transmog_index].count == 8
   );
   assert(
@@ -405,6 +449,10 @@ int main() {
   profile.numeric_patches[sp_level_index].patches[0].offset = 0x198;
   profile.numeric_patches[long_sword_spirit_index].patches[0].offset = 0x1A0;
   profile.numeric_patches[long_sword_spirit_index].patches[1].offset = 0x1A4;
+  for (std::size_t index = 0; index < 9; ++index) {
+    profile.numeric_patches[attack_multiplier_index].patches[index].offset =
+      0x1A8 + index * sizeof(std::uint32_t);
+  }
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -443,6 +491,7 @@ int main() {
   constexpr std::uint32_t kOriginalPalicoAffinityInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalSpLevelInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalLongSwordSpiritInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalAttackMultiplierInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -545,6 +594,13 @@ int main() {
       kMainBase + profile.numeric_patches[long_sword_spirit_index]
         .patches[index].offset,
       kOriginalLongSwordSpiritInstruction
+    );
+  }
+  for (std::size_t index = 0; index < 9; ++index) {
+    memory.store(
+      kMainBase + profile.numeric_patches[attack_multiplier_index]
+        .patches[index].offset,
+      kOriginalAttackMultiplierInstruction
     );
   }
   for (std::size_t index = 0; index < 6; ++index) {
@@ -960,6 +1016,72 @@ int main() {
   assert(!patches.set_numeric_feature(
     core::NumericFeature::LongSwordSpiritGauge, 101
   ));
+
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::AttackMultiplier, 2
+  ));
+  assert(memory.write_count() == patch_writes + 9);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[attack_multiplier_index]
+        .patches[0].offset
+    ) == 0xE1DF11B4
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[attack_multiplier_index]
+        .patches[7].offset
+    ) == 2
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[attack_multiplier_index]
+        .patches[8].offset
+    ) == 0xEB4C3C84
+  );
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::AttackMultiplier, 2
+  ));
+  assert(memory.write_count() == patch_writes);
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::AttackMultiplier, 5
+  ));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[attack_multiplier_index]
+        .patches[7].offset
+    ) == 5
+  );
+  patch_writes = memory.write_count();
+  assert(!patches.set_numeric_feature(
+    core::NumericFeature::AttackMultiplier, 0
+  ));
+  assert(!patches.set_numeric_feature(
+    core::NumericFeature::AttackMultiplier, 11
+  ));
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_attack_profile = profile;
+  invalid_attack_profile.numeric_patches[attack_multiplier_index]
+    .patches[8]
+    .offset = 0x1000;
+  GamePatches invalid_attack(
+    memory, invalid_attack_profile, kMainBase, 0x1000, 0, 0x20000
+  );
+  patch_writes = memory.write_count();
+  assert(!invalid_attack.set_numeric_feature(
+    core::NumericFeature::AttackMultiplier, 3
+  ));
+  assert(memory.write_count() == patch_writes);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[attack_multiplier_index]
+        .patches[7].offset
+    ) == 5
+  );
 
   auto invalid_palico_affinity_profile = profile;
   invalid_palico_affinity_profile.numeric_patches[palico_affinity_index]

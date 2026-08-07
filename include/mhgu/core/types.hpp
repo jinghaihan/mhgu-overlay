@@ -74,6 +74,7 @@ enum class NumericFeature : std::uint8_t {
   PalicoAffinity,
   SpLevel,
   LongSwordSpiritGauge,
+  AttackMultiplier,
   Count,
 };
 
@@ -107,6 +108,8 @@ constexpr NumericFeatureRange numeric_feature_range(
       return {1, 4};
     case NumericFeature::LongSwordSpiritGauge:
       return {0, 100};
+    case NumericFeature::AttackMultiplier:
+      return {1, 10};
     default:
       return {0, 0};
   }
@@ -162,6 +165,7 @@ struct CoreSettings {
     {100, false},
     {4, false},
     {100, false},
+    {2, false},
   }};
 };
 
