@@ -63,6 +63,7 @@ private:
   std::uint64_t heap_size_{};
   std::uint64_t address_space_base_{};
   std::uint64_t address_space_size_{};
+  bool frame_rate_applied_{};
   core::FrameRate applied_frame_rate_{core::FrameRate::Fps30};
   core::MonsterDamageMode applied_monster_damage_mode_{
     core::MonsterDamageMode::Off

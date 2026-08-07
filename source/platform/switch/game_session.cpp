@@ -90,6 +90,7 @@ bool GameSession::attach() {
     reader_ = std::make_unique<MonsterReader>(
       memory_, *profile_, heap_base_, heap_size_
     );
+    frame_rate_applied_ = false;
     applied_frame_rate_ = core::FrameRate::Fps30;
     applied_monster_damage_mode_ = core::MonsterDamageMode::Off;
     applied_runtime_features_ = {};
@@ -119,6 +120,7 @@ void GameSession::detach(const SessionStatus status) {
   heap_size_ = 0;
   address_space_base_ = 0;
   address_space_size_ = 0;
+  frame_rate_applied_ = false;
   applied_frame_rate_ = core::FrameRate::Fps30;
   applied_monster_damage_mode_ = core::MonsterDamageMode::Off;
   applied_runtime_features_ = {};
@@ -128,12 +130,13 @@ void GameSession::detach(const SessionStatus status) {
 }
 
 bool GameSession::sync_frame_rate(const core::FrameRate frame_rate) {
-  if (frame_rate == applied_frame_rate_) {
+  if (frame_rate_applied_ && frame_rate == applied_frame_rate_) {
     return true;
   }
   if (patches_ == nullptr || !patches_->set_frame_rate(frame_rate)) {
     return false;
   }
+  frame_rate_applied_ = true;
   applied_frame_rate_ = frame_rate;
   return true;
 }

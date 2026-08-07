@@ -134,10 +134,10 @@ The recognized build profile also contains the 30/60 FPS pointer chain and
 its two legal float bit patterns. The adapter bounds the pointer read to the
 main NSO, bounds the resolved target to the process address space, rejects an
 unexpected current value, and immediately reads every write back. A saved
-60 FPS preference is reapplied when a recognized game process attaches. The
-default 30 FPS preference does not write on first attachment, so the overlay
-does not override an unrelated external patch unless the user changes the
-selector.
+frame-rate preference is synchronized whenever a recognized game process
+attaches. The adapter accepts only the profile's known 30 FPS and 60 FPS bit
+patterns before writing, so an unrelated value is rejected instead of being
+overwritten.
 
 The map and large-monster-location selector applies two static ARM instruction
 patches from the same build profile. Both addresses are validated against the
