@@ -62,6 +62,9 @@ constexpr const char* kMessages[][3] = {
   {"Resources", "资源", "資源"},
   {"Zenny", "金钱", "ゼニー"},
   {"Wycademy Points", "龙历院点数", "龍歴院ポイント"},
+  {"Item pouch slot", "道具袋格位", "アイテムポーチの枠"},
+  {"Quantity", "数量", "個数"},
+  {"Apply item quantity", "应用道具数量", "アイテム個数を適用"},
   {"Monster info overlay", "怪物信息 Overlay", "モンスター情報オーバーレイ"},
 };
 

@@ -83,14 +83,18 @@ GamePatches::GamePatches(
   const std::uint64_t main_base,
   const std::uint64_t main_size,
   const std::uint64_t address_space_base,
-  const std::uint64_t address_space_size
+  const std::uint64_t address_space_size,
+  const std::uint64_t heap_base,
+  const std::uint64_t heap_size
 )
   : memory_(memory),
     profile_(profile),
     main_base_(main_base),
     main_size_(main_size),
     address_space_base_(address_space_base),
-    address_space_size_(address_space_size) {}
+    address_space_size_(address_space_size),
+    heap_base_(heap_base),
+    heap_size_(heap_size) {}
 
 bool GamePatches::contains(
   const std::uint64_t region_base,
@@ -197,6 +201,41 @@ bool GamePatches::set_monster_damage_mode(
   std::uint64_t address{};
   return main_word_patch_address(patch, address) &&
          apply_main_word_patch(patch, address);
+}
+
+bool GamePatches::set_item_pouch_quantity(
+  const std::uint8_t slot, const std::uint8_t quantity
+) {
+  const auto& layout = profile_.item_pouch;
+  if (slot == 0 || slot > layout.slot_count ||
+      quantity < layout.minimum_quantity ||
+      quantity > layout.maximum_quantity) {
+    return false;
+  }
+
+  const auto slot_offset =
+    static_cast<std::uint64_t>(slot - 1) * layout.slot_stride;
+  std::uint64_t offset{};
+  std::uint64_t address{};
+  if (!checked_add(layout.first_quantity_from_heap, slot_offset, offset) ||
+      !checked_add(heap_base_, offset, address) ||
+      !contains(heap_base_, heap_size_, address, sizeof(quantity))) {
+    return false;
+  }
+
+  std::uint8_t current{};
+  if (!memory_.read(address, &current, sizeof(current))) {
+    return false;
+  }
+  if (current == quantity) {
+    return true;
+  }
+  if (!memory_.write(address, &quantity, sizeof(quantity))) {
+    return false;
+  }
+  std::uint8_t verified{};
+  return memory_.read(address, &verified, sizeof(verified)) &&
+         verified == quantity;
 }
 
 bool GamePatches::enable_runtime_feature(

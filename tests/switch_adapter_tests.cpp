@@ -91,6 +91,8 @@ int main() {
   constexpr std::uint64_t kFrameRatePointer = 0x80;
   constexpr std::uint64_t kFrameRateTargetBase = 0x18000;
   constexpr std::uint64_t kFrameRateTargetOffset = 0x20;
+  constexpr std::uint64_t kItemPouchHeapBase = 0x10000;
+  constexpr std::uint64_t kItemPouchHeapSize = 0x1000;
   profile.frame_rate.pointer_from_main = kFrameRatePointer;
   profile.frame_rate.target_from_pointer = kFrameRateTargetOffset;
   const auto map_index = core::runtime_feature_index(
@@ -175,6 +177,13 @@ int main() {
   assert(
     matched_profile->monster_damage.leave_one_hp_value == 0xE2860001
   );
+  assert(
+    matched_profile->item_pouch.first_quantity_from_heap == 0x10D6920C
+  );
+  assert(matched_profile->item_pouch.slot_stride == 4);
+  assert(matched_profile->item_pouch.slot_count == 10);
+  assert(matched_profile->item_pouch.minimum_quantity == 1);
+  assert(matched_profile->item_pouch.maximum_quantity == 99);
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -657,6 +666,7 @@ int main() {
       0x218 + index * sizeof(std::uint32_t);
   }
   profile.monster_damage.offset = 0x230;
+  profile.item_pouch.first_quantity_from_heap = 0x100;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -858,7 +868,14 @@ int main() {
     );
   }
   GamePatches patches(
-    memory, profile, kMainBase, 0x1000, 0, 0x20000
+    memory,
+    profile,
+    kMainBase,
+    0x1000,
+    0,
+    0x20000,
+    kItemPouchHeapBase,
+    kItemPouchHeapSize
   );
   assert(!patches.enable_runtime_feature(core::RuntimeFeature::Count));
   auto patch_writes = memory.write_count();
@@ -959,6 +976,45 @@ int main() {
       kMainBase + profile.monster_damage.offset
     ) == profile.monster_damage.leave_one_hp_value
   );
+
+  const auto first_item_quantity =
+    kItemPouchHeapBase + profile.item_pouch.first_quantity_from_heap;
+  patch_writes = memory.write_count();
+  assert(patches.set_item_pouch_quantity(1, 99));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(memory.load<std::uint8_t>(first_item_quantity) == 99);
+  patch_writes = memory.write_count();
+  assert(patches.set_item_pouch_quantity(1, 99));
+  assert(memory.write_count() == patch_writes);
+  assert(patches.set_item_pouch_quantity(10, 42));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint8_t>(
+      first_item_quantity + 9 * profile.item_pouch.slot_stride
+    ) == 42
+  );
+  patch_writes = memory.write_count();
+  assert(!patches.set_item_pouch_quantity(0, 99));
+  assert(!patches.set_item_pouch_quantity(11, 99));
+  assert(!patches.set_item_pouch_quantity(1, 0));
+  assert(!patches.set_item_pouch_quantity(1, 100));
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_item_pouch_profile = profile;
+  invalid_item_pouch_profile.item_pouch.first_quantity_from_heap =
+    kItemPouchHeapSize;
+  GamePatches invalid_item_pouch(
+    memory,
+    invalid_item_pouch_profile,
+    kMainBase,
+    0x1000,
+    0,
+    0x20000,
+    kItemPouchHeapBase,
+    kItemPouchHeapSize
+  );
+  assert(!invalid_item_pouch.set_item_pouch_quantity(1, 50));
+  assert(memory.write_count() == patch_writes);
 
   patch_writes = memory.write_count();
   assert(patches.enable_runtime_feature(

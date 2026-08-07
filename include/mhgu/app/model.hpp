@@ -27,6 +27,9 @@ public:
   void enable_runtime_feature(core::RuntimeFeature feature);
   void adjust_numeric_feature(core::NumericFeature feature, int delta);
   void enable_numeric_feature(core::NumericFeature feature);
+  void adjust_item_pouch_slot(int delta);
+  void adjust_item_pouch_quantity(int delta);
+  void request_item_pouch_quantity_write();
   void cycle_size_preset();
   void request_rescan();
 
@@ -40,6 +43,7 @@ private:
   SettingsStore store_;
   std::atomic<bool> running_{false};
   std::atomic<bool> rescan_requested_{false};
+  std::atomic<bool> item_pouch_write_requested_{false};
   std::thread worker_;
 };
 

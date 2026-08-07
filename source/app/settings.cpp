@@ -1,5 +1,6 @@
 #include "mhgu/app/settings.hpp"
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -148,6 +149,24 @@ std::uint32_t parse_wycademy_points(const char* value) {
   return static_cast<std::uint32_t>(parsed);
 }
 
+std::uint8_t parse_item_pouch_slot(const char* value) {
+  char* end{};
+  const auto parsed = std::strtol(value, &end, 10);
+  if (end == value || *end != '\0') {
+    return 1;
+  }
+  return static_cast<std::uint8_t>(std::clamp(parsed, 1L, 10L));
+}
+
+std::uint8_t parse_item_pouch_quantity(const char* value) {
+  char* end{};
+  const auto parsed = std::strtol(value, &end, 10);
+  if (end == value || *end != '\0') {
+    return 99;
+  }
+  return static_cast<std::uint8_t>(std::clamp(parsed, 1L, 99L));
+}
+
 const char* locale_value(const core::LocaleMode mode) {
   switch (mode) {
     case core::LocaleMode::English:
@@ -241,6 +260,10 @@ core::CoreSettings SettingsStore::load() const {
       settings.numeric_features[core::numeric_feature_index(
         core::NumericFeature::WycademyPoints
       )].value = parse_wycademy_points(value);
+    } else if (std::strcmp(key, "item_pouch_slot") == 0) {
+      settings.item_pouch_slot = parse_item_pouch_slot(value);
+    } else if (std::strcmp(key, "item_pouch_quantity") == 0) {
+      settings.item_pouch_quantity = parse_item_pouch_quantity(value);
     } else if (std::strcmp(key, "size_lock") == 0) {
       has_legacy_size_lock = true;
       legacy_size_lock_enabled = std::strcmp(value, "1") == 0;
@@ -328,6 +351,10 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
     settings.numeric_features[core::numeric_feature_index(
       core::NumericFeature::WycademyPoints
     )].value
+  );
+  std::fprintf(file, "item_pouch_slot=%u\n", settings.item_pouch_slot);
+  std::fprintf(
+    file, "item_pouch_quantity=%u\n", settings.item_pouch_quantity
   );
   const auto close_result = std::fclose(file);
   if (close_result != 0) {

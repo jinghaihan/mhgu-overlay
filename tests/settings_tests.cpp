@@ -16,6 +16,8 @@ int main() {
   assert(defaults.size_preset == core::SizePreset::Off);
   assert(defaults.frame_rate == core::FrameRate::Fps30);
   assert(defaults.monster_damage_mode == core::MonsterDamageMode::Off);
+  assert(defaults.item_pouch_slot == 1);
+  assert(defaults.item_pouch_quantity == 99);
   for (const auto enabled : defaults.runtime_features) {
     assert(!enabled);
   }
@@ -74,6 +76,8 @@ int main() {
   expected.size_preset = core::SizePreset::Gold;
   expected.frame_rate = core::FrameRate::Fps60;
   expected.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
+  expected.item_pouch_slot = 7;
+  expected.item_pouch_quantity = 42;
   expected.runtime_features.fill(true);
   expected.numeric_features[affinity_index] = {73, true};
   expected.numeric_features[palico_affinity_index] = {61, true};
@@ -91,6 +95,8 @@ int main() {
   assert(restored.size_preset == expected.size_preset);
   assert(restored.frame_rate == expected.frame_rate);
   assert(restored.monster_damage_mode == core::MonsterDamageMode::Off);
+  assert(restored.item_pouch_slot == 7);
+  assert(restored.item_pouch_quantity == 42);
   for (const auto enabled : restored.runtime_features) {
     assert(!enabled);
   }
@@ -178,6 +184,13 @@ int main() {
   assert(
     store.load().numeric_features[wycademy_points_index].value == 9999999
   );
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(numeric, "item_pouch_slot=11\nitem_pouch_quantity=100\n");
+  assert(std::fclose(numeric) == 0);
+  assert(store.load().item_pouch_slot == 10);
+  assert(store.load().item_pouch_quantity == 99);
 
   numeric = std::fopen(kPath, "w");
   assert(numeric != nullptr);

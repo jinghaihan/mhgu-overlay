@@ -57,6 +57,9 @@
     "resources": "資源",
     "zenny": "ゼニー",
     "wycademyPoints": "龍歴院ポイント",
+    "itemPouchSlot": "アイテムポーチの枠",
+    "itemPouchQuantity": "個数",
+    "applyItemPouchQuantity": "アイテム個数を適用",
     "monsterInfoOverlay": "モンスター情報オーバーレイ"
   },
   "monsters": {

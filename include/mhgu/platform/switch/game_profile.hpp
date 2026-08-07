@@ -43,6 +43,14 @@ struct MonsterDamagePatch {
   std::uint32_t leave_one_hp_value;
 };
 
+struct ItemPouchLayout {
+  std::uint64_t first_quantity_from_heap;
+  std::uint32_t slot_stride;
+  std::uint8_t slot_count;
+  std::uint8_t minimum_quantity;
+  std::uint8_t maximum_quantity;
+};
+
 struct MainWordPatch {
   std::uint64_t offset;
   std::uint32_t value;
@@ -90,6 +98,7 @@ struct GameProfile {
   PointerListLayout pointer_list;
   FrameRatePatch frame_rate;
   MonsterDamagePatch monster_damage;
+  ItemPouchLayout item_pouch;
   std::array<MainWordPatchSet, core::kRuntimeFeatureCount> runtime_patches;
   std::array<NumericWordPatchSet, core::kNumericFeatureCount> numeric_patches;
 };

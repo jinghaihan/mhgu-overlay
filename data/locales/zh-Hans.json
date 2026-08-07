@@ -57,6 +57,9 @@
     "resources": "资源",
     "zenny": "金钱",
     "wycademyPoints": "龙历院点数",
+    "itemPouchSlot": "道具袋格位",
+    "itemPouchQuantity": "数量",
+    "applyItemPouchQuantity": "应用道具数量",
     "monsterInfoOverlay": "怪物信息 Overlay"
   },
   "monsters": {

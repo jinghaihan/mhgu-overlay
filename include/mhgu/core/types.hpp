@@ -178,6 +178,8 @@ struct CoreSettings {
   SizePreset size_preset{SizePreset::Off};
   FrameRate frame_rate{FrameRate::Fps30};
   MonsterDamageMode monster_damage_mode{MonsterDamageMode::Off};
+  std::uint8_t item_pouch_slot{1};
+  std::uint8_t item_pouch_quantity{99};
   std::array<bool, kRuntimeFeatureCount> runtime_features{};
   std::array<NumericFeatureSetting, kNumericFeatureCount> numeric_features{{
     {100, false},

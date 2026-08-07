@@ -17,11 +17,14 @@ public:
     std::uint64_t main_base,
     std::uint64_t main_size,
     std::uint64_t address_space_base,
-    std::uint64_t address_space_size
+    std::uint64_t address_space_size,
+    std::uint64_t heap_base = 0,
+    std::uint64_t heap_size = 0
   );
 
   bool set_frame_rate(core::FrameRate frame_rate);
   bool set_monster_damage_mode(core::MonsterDamageMode mode);
+  bool set_item_pouch_quantity(std::uint8_t slot, std::uint8_t quantity);
   bool enable_runtime_feature(core::RuntimeFeature feature);
   bool set_numeric_feature(core::NumericFeature feature, std::uint32_t value);
 
@@ -45,6 +48,8 @@ private:
   std::uint64_t main_size_;
   std::uint64_t address_space_base_;
   std::uint64_t address_space_size_;
+  std::uint64_t heap_base_;
+  std::uint64_t heap_size_;
 };
 
 }  // namespace mhgu::platform::switch_adapter

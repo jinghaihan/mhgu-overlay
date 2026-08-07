@@ -37,6 +37,7 @@ public:
   void shutdown();
   void poll(const core::CoreSettings& settings);
   void request_rescan();
+  bool apply_item_pouch_quantity(std::uint8_t slot, std::uint8_t quantity);
 
   const SessionView& view() const;
 

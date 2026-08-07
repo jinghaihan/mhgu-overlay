@@ -138,6 +138,96 @@ tsl::elm::ListItem* monster_damage_mode_item(Model& model) {
   return item;
 }
 
+void refresh_item_pouch_slot_item(tsl::elm::ListItem* item, Model& model) {
+  char value[8]{};
+  std::snprintf(
+    value, sizeof(value), "%u", model.settings().item_pouch_slot
+  );
+  item->setText(text(model, UiMessage::ItemPouchSlot));
+  item->setValue(value);
+}
+
+tsl::elm::ListItem* item_pouch_slot_item(Model& model) {
+  auto* item = new tsl::elm::ListItem(
+    text(model, UiMessage::ItemPouchSlot)
+  );
+  refresh_item_pouch_slot_item(item, model);
+  item->setClickListener(
+    [model_ptr = &model, item](const u64 keys) {
+      int delta{};
+      if ((keys & HidNpadButton_Left) != 0) {
+        delta = -1;
+      } else if ((keys & HidNpadButton_Right) != 0) {
+        delta = 1;
+      } else if ((keys & HidNpadButton_L) != 0) {
+        delta = -5;
+      } else if ((keys & HidNpadButton_R) != 0) {
+        delta = 5;
+      } else {
+        return false;
+      }
+      model_ptr->adjust_item_pouch_slot(delta);
+      refresh_item_pouch_slot_item(item, *model_ptr);
+      return true;
+    }
+  );
+  return item;
+}
+
+void refresh_item_pouch_quantity_item(
+  tsl::elm::ListItem* item, Model& model
+) {
+  char value[8]{};
+  std::snprintf(
+    value, sizeof(value), "%u", model.settings().item_pouch_quantity
+  );
+  item->setText(text(model, UiMessage::ItemPouchQuantity));
+  item->setValue(value);
+}
+
+tsl::elm::ListItem* item_pouch_quantity_item(Model& model) {
+  auto* item = new tsl::elm::ListItem(
+    text(model, UiMessage::ItemPouchQuantity)
+  );
+  refresh_item_pouch_quantity_item(item, model);
+  item->setClickListener(
+    [model_ptr = &model, item](const u64 keys) {
+      int delta{};
+      if ((keys & HidNpadButton_Left) != 0) {
+        delta = -1;
+      } else if ((keys & HidNpadButton_Right) != 0) {
+        delta = 1;
+      } else if ((keys & HidNpadButton_L) != 0) {
+        delta = -10;
+      } else if ((keys & HidNpadButton_R) != 0) {
+        delta = 10;
+      } else {
+        return false;
+      }
+      model_ptr->adjust_item_pouch_quantity(delta);
+      refresh_item_pouch_quantity_item(item, *model_ptr);
+      return true;
+    }
+  );
+  return item;
+}
+
+tsl::elm::ListItem* apply_item_pouch_quantity_item(Model& model) {
+  auto* item = new tsl::elm::ListItem(
+    text(model, UiMessage::ApplyItemPouchQuantity)
+  );
+  item->setClickListener(
+    [model_ptr = &model](const u64 keys) {
+      if ((keys & HidNpadButton_A) == 0) {
+        return false;
+      }
+      model_ptr->request_item_pouch_quantity_write();
+      return true;
+    }
+  );
+  return item;
+}
+
 mhgu::core::NumericFeatureSetting numeric_feature_setting(
   Model& model, const NumericFeature feature
 ) {
@@ -746,6 +836,12 @@ public:
       model_, UiMessage::WycademyPoints, NumericFeature::WycademyPoints
     );
     list->addItem(wycademy_points_item_);
+    item_pouch_slot_item_ = item_pouch_slot_item(model_);
+    list->addItem(item_pouch_slot_item_);
+    item_pouch_quantity_item_ = item_pouch_quantity_item(model_);
+    list->addItem(item_pouch_quantity_item_);
+    apply_item_pouch_quantity_item_ = apply_item_pouch_quantity_item(model_);
+    list->addItem(apply_item_pouch_quantity_item_);
 
     list->addItem(section_header(model_, UiMessage::Palico), 44);
     palico_health_item_ = runtime_feature_item(
@@ -799,6 +895,9 @@ private:
   tsl::elm::ListItem* movement_speed_multiplier_item_{};
   tsl::elm::ListItem* zenny_item_{};
   tsl::elm::ListItem* wycademy_points_item_{};
+  tsl::elm::ListItem* item_pouch_slot_item_{};
+  tsl::elm::ListItem* item_pouch_quantity_item_{};
+  tsl::elm::ListItem* apply_item_pouch_quantity_item_{};
   tsl::elm::ListItem* palico_health_item_{};
   tsl::elm::ListItem* palico_affinity_item_{};
 };

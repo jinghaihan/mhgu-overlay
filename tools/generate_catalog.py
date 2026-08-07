@@ -75,6 +75,9 @@ UI_KEYS = [
   "resources",
   "zenny",
   "wycademyPoints",
+  "itemPouchSlot",
+  "itemPouchQuantity",
+  "applyItemPouchQuantity",
   "monsterInfoOverlay",
 ]
 

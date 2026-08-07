@@ -158,6 +158,42 @@ void Model::enable_numeric_feature(const core::NumericFeature feature) {
   }
 }
 
+void Model::adjust_item_pouch_slot(const int delta) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    const auto adjusted = std::clamp(
+      static_cast<int>(settings_.item_pouch_slot) + delta, 1, 10
+    );
+    if (adjusted == settings_.item_pouch_slot) {
+      return;
+    }
+    settings_.item_pouch_slot = static_cast<std::uint8_t>(adjusted);
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::adjust_item_pouch_quantity(const int delta) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    const auto adjusted = std::clamp(
+      static_cast<int>(settings_.item_pouch_quantity) + delta, 1, 99
+    );
+    if (adjusted == settings_.item_pouch_quantity) {
+      return;
+    }
+    settings_.item_pouch_quantity = static_cast<std::uint8_t>(adjusted);
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::request_item_pouch_quantity_write() {
+  item_pouch_write_requested_ = true;
+}
+
 void Model::cycle_size_preset() {
   core::CoreSettings changed{};
   {
@@ -198,6 +234,12 @@ void Model::worker_main() {
     }
     const auto current_settings = settings();
     session.poll(current_settings);
+    if (item_pouch_write_requested_.exchange(false)) {
+      session.apply_item_pouch_quantity(
+        current_settings.item_pouch_slot,
+        current_settings.item_pouch_quantity
+      );
+    }
     {
       const std::scoped_lock lock(mutex_);
       view_ = session.view();

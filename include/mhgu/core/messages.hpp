@@ -62,6 +62,9 @@ enum class UiMessage : std::uint8_t {
   Resources,
   Zenny,
   WycademyPoints,
+  ItemPouchSlot,
+  ItemPouchQuantity,
+  ApplyItemPouchQuantity,
   MonsterInfoOverlay,
 };
 

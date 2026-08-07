@@ -57,6 +57,9 @@
     "resources": "Resources",
     "zenny": "Zenny",
     "wycademyPoints": "Wycademy Points",
+    "itemPouchSlot": "Item pouch slot",
+    "itemPouchQuantity": "Quantity",
+    "applyItemPouchQuantity": "Apply item quantity",
     "monsterInfoOverlay": "Monster info overlay"
   },
   "monsters": {

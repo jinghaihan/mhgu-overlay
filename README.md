@@ -51,6 +51,7 @@ Generations Ultimate on Nintendo Switch.
   at 1 HP after taking damage.
 - Sets Zenny to a user-selected value from 0 to 9,999,999.
 - Sets Wycademy Points to a user-selected value from 0 to 9,999,999.
+- Applies a user-selected quantity to one of the first 10 item pouch slots.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -133,6 +134,11 @@ Generations Ultimate on Nintendo Switch.
   the original instruction.
 - **Wycademy Points** uses the same controls and persistence behavior as
   **Zenny**. Restart the game to restore the original instruction.
+- **Item pouch slot** selects one slot from 1 to 10. **Quantity** selects a
+  value from 1 to 99. Left/Right changes either value by one; L/R changes the
+  slot by five or the quantity by ten. **Apply item quantity** performs one
+  verified byte write to the selected slot. The two selected values are saved,
+  but the write is not repeated automatically.
 - Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.

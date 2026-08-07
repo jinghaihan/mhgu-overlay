@@ -83,7 +83,9 @@ bool GameSession::attach() {
       main_base_,
       main_size_,
       address_space_base_,
-      address_space_size_
+      address_space_size_,
+      heap_base_,
+      heap_size_
     );
     reader_ = std::make_unique<MonsterReader>(
       memory_, *profile_, heap_base_, heap_size_
@@ -251,6 +253,17 @@ void GameSession::request_rescan() {
   if (profile_ != nullptr) {
     view_.status = SessionStatus::Searching;
   }
+}
+
+bool GameSession::apply_item_pouch_quantity(
+  const std::uint8_t slot, const std::uint8_t quantity
+) {
+  if (patches_ == nullptr ||
+      !patches_->set_item_pouch_quantity(slot, quantity)) {
+    view_.status = SessionStatus::WriteFailed;
+    return false;
+  }
+  return true;
 }
 
 const SessionView& GameSession::view() const {
