@@ -24,7 +24,7 @@ from semver import Version
 
 ROOT = Path(__file__).resolve().parent.parent
 VERSION_PATH = ROOT / "VERSION"
-REMOTE = "upstream"
+REMOTE = "origin"
 
 PROMPT_STYLE = Style(
   [

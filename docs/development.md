@@ -224,7 +224,7 @@ uv run tools/release.py
 Choose `patch`, `minor`, or `major`, then confirm the plan. The script checks
 the repository state, updates `VERSION`, regenerates the catalog, runs host
 tests, creates a `chore: release vX.Y.Z` commit and annotated tag, and pushes
-`main` followed by that exact tag to `upstream`.
+`main` followed by that exact tag to `origin`.
 
 The release type can also be supplied directly while keeping the final
 confirmation:

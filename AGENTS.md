@@ -77,7 +77,7 @@
   - `docs: clarify hardware verification`
   - `ci: publish tagged releases`
 - Split distinct concerns into separate commits and push completed commits to
-  `upstream`.
+  `origin`.
 - Preserve unrelated user changes and never rewrite shared history unless the
   user explicitly requests it.
 - `VERSION` is the single release version source. Release tags must equal
@@ -85,7 +85,7 @@
 - Use `uv run tools/release.py` for normal releases. It creates the version commit,
   annotated tag, and explicit pushes after running the host checks.
 - Push release tags explicitly, for example
-  `git push upstream v0.1.0`. Never use `git push --tags`.
+  `git push origin v0.1.0`. Never use `git push --tags`.
 - Tags matching `v*` trigger `.github/workflows/release.yml`, which builds the
   overlay, generates notes with changelogithub, and uploads the `.ovl` plus
   its checksum.
