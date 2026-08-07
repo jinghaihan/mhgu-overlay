@@ -260,7 +260,7 @@ the NRO metadata.
 - **`MHGU is not running`**: launch MHGU 1.4.0 and verify the title and
   version.
 - **Scanning never finishes**: enter a quest with a large monster, then
-  choose **Find monster list**.
+  choose **Rescan**.
 - **Size does not change**: confirm that **Size lock** is not Off. Treat a
   write error as a safety stop.
 - **A generated file changed unexpectedly**: rerun the generator, review the
