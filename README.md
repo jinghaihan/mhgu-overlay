@@ -58,7 +58,7 @@ Generations Ultimate on Nintendo Switch.
 
 ## Use
 
-- **Open overlay** hides the settings page and returns input to the game.
+- **Monster info overlay** hides the settings page and returns input to the game.
 - Hold `L3 + R3` in the overlay to return to settings.
 - Press `B` on the settings page to close the overlay.
 - Choose the language manually or leave it on **Auto**.

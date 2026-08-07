@@ -40,7 +40,7 @@ enum class UiMessage : std::uint8_t {
   UnlimitedHunterArts,
   ValorGaugeNoDecrease,
   AlchemyGaugeFull,
-  OpenOverlay,
+  MonsterInfoOverlay,
 };
 
 const char* ui_message(UiMessage message, Locale locale);

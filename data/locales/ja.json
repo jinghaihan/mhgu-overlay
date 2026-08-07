@@ -35,7 +35,7 @@
     "unlimitedHunterArts": "狩技無限使用",
     "valorGaugeNoDecrease": "ブレイヴゲージ減少なし",
     "alchemyGaugeFull": "錬金ゲージ満タン",
-    "openOverlay": "オーバーレイを開く"
+    "monsterInfoOverlay": "モンスター情報オーバーレイ"
   },
   "monsters": {
     "great-maccao": "ドスマッカォ",

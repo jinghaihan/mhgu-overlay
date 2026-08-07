@@ -35,7 +35,7 @@
     "unlimitedHunterArts": "狩技无限使用",
     "valorGaugeNoDecrease": "勇气槽不减",
     "alchemyGaugeFull": "炼金槽全满",
-    "openOverlay": "打开 Overlay"
+    "monsterInfoOverlay": "怪物信息 Overlay"
   },
   "monsters": {
     "great-maccao": "跳狗龙王",

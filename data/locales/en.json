@@ -35,7 +35,7 @@
     "unlimitedHunterArts": "Unlimited Hunter Arts",
     "valorGaugeNoDecrease": "Valor gauge does not decrease",
     "alchemyGaugeFull": "Fill Alchemy gauge",
-    "openOverlay": "Open overlay"
+    "monsterInfoOverlay": "Monster info overlay"
   },
   "monsters": {
     "great-maccao": "Great Maccao",

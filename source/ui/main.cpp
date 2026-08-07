@@ -632,7 +632,7 @@ public:
     );
 
     hud_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::OpenOverlay, locale)
+      mhgu::core::ui_message(UiMessage::MonsterInfoOverlay, locale)
     );
     hud_item_->setClickListener([this](const u64 keys) {
       if ((keys & HidNpadButton_A) != 0) {
@@ -745,7 +745,7 @@ private:
     const auto locale = model_.display_locale();
     frame_->setTitle(mhgu::core::ui_message(UiMessage::Title, locale));
     hud_item_->setText(
-      mhgu::core::ui_message(UiMessage::OpenOverlay, locale)
+      mhgu::core::ui_message(UiMessage::MonsterInfoOverlay, locale)
     );
     frame_rate_item_->setText(
       mhgu::core::ui_message(UiMessage::FrameRate, locale)
