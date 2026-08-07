@@ -58,6 +58,7 @@ enum class UiMessage : std::uint8_t {
   MovementSpeedMultiplier,
   Resources,
   Zenny,
+  WycademyPoints,
   MonsterInfoOverlay,
 };
 

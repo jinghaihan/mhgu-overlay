@@ -53,6 +53,7 @@
     "movementSpeedMultiplier": "Movement speed multiplier",
     "resources": "Resources",
     "zenny": "Zenny",
+    "wycademyPoints": "Wycademy Points",
     "monsterInfoOverlay": "Monster info overlay"
   },
   "monsters": {

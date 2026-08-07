@@ -78,6 +78,7 @@ enum class NumericFeature : std::uint8_t {
   DefenseMultiplier,
   MovementSpeedMultiplier,
   Zenny,
+  WycademyPoints,
   Count,
 };
 
@@ -118,6 +119,8 @@ constexpr NumericFeatureRange numeric_feature_range(
     case NumericFeature::MovementSpeedMultiplier:
       return {10, 50};
     case NumericFeature::Zenny:
+      return {0, 9999999};
+    case NumericFeature::WycademyPoints:
       return {0, 9999999};
     default:
       return {0, 0};
@@ -177,6 +180,7 @@ struct CoreSettings {
     {2, false},
     {2, false},
     {20, false},
+    {7777777, false},
     {7777777, false},
   }};
 };

@@ -139,7 +139,8 @@ void refresh_numeric_feature_item(
       setting.value / 10,
       setting.value % 10
     );
-  } else if (feature == NumericFeature::Zenny) {
+  } else if (feature == NumericFeature::Zenny ||
+             feature == NumericFeature::WycademyPoints) {
     std::snprintf(value, sizeof(value), "%s / %u", state, setting.value);
   } else {
     std::snprintf(value, sizeof(value), "%s / %u%%", state, setting.value);
@@ -149,11 +150,15 @@ void refresh_numeric_feature_item(
 }
 
 int numeric_feature_small_step(const NumericFeature feature) {
-  return feature == NumericFeature::Zenny ? 10000 : 1;
+  return feature == NumericFeature::Zenny ||
+             feature == NumericFeature::WycademyPoints
+           ? 10000
+           : 1;
 }
 
 int numeric_feature_large_step(const NumericFeature feature) {
-  if (feature == NumericFeature::Zenny) {
+  if (feature == NumericFeature::Zenny ||
+      feature == NumericFeature::WycademyPoints) {
     return 1000000;
   }
   if (feature == NumericFeature::MovementSpeedMultiplier) {
@@ -699,6 +704,10 @@ public:
       model_, UiMessage::Zenny, NumericFeature::Zenny
     );
     list->addItem(zenny_item_);
+    wycademy_points_item_ = numeric_feature_item(
+      model_, UiMessage::WycademyPoints, NumericFeature::WycademyPoints
+    );
+    list->addItem(wycademy_points_item_);
 
     list->addItem(section_header(model_, UiMessage::Palico), 44);
     palico_health_item_ = runtime_feature_item(
@@ -750,6 +759,7 @@ private:
   tsl::elm::ListItem* defense_multiplier_item_{};
   tsl::elm::ListItem* movement_speed_multiplier_item_{};
   tsl::elm::ListItem* zenny_item_{};
+  tsl::elm::ListItem* wycademy_points_item_{};
   tsl::elm::ListItem* palico_health_item_{};
   tsl::elm::ListItem* palico_affinity_item_{};
 };

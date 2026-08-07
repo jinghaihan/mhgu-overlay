@@ -71,6 +71,7 @@ UI_KEYS = [
   "movementSpeedMultiplier",
   "resources",
   "zenny",
+  "wycademyPoints",
   "monsterInfoOverlay",
 ]
 

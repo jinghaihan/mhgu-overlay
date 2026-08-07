@@ -48,6 +48,7 @@ Generations Ultimate on Nintendo Switch.
 - Sets the defense multiplier from x1 to x10.
 - Sets the movement speed multiplier from x1.0 to x5.0.
 - Sets Zenny to a user-selected value from 0 to 9,999,999.
+- Sets Wycademy Points to a user-selected value from 0 to 9,999,999.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -123,6 +124,8 @@ Generations Ultimate on Nintendo Switch.
   1,000,000-step adjustments. The default selected value is 7,777,777; the
   value is saved, but the enabled state is not. Restart the game to restore
   the original instruction.
+- **Wycademy Points** uses the same controls and persistence behavior as
+  **Zenny**. Restart the game to restore the original instruction.
 - Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.

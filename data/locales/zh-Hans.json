@@ -53,6 +53,7 @@
     "movementSpeedMultiplier": "移动速度倍率",
     "resources": "资源",
     "zenny": "金钱",
+    "wycademyPoints": "龙历院点数",
     "monsterInfoOverlay": "怪物信息 Overlay"
   },
   "monsters": {

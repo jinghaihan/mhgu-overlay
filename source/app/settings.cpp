@@ -133,6 +133,21 @@ std::uint32_t parse_zenny(const char* value) {
   return static_cast<std::uint32_t>(parsed);
 }
 
+std::uint32_t parse_wycademy_points(const char* value) {
+  char* end{};
+  const auto parsed = std::strtoll(value, &end, 10);
+  if (end == value || *end != '\0') {
+    return 7777777;
+  }
+  if (parsed < 0) {
+    return 0;
+  }
+  if (parsed > 9999999) {
+    return 9999999;
+  }
+  return static_cast<std::uint32_t>(parsed);
+}
+
 const char* locale_value(const core::LocaleMode mode) {
   switch (mode) {
     case core::LocaleMode::English:
@@ -222,6 +237,10 @@ core::CoreSettings SettingsStore::load() const {
       settings.numeric_features[core::numeric_feature_index(
         core::NumericFeature::Zenny
       )].value = parse_zenny(value);
+    } else if (std::strcmp(key, "wycademy_points") == 0) {
+      settings.numeric_features[core::numeric_feature_index(
+        core::NumericFeature::WycademyPoints
+      )].value = parse_wycademy_points(value);
     } else if (std::strcmp(key, "size_lock") == 0) {
       has_legacy_size_lock = true;
       legacy_size_lock_enabled = std::strcmp(value, "1") == 0;
@@ -301,6 +320,13 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
     "zenny=%u\n",
     settings.numeric_features[core::numeric_feature_index(
       core::NumericFeature::Zenny
+    )].value
+  );
+  std::fprintf(
+    file,
+    "wycademy_points=%u\n",
+    settings.numeric_features[core::numeric_feature_index(
+      core::NumericFeature::WycademyPoints
     )].value
   );
   const auto close_result = std::fclose(file);

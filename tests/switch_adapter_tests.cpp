@@ -156,6 +156,9 @@ int main() {
   const auto zenny_index = core::numeric_feature_index(
     core::NumericFeature::Zenny
   );
+  const auto wycademy_points_index = core::numeric_feature_index(
+    core::NumericFeature::WycademyPoints
+  );
   const auto weapon_transmog_index = core::runtime_feature_index(
     core::RuntimeFeature::WeaponTransmog
   );
@@ -514,6 +517,53 @@ int main() {
   assert(matched_profile->numeric_patches[zenny_index].minimum == 0);
   assert(matched_profile->numeric_patches[zenny_index].maximum == 9999999);
   assert(
+    matched_profile->numeric_patches[wycademy_points_index].count == 5
+  );
+  assert(
+    matched_profile->numeric_patches[wycademy_points_index]
+        .patches[0]
+        .offset == 0x013F1E20
+  );
+  assert(
+    matched_profile->numeric_patches[wycademy_points_index]
+        .patches[0]
+        .encoding == NumericWordEncoding::ArmMovwImmediate
+  );
+  assert(
+    matched_profile->numeric_patches[wycademy_points_index]
+        .patches[1]
+        .encoding == NumericWordEncoding::ArmMovtImmediate
+  );
+  assert(
+    matched_profile->numeric_patches[wycademy_points_index]
+        .patches[4]
+        .offset == 0x0062E530
+  );
+  constexpr std::array<std::uint32_t, 5> kWycademyPointsPatchValues{
+    0xE3003000,
+    0xE3403000,
+    0xE585302C,
+    0xE12FFF1E,
+    0xEB370E3A,
+  };
+  for (
+    std::size_t index = 0;
+    index < kWycademyPointsPatchValues.size();
+    ++index
+  ) {
+    assert(
+      matched_profile->numeric_patches[wycademy_points_index]
+        .patches[index]
+        .base_value == kWycademyPointsPatchValues[index]
+    );
+  }
+  assert(
+    matched_profile->numeric_patches[wycademy_points_index].minimum == 0
+  );
+  assert(
+    matched_profile->numeric_patches[wycademy_points_index].maximum == 9999999
+  );
+  assert(
     matched_profile->runtime_patches[weapon_transmog_index].count == 8
   );
   assert(
@@ -595,6 +645,10 @@ int main() {
     profile.numeric_patches[zenny_index].patches[index].offset =
       0x204 + index * sizeof(std::uint32_t);
   }
+  for (std::size_t index = 0; index < 5; ++index) {
+    profile.numeric_patches[wycademy_points_index].patches[index].offset =
+      0x218 + index * sizeof(std::uint32_t);
+  }
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -637,6 +691,7 @@ int main() {
   constexpr std::uint32_t kOriginalDefenseMultiplierInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalMovementSpeedInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalZennyInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalWycademyPointsInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -766,6 +821,13 @@ int main() {
     memory.store(
       kMainBase + profile.numeric_patches[zenny_index].patches[index].offset,
       kOriginalZennyInstruction
+    );
+  }
+  for (std::size_t index = 0; index < 5; ++index) {
+    memory.store(
+      kMainBase + profile.numeric_patches[wycademy_points_index]
+        .patches[index].offset,
+      kOriginalWycademyPointsInstruction
     );
   }
   for (std::size_t index = 0; index < 6; ++index) {
@@ -1449,6 +1511,106 @@ int main() {
   assert(!invalid_zenny_encoding.set_numeric_feature(
     core::NumericFeature::Zenny, 1
   ));
+  assert(memory.write_count() == patch_writes);
+
+  patch_writes = memory.write_count();
+  assert(
+    patches.set_numeric_feature(
+      core::NumericFeature::WycademyPoints, 7777777
+    )
+  );
+  assert(memory.write_count() == patch_writes + 5);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[wycademy_points_index]
+        .patches[0].offset
+    ) == 0xE30A3DF1
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[wycademy_points_index]
+        .patches[1].offset
+    ) == 0xE3403076
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[wycademy_points_index]
+        .patches[4].offset
+    ) == 0xEB370E3A
+  );
+  patch_writes = memory.write_count();
+  assert(
+    patches.set_numeric_feature(
+      core::NumericFeature::WycademyPoints, 7777777
+    )
+  );
+  assert(memory.write_count() == patch_writes);
+  assert(
+    patches.set_numeric_feature(
+      core::NumericFeature::WycademyPoints, 0x123456
+    )
+  );
+  assert(memory.write_count() == patch_writes + 2);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[wycademy_points_index]
+        .patches[0].offset
+    ) == 0xE3033456
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[wycademy_points_index]
+        .patches[1].offset
+    ) == 0xE3403012
+  );
+  patch_writes = memory.write_count();
+  assert(
+    !patches.set_numeric_feature(
+      core::NumericFeature::WycademyPoints, 10000000
+    )
+  );
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_wycademy_points_profile = profile;
+  invalid_wycademy_points_profile
+    .numeric_patches[wycademy_points_index]
+    .patches[4]
+    .offset = 0x1000;
+  GamePatches invalid_wycademy_points(
+    memory,
+    invalid_wycademy_points_profile,
+    kMainBase,
+    0x1000,
+    0,
+    0x20000
+  );
+  patch_writes = memory.write_count();
+  assert(
+    !invalid_wycademy_points.set_numeric_feature(
+      core::NumericFeature::WycademyPoints, 1
+    )
+  );
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_wycademy_points_encoding_profile = profile;
+  invalid_wycademy_points_encoding_profile
+    .numeric_patches[wycademy_points_index]
+    .patches[0]
+    .base_value |= 1;
+  GamePatches invalid_wycademy_points_encoding(
+    memory,
+    invalid_wycademy_points_encoding_profile,
+    kMainBase,
+    0x1000,
+    0,
+    0x20000
+  );
+  patch_writes = memory.write_count();
+  assert(
+    !invalid_wycademy_points_encoding.set_numeric_feature(
+      core::NumericFeature::WycademyPoints, 1
+    )
+  );
   assert(memory.write_count() == patch_writes);
 
   auto invalid_palico_affinity_profile = profile;

@@ -58,6 +58,7 @@ constexpr const char* kMessages[][3] = {
   {"Movement speed multiplier", "移动速度倍率", "移動速度倍率"},
   {"Resources", "资源", "資源"},
   {"Zenny", "金钱", "ゼニー"},
+  {"Wycademy Points", "龙历院点数", "龍歴院ポイント"},
   {"Monster info overlay", "怪物信息 Overlay", "モンスター情報オーバーレイ"},
 };
 

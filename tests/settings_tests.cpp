@@ -42,6 +42,9 @@ int main() {
   const auto zenny_index = core::numeric_feature_index(
     core::NumericFeature::Zenny
   );
+  const auto wycademy_points_index = core::numeric_feature_index(
+    core::NumericFeature::WycademyPoints
+  );
   assert(defaults.numeric_features[affinity_index].value == 100);
   assert(!defaults.numeric_features[affinity_index].enabled);
   assert(defaults.numeric_features[palico_affinity_index].value == 100);
@@ -62,6 +65,8 @@ int main() {
   );
   assert(defaults.numeric_features[zenny_index].value == 7777777);
   assert(!defaults.numeric_features[zenny_index].enabled);
+  assert(defaults.numeric_features[wycademy_points_index].value == 7777777);
+  assert(!defaults.numeric_features[wycademy_points_index].enabled);
 
   core::CoreSettings expected{};
   expected.locale_mode = core::LocaleMode::SimplifiedChinese;
@@ -76,6 +81,7 @@ int main() {
   expected.numeric_features[defense_multiplier_index] = {5, true};
   expected.numeric_features[movement_speed_multiplier_index] = {25, true};
   expected.numeric_features[zenny_index] = {1234567, true};
+  expected.numeric_features[wycademy_points_index] = {2345678, true};
   assert(store.save(expected));
 
   const auto restored = store.load();
@@ -105,6 +111,8 @@ int main() {
   );
   assert(restored.numeric_features[zenny_index].value == 1234567);
   assert(!restored.numeric_features[zenny_index].enabled);
+  assert(restored.numeric_features[wycademy_points_index].value == 2345678);
+  assert(!restored.numeric_features[wycademy_points_index].enabled);
 
   auto* numeric = std::fopen(kPath, "w");
   assert(numeric != nullptr);
@@ -159,6 +167,14 @@ int main() {
   std::fprintf(numeric, "zenny=10000000\n");
   assert(std::fclose(numeric) == 0);
   assert(store.load().numeric_features[zenny_index].value == 9999999);
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(numeric, "wycademy_points=10000000\n");
+  assert(std::fclose(numeric) == 0);
+  assert(
+    store.load().numeric_features[wycademy_points_index].value == 9999999
+  );
 
   numeric = std::fopen(kPath, "w");
   assert(numeric != nullptr);

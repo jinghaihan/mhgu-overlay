@@ -53,6 +53,7 @@
     "movementSpeedMultiplier": "移動速度倍率",
     "resources": "資源",
     "zenny": "ゼニー",
+    "wycademyPoints": "龍歴院ポイント",
     "monsterInfoOverlay": "モンスター情報オーバーレイ"
   },
   "monsters": {
