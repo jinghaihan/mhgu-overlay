@@ -45,6 +45,7 @@ constexpr const char* kMessages[][3] = {
   {"Consumable items do not decrease", "消耗道具不减", "消耗アイテム減少なし"},
   {"Equipment transmog", "装备幻化", "装備重ね着"},
   {"Weapon transmog", "武器幻化", "武器重ね着"},
+  {"Armor transmog", "防具幻化", "防具重ね着"},
   {"Hunter affinity", "猎人会心率", "ハンター会心率"},
   {"Monster info overlay", "怪物信息 Overlay", "モンスター情報オーバーレイ"},
 };

@@ -40,6 +40,7 @@
     "consumableItemsNoDecrease": "Consumable items do not decrease",
     "transmog": "Equipment transmog",
     "weaponTransmog": "Weapon transmog",
+    "armorTransmog": "Armor transmog",
     "hunterAffinity": "Hunter affinity",
     "monsterInfoOverlay": "Monster info overlay"
   },

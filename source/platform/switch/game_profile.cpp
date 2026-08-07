@@ -110,6 +110,11 @@ constexpr MainWordPatchSet kWeaponTransmogPatches{
   8,
 };
 
+constexpr MainWordPatchSet kArmorTransmogPatches{
+  {{{0x00140E9C, 0xE3866000}, {0x00140F50, 0x13866000}}},
+  2,
+};
+
 constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
   kRuntimePatches{
     kMapAndLargeMonstersPatches,
@@ -126,7 +131,8 @@ constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
     kBowgunAutoReloadPatches,
     kConsumableItemsNoDecreasePatches,
     kWeaponTransmogPatches,
-};
+    kArmorTransmogPatches,
+  };
 
 constexpr ScaledMainWordPatch kHunterAffinityPatch{
   0x000E400C,

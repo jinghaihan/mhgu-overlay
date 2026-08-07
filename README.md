@@ -39,6 +39,7 @@ Generations Ultimate on Nintendo Switch.
 - Prevents consumable items from decreasing.
 - Sets hunter affinity to a user-selected value from 0% to 100%.
 - Adds a one-way weapon transmog switch under Equipment transmog.
+- Adds a one-way armor transmog switch under Equipment transmog.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -92,6 +93,8 @@ Generations Ultimate on Nintendo Switch.
   but the enabled state is not; restarting the game restores the original
   instruction.
 - **Weapon transmog** is a one-way instruction patch under **Equipment
+  transmog** and remains active until the game is restarted.
+- **Armor transmog** is a one-way instruction patch under **Equipment
   transmog** and remains active until the game is restarted.
 - Use **Rescan** to discard the cached pointer and scan again.
 

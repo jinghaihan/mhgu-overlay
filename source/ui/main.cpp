@@ -684,6 +684,10 @@ public:
       model_, UiMessage::WeaponTransmog, RuntimeFeature::WeaponTransmog
     );
     list->addItem(weapon_item_);
+    armor_item_ = runtime_feature_item(
+      model_, UiMessage::ArmorTransmog, RuntimeFeature::ArmorTransmog
+    );
+    list->addItem(armor_item_);
     frame->setContent(list);
     return frame;
   }
@@ -705,6 +709,7 @@ public:
 private:
   Model& model_;
   tsl::elm::ListItem* weapon_item_{};
+  tsl::elm::ListItem* armor_item_{};
 };
 
 class MainGui final : public tsl::Gui {

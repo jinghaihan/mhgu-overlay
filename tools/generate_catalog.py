@@ -58,6 +58,7 @@ UI_KEYS = [
   "consumableItemsNoDecrease",
   "transmog",
   "weaponTransmog",
+  "armorTransmog",
   "hunterAffinity",
   "monsterInfoOverlay",
 ]

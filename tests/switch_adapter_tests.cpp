@@ -138,6 +138,9 @@ int main() {
   const auto weapon_transmog_index = core::runtime_feature_index(
     core::RuntimeFeature::WeaponTransmog
   );
+  const auto armor_transmog_index = core::runtime_feature_index(
+    core::RuntimeFeature::ArmorTransmog
+  );
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -289,6 +292,15 @@ int main() {
     matched_profile->runtime_patches[weapon_transmog_index].patches[7].value ==
     0xE3510002
   );
+  assert(matched_profile->runtime_patches[armor_transmog_index].count == 2);
+  assert(
+    matched_profile->runtime_patches[armor_transmog_index].patches[0].offset ==
+    0x00140E9C
+  );
+  assert(
+    matched_profile->runtime_patches[armor_transmog_index].patches[1].value ==
+    0x13866000
+  );
   profile.runtime_patches[map_index].patches[0].offset = 0x100;
   profile.runtime_patches[map_index].patches[1].offset = 0x104;
   profile.runtime_patches[carry_index].patches[0].offset = 0x108;
@@ -314,6 +326,8 @@ int main() {
     profile.runtime_patches[weapon_transmog_index].patches[index].offset =
       0x150 + index * sizeof(std::uint32_t);
   }
+  profile.runtime_patches[armor_transmog_index].patches[0].offset = 0x170;
+  profile.runtime_patches[armor_transmog_index].patches[1].offset = 0x174;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -347,6 +361,7 @@ int main() {
   constexpr std::uint32_t kOriginalConsumableInstruction = 0xE3500000;
   constexpr std::uint32_t kOriginalAffinityInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalWeaponTransmogInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalArmorTransmogInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -431,6 +446,13 @@ int main() {
       kMainBase + profile.runtime_patches[weapon_transmog_index]
         .patches[index].offset,
       kOriginalWeaponTransmogInstruction
+    );
+  }
+  for (std::size_t index = 0; index < 2; ++index) {
+    memory.store(
+      kMainBase + profile.runtime_patches[armor_transmog_index]
+        .patches[index].offset,
+      kOriginalArmorTransmogInstruction
     );
   }
   GamePatches patches(
@@ -747,6 +769,18 @@ int main() {
         kMainBase + profile.runtime_patches[weapon_transmog_index]
           .patches[index].offset
       ) == profile.runtime_patches[weapon_transmog_index].patches[index].value
+    );
+  }
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_runtime_feature(core::RuntimeFeature::ArmorTransmog));
+  assert(memory.write_count() == patch_writes + 2);
+  for (std::size_t index = 0; index < 2; ++index) {
+    assert(
+      memory.load<std::uint32_t>(
+        kMainBase + profile.runtime_patches[armor_transmog_index]
+          .patches[index].offset
+      ) == profile.runtime_patches[armor_transmog_index].patches[index].value
     );
   }
 

@@ -40,6 +40,7 @@
     "consumableItemsNoDecrease": "消耗道具不减",
     "transmog": "装备幻化",
     "weaponTransmog": "武器幻化",
+    "armorTransmog": "防具幻化",
     "hunterAffinity": "猎人会心率",
     "monsterInfoOverlay": "怪物信息 Overlay"
   },

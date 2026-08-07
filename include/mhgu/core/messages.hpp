@@ -45,6 +45,7 @@ enum class UiMessage : std::uint8_t {
   ConsumableItemsNoDecrease,
   Transmog,
   WeaponTransmog,
+  ArmorTransmog,
   HunterAffinity,
   MonsterInfoOverlay,
 };
