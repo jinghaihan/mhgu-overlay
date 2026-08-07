@@ -8,15 +8,18 @@ CORE_SOURCES := \
 	source/core/size.cpp \
 	source/generated/messages.cpp
 TEST_BINARY := $(HOST_BUILD)/core-tests
+DAMAGE_TEST_BINARY := $(HOST_BUILD)/damage-tests
 CATALOG_TEST_BINARY := $(HOST_BUILD)/catalog-tests
 SWITCH_TEST_BINARY := $(HOST_BUILD)/switch-adapter-tests
 SETTINGS_TEST_BINARY := $(HOST_BUILD)/settings-tests
 
 .PHONY: test clean-host
 
-test: $(TEST_BINARY) $(CATALOG_TEST_BINARY) $(SWITCH_TEST_BINARY) \
+test: $(TEST_BINARY) $(DAMAGE_TEST_BINARY) $(CATALOG_TEST_BINARY) \
+		$(SWITCH_TEST_BINARY) \
 		$(SETTINGS_TEST_BINARY)
 	@$(TEST_BINARY)
+	@$(DAMAGE_TEST_BINARY)
 	@$(CATALOG_TEST_BINARY)
 	@$(SWITCH_TEST_BINARY)
 	@$(SETTINGS_TEST_BINARY)
@@ -24,6 +27,10 @@ test: $(TEST_BINARY) $(CATALOG_TEST_BINARY) $(SWITCH_TEST_BINARY) \
 $(TEST_BINARY): $(CORE_SOURCES) tests/core_tests.cpp
 	@mkdir -p $(HOST_BUILD)
 	$(CXX) $(CXXFLAGS) -Iinclude $(CORE_SOURCES) tests/core_tests.cpp -o $@
+
+$(DAMAGE_TEST_BINARY): source/core/damage.cpp tests/damage_tests.cpp
+	@mkdir -p $(HOST_BUILD)
+	$(CXX) $(CXXFLAGS) -Iinclude $^ -o $@
 
 $(CATALOG_TEST_BINARY): source/core/locale.cpp source/generated/catalog.cpp \
 		source/generated/messages.cpp tests/catalog_tests.cpp
