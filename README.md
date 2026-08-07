@@ -30,6 +30,7 @@ Generations Ultimate on Nintendo Switch.
 - Allows carried items, such as eggs, to enter the item pouch.
 - Adds invincibility plus health, stamina, and sharpness protection under the
   grouped battle-functions menu.
+- Unlocks all three Hunter Art slots when enabled.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -69,6 +70,8 @@ Generations Ultimate on Nintendo Switch.
   **Invincible**, **Health does not decrease**, **Stamina does not decrease**,
   and **Sharpness does not decrease** are one-way, non-persistent instruction
   patches.
+- **Unlock Hunter Art slots** is also one-way and returns to the original
+  behavior only after restarting the game.
 - Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.

@@ -61,6 +61,11 @@ constexpr MainWordPatchSet kSharpnessNoDecreasePatches{
   1,
 };
 
+constexpr MainWordPatchSet kUnlockHunterArtSlotsPatches{
+  {{{0x002778C0, 0xE3A00003}}},
+  1,
+};
+
 constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
   kRuntimePatches{
     kMapAndLargeMonstersPatches,
@@ -69,6 +74,7 @@ constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
     kHealthNoDecreasePatches,
     kStaminaNoDecreasePatches,
     kSharpnessNoDecreasePatches,
+    kUnlockHunterArtSlotsPatches,
 };
 
 constexpr GameProfile kProfiles[]{

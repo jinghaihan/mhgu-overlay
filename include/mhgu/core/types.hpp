@@ -56,6 +56,7 @@ enum class RuntimeFeature : std::uint8_t {
   HealthNoDecrease,
   StaminaNoDecrease,
   SharpnessNoDecrease,
+  UnlockHunterArtSlots,
   Count,
 };
 

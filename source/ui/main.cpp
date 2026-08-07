@@ -517,6 +517,13 @@ public:
     );
     list->addItem(sharpness_item_);
 
+    hunter_art_slots_item_ = runtime_feature_item(
+      model_,
+      UiMessage::UnlockHunterArtSlots,
+      RuntimeFeature::UnlockHunterArtSlots
+    );
+    list->addItem(hunter_art_slots_item_);
+
     frame->setContent(list);
     return frame;
   }
@@ -541,6 +548,7 @@ private:
   tsl::elm::ListItem* health_item_{};
   tsl::elm::ListItem* stamina_item_{};
   tsl::elm::ListItem* sharpness_item_{};
+  tsl::elm::ListItem* hunter_art_slots_item_{};
 };
 
 class MainGui final : public tsl::Gui {

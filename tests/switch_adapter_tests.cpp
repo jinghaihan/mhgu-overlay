@@ -111,6 +111,9 @@ int main() {
   const auto sharpness_index = core::runtime_feature_index(
     core::RuntimeFeature::SharpnessNoDecrease
   );
+  const auto hunter_art_slots_index = core::runtime_feature_index(
+    core::RuntimeFeature::UnlockHunterArtSlots
+  );
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -138,6 +141,17 @@ int main() {
     matched_profile->runtime_patches[sharpness_index].patches[0].value ==
     0xE6BF1070
   );
+  assert(matched_profile->runtime_patches[hunter_art_slots_index].count == 1);
+  assert(
+    matched_profile->runtime_patches[hunter_art_slots_index]
+        .patches[0]
+        .offset == 0x002778C0
+  );
+  assert(
+    matched_profile->runtime_patches[hunter_art_slots_index]
+        .patches[0]
+        .value == 0xE3A00003
+  );
   profile.runtime_patches[map_index].patches[0].offset = 0x100;
   profile.runtime_patches[map_index].patches[1].offset = 0x104;
   profile.runtime_patches[carry_index].patches[0].offset = 0x108;
@@ -145,6 +159,7 @@ int main() {
   profile.runtime_patches[health_index].patches[0].offset = 0x110;
   profile.runtime_patches[stamina_index].patches[0].offset = 0x114;
   profile.runtime_patches[sharpness_index].patches[0].offset = 0x118;
+  profile.runtime_patches[hunter_art_slots_index].patches[0].offset = 0x11C;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -163,6 +178,7 @@ int main() {
   constexpr std::uint32_t kOriginalHealthInstruction = 0xE1A01000;
   constexpr std::uint32_t kOriginalStaminaInstruction = 0xE3500000;
   constexpr std::uint32_t kOriginalSharpnessInstruction = 0xE1A01000;
+  constexpr std::uint32_t kOriginalHunterArtSlotsInstruction = 0xE3A00001;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -190,6 +206,11 @@ int main() {
   memory.store(
     kMainBase + profile.runtime_patches[sharpness_index].patches[0].offset,
     kOriginalSharpnessInstruction
+  );
+  memory.store(
+    kMainBase +
+      profile.runtime_patches[hunter_art_slots_index].patches[0].offset,
+    kOriginalHunterArtSlotsInstruction
   );
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
@@ -362,6 +383,18 @@ int main() {
     memory.load<std::uint32_t>(
       kMainBase + profile.runtime_patches[sharpness_index].patches[0].offset
     ) == profile.runtime_patches[sharpness_index].patches[0].value
+  );
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_runtime_feature(
+    core::RuntimeFeature::UnlockHunterArtSlots
+  ));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase +
+      profile.runtime_patches[hunter_art_slots_index].patches[0].offset
+    ) == profile.runtime_patches[hunter_art_slots_index].patches[0].value
   );
 
   const std::uint8_t one = 1;

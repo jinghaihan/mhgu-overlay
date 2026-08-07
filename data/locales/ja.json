@@ -31,6 +31,7 @@
     "healthNoDecrease": "体力減少なし",
     "staminaNoDecrease": "スタミナ減少なし",
     "sharpnessNoDecrease": "斬れ味減少なし",
+    "unlockHunterArtSlots": "狩技スロット解放",
     "openOverlay": "オーバーレイを開く"
   },
   "monsters": {
