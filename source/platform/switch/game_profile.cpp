@@ -115,6 +115,16 @@ constexpr MainWordPatchSet kArmorTransmogPatches{
   2,
 };
 
+constexpr MainWordPatchSet kPalicoHealthNoDecreasePatches{
+  {{{0x013F1E30, 0xE0804001},
+    {0x013F1E34, 0xE1D451B0},
+    {0x013F1E38, 0xE1C450BE},
+    {0x013F1E3C, 0xE7901001},
+    {0x013F1E40, 0xE12FFF1E},
+    {0x0025903C, 0xEB46637B}}},
+  6,
+};
+
 constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
   kRuntimePatches{
     kMapAndLargeMonstersPatches,
@@ -132,6 +142,7 @@ constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
     kConsumableItemsNoDecreasePatches,
     kWeaponTransmogPatches,
     kArmorTransmogPatches,
+    kPalicoHealthNoDecreasePatches,
   };
 
 constexpr ScaledMainWordPatch kHunterAffinityPatch{

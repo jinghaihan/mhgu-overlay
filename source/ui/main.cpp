@@ -635,6 +635,14 @@ public:
     );
     list->addItem(consumable_item_);
 
+    list->addItem(section_header(model_, UiMessage::Palico), 44);
+    palico_health_item_ = runtime_feature_item(
+      model_,
+      UiMessage::PalicoHealthNoDecrease,
+      RuntimeFeature::PalicoHealthNoDecrease
+    );
+    list->addItem(palico_health_item_);
+
     frame->setContent(list);
     return frame;
   }
@@ -667,6 +675,7 @@ private:
   tsl::elm::ListItem* hunter_affinity_item_{};
   tsl::elm::ListItem* bowgun_item_{};
   tsl::elm::ListItem* consumable_item_{};
+  tsl::elm::ListItem* palico_health_item_{};
 };
 
 class TransmogGui final : public tsl::Gui {

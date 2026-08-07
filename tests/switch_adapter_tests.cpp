@@ -141,6 +141,9 @@ int main() {
   const auto armor_transmog_index = core::runtime_feature_index(
     core::RuntimeFeature::ArmorTransmog
   );
+  const auto palico_health_index = core::runtime_feature_index(
+    core::RuntimeFeature::PalicoHealthNoDecrease
+  );
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -301,6 +304,15 @@ int main() {
     matched_profile->runtime_patches[armor_transmog_index].patches[1].value ==
     0x13866000
   );
+  assert(matched_profile->runtime_patches[palico_health_index].count == 6);
+  assert(
+    matched_profile->runtime_patches[palico_health_index].patches[0].offset ==
+    0x013F1E30
+  );
+  assert(
+    matched_profile->runtime_patches[palico_health_index].patches[5].value ==
+    0xEB46637B
+  );
   profile.runtime_patches[map_index].patches[0].offset = 0x100;
   profile.runtime_patches[map_index].patches[1].offset = 0x104;
   profile.runtime_patches[carry_index].patches[0].offset = 0x108;
@@ -328,6 +340,10 @@ int main() {
   }
   profile.runtime_patches[armor_transmog_index].patches[0].offset = 0x170;
   profile.runtime_patches[armor_transmog_index].patches[1].offset = 0x174;
+  for (std::size_t index = 0; index < 6; ++index) {
+    profile.runtime_patches[palico_health_index].patches[index].offset =
+      0x178 + index * sizeof(std::uint32_t);
+  }
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -362,6 +378,7 @@ int main() {
   constexpr std::uint32_t kOriginalAffinityInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalWeaponTransmogInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalArmorTransmogInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalPalicoHealthInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -453,6 +470,13 @@ int main() {
       kMainBase + profile.runtime_patches[armor_transmog_index]
         .patches[index].offset,
       kOriginalArmorTransmogInstruction
+    );
+  }
+  for (std::size_t index = 0; index < 6; ++index) {
+    memory.store(
+      kMainBase + profile.runtime_patches[palico_health_index]
+        .patches[index].offset,
+      kOriginalPalicoHealthInstruction
     );
   }
   GamePatches patches(
@@ -681,6 +705,20 @@ int main() {
       memory.load<std::uint32_t>(
         kMainBase + profile.runtime_patches[alchemy_index].patches[index].offset
       ) == profile.runtime_patches[alchemy_index].patches[index].value
+    );
+  }
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_runtime_feature(
+    core::RuntimeFeature::PalicoHealthNoDecrease
+  ));
+  assert(memory.write_count() == patch_writes + 6);
+  for (std::size_t index = 0; index < 6; ++index) {
+    assert(
+      memory.load<std::uint32_t>(
+        kMainBase + profile.runtime_patches[palico_health_index]
+          .patches[index].offset
+      ) == profile.runtime_patches[palico_health_index].patches[index].value
     );
   }
 

@@ -41,6 +41,8 @@
     "transmog": "Equipment transmog",
     "weaponTransmog": "Weapon transmog",
     "armorTransmog": "Armor transmog",
+    "palico": "Palico",
+    "palicoHealthNoDecrease": "Palico health does not decrease",
     "hunterAffinity": "Hunter affinity",
     "monsterInfoOverlay": "Monster info overlay"
   },

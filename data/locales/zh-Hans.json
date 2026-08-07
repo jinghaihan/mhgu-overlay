@@ -41,6 +41,8 @@
     "transmog": "装备幻化",
     "weaponTransmog": "武器幻化",
     "armorTransmog": "防具幻化",
+    "palico": "随从艾露猫",
+    "palicoHealthNoDecrease": "随从艾露猫体力不减",
     "hunterAffinity": "猎人会心率",
     "monsterInfoOverlay": "怪物信息 Overlay"
   },

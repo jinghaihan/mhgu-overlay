@@ -65,6 +65,7 @@ enum class RuntimeFeature : std::uint8_t {
   ConsumableItemsNoDecrease,
   WeaponTransmog,
   ArmorTransmog,
+  PalicoHealthNoDecrease,
   Count,
 };
 

@@ -46,6 +46,8 @@ constexpr const char* kMessages[][3] = {
   {"Equipment transmog", "装备幻化", "装備重ね着"},
   {"Weapon transmog", "武器幻化", "武器重ね着"},
   {"Armor transmog", "防具幻化", "防具重ね着"},
+  {"Palico", "随从艾露猫", "オトモアイルー"},
+  {"Palico health does not decrease", "随从艾露猫体力不减", "オトモ体力減少なし"},
   {"Hunter affinity", "猎人会心率", "ハンター会心率"},
   {"Monster info overlay", "怪物信息 Overlay", "モンスター情報オーバーレイ"},
 };

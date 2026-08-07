@@ -41,6 +41,8 @@
     "transmog": "装備重ね着",
     "weaponTransmog": "武器重ね着",
     "armorTransmog": "防具重ね着",
+    "palico": "オトモアイルー",
+    "palicoHealthNoDecrease": "オトモ体力減少なし",
     "hunterAffinity": "ハンター会心率",
     "monsterInfoOverlay": "モンスター情報オーバーレイ"
   },
