@@ -25,6 +25,9 @@
     "fps60": "60 FPS",
     "mapAndLargeMonsters": "Map & large monster locations",
     "carryItemsIntoPouch": "Carry items into pouch",
+    "battleFunctions": "Battle functions",
+    "hunter": "Hunter",
+    "invincible": "Invincible",
     "openOverlay": "Open overlay"
   },
   "monsters": {

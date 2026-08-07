@@ -91,6 +91,7 @@ bool GameSession::attach() {
     applied_frame_rate_ = core::FrameRate::Fps30;
     map_and_large_monsters_applied_ = false;
     carry_items_into_pouch_applied_ = false;
+    invincible_applied_ = false;
     view_ = {};
     view_.status = SessionStatus::Searching;
     view_.game = profile_->game;
@@ -119,6 +120,7 @@ void GameSession::detach(const SessionStatus status) {
   applied_frame_rate_ = core::FrameRate::Fps30;
   map_and_large_monsters_applied_ = false;
   carry_items_into_pouch_applied_ = false;
+  invincible_applied_ = false;
   view_ = {};
   view_.status = status;
 }
@@ -157,6 +159,17 @@ bool GameSession::sync_carry_items_into_pouch(const bool enabled) {
   return true;
 }
 
+bool GameSession::sync_invincible(const bool enabled) {
+  if (!enabled || invincible_applied_) {
+    return true;
+  }
+  if (patches_ == nullptr || !patches_->enable_invincible()) {
+    return false;
+  }
+  invincible_applied_ = true;
+  return true;
+}
+
 void GameSession::poll(const core::CoreSettings& settings) {
   if (!initialized_ && !initialize()) {
     detach(SessionStatus::NoGame);
@@ -172,8 +185,9 @@ void GameSession::poll(const core::CoreSettings& settings) {
   const auto carry_items_ok = sync_carry_items_into_pouch(
     settings.carry_items_into_pouch
   );
+  const auto invincible_ok = sync_invincible(settings.invincible);
   const auto runtime_patches_ok =
-    frame_rate_ok && map_ok && carry_items_ok;
+    frame_rate_ok && map_ok && carry_items_ok && invincible_ok;
 
   if (view_.pointer_list == 0) {
     view_.status = SessionStatus::Searching;

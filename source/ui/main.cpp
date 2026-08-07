@@ -69,6 +69,32 @@ const char* status_value(const SessionStatus status, const Locale locale) {
   }
 }
 
+tsl::elm::CustomDrawer* section_header(
+  Model& model, const UiMessage message
+) {
+  return new tsl::elm::CustomDrawer(
+    [model_ptr = &model, message](
+      tsl::gfx::Renderer* renderer,
+      const u16 x,
+      const u16 y,
+      const u16,
+      const u16
+    ) {
+      renderer->drawRect(
+        x + 8, y + 13, 3, 19, renderer->a({0x3, 0xB, 0xA, 0xF})
+      );
+      renderer->drawString(
+        text(*model_ptr, message),
+        false,
+        x + 19,
+        y + 31,
+        17,
+        renderer->a({0xA, 0xD, 0xD, 0xF})
+      );
+    }
+  );
+}
+
 tsl::gfx::Color crown_color(const mhgu::core::Crown crown) {
   switch (crown) {
     case mhgu::core::Crown::Mini:
@@ -407,6 +433,60 @@ private:
   Model& model_;
 };
 
+class BattleGui final : public tsl::Gui {
+public:
+  explicit BattleGui(Model& model)
+    : model_(model) {}
+
+  tsl::elm::Element* createUI() override {
+    const auto locale = model_.display_locale();
+    auto* frame = new LocalizedOverlayFrame(
+      mhgu::core::ui_message(UiMessage::BattleFunctions, locale), kVersion
+    );
+    auto* list = new tsl::elm::List(6);
+    list->addItem(section_header(model_, UiMessage::Hunter), 44);
+
+    invincible_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::Invincible, locale)
+    );
+    invincible_item_->setValue(mhgu::core::ui_message(
+      model_.settings().invincible ? UiMessage::On : UiMessage::Off, locale
+    ));
+    invincible_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0 && !model_.settings().invincible) {
+        model_.enable_invincible();
+        invincible_item_->setValue(mhgu::core::ui_message(
+          UiMessage::On, model_.display_locale()
+        ));
+        return true;
+      }
+      return false;
+    });
+    list->addItem(invincible_item_);
+
+    frame->setContent(list);
+    return frame;
+  }
+
+  bool handleInput(
+    const u64 keys_down,
+    u64,
+    const HidTouchState&,
+    JoystickPosition,
+    JoystickPosition
+  ) override {
+    if ((keys_down & HidNpadButton_B) != 0) {
+      tsl::goBack();
+      return true;
+    }
+    return false;
+  }
+
+private:
+  Model& model_;
+  tsl::elm::ListItem* invincible_item_{};
+};
+
 class MainGui final : public tsl::Gui {
 public:
   explicit MainGui(Model& model)
@@ -546,6 +626,18 @@ public:
     });
     list->addItem(carry_item_);
 
+    battle_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::BattleFunctions, locale)
+    );
+    battle_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0) {
+        tsl::changeTo<BattleGui>(model_);
+        return true;
+      }
+      return false;
+    });
+    list->addItem(battle_item_);
+
     scan_item_ =
       new tsl::elm::ListItem(mhgu::core::ui_message(UiMessage::Scan, locale));
     scan_item_->setClickListener([this](const u64 keys) {
@@ -624,6 +716,9 @@ private:
                                                : UiMessage::Off,
       locale
     ));
+    battle_item_->setText(
+      mhgu::core::ui_message(UiMessage::BattleFunctions, locale)
+    );
     scan_item_->setText(mhgu::core::ui_message(UiMessage::Scan, locale));
   }
 
@@ -635,6 +730,7 @@ private:
   tsl::elm::ListItem* preset_item_{};
   tsl::elm::ListItem* map_item_{};
   tsl::elm::ListItem* carry_item_{};
+  tsl::elm::ListItem* battle_item_{};
   tsl::elm::ListItem* scan_item_{};
 };
 

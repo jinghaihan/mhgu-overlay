@@ -25,6 +25,9 @@
     "fps60": "60 FPS",
     "mapAndLargeMonsters": "地图及大型怪物位置",
     "carryItemsIntoPouch": "搬运物品收入道具袋",
+    "battleFunctions": "战斗功能",
+    "hunter": "猎人",
+    "invincible": "无敌",
     "openOverlay": "打开 Overlay"
   },
   "monsters": {

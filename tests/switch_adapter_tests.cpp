@@ -96,6 +96,7 @@ int main() {
   profile.show_map.offset = 0x100;
   profile.mark_large_monsters.offset = 0x104;
   profile.carry_items_into_pouch.offset = 0x108;
+  profile.invincible.offset = 0x10C;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -110,6 +111,7 @@ int main() {
   constexpr std::uint32_t kOriginalShowMapInstruction = 0x0A000001;
   constexpr std::uint32_t kOriginalMarkInstruction = 0xE3A00000;
   constexpr std::uint32_t kOriginalCarryInstruction = 0x1A000001;
+  constexpr std::uint32_t kOriginalInvincibleInstruction = 0xE3500000;
   memory.store(
     kMainBase + profile.show_map.offset, kOriginalShowMapInstruction
   );
@@ -120,6 +122,9 @@ int main() {
   memory.store(
     kMainBase + profile.carry_items_into_pouch.offset,
     kOriginalCarryInstruction
+  );
+  memory.store(
+    kMainBase + profile.invincible.offset, kOriginalInvincibleInstruction
   );
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
@@ -218,6 +223,26 @@ int main() {
   );
   patch_writes = memory.write_count();
   assert(!invalid_carry.enable_carry_items_into_pouch());
+  assert(memory.write_count() == patch_writes);
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_invincible());
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(kMainBase + profile.invincible.offset) ==
+    profile.invincible.value
+  );
+  patch_writes = memory.write_count();
+  assert(patches.enable_invincible());
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_invincible_profile = profile;
+  invalid_invincible_profile.invincible.offset = 0x1000;
+  GamePatches invalid_invincible(
+    memory, invalid_invincible_profile, kMainBase, 0x1000, 0, 0x20000
+  );
+  patch_writes = memory.write_count();
+  assert(!invalid_invincible.enable_invincible());
   assert(memory.write_count() == patch_writes);
 
   const std::uint8_t one = 1;

@@ -55,6 +55,7 @@ struct GameProfile {
   MainWordPatch show_map;
   MainWordPatch mark_large_monsters;
   MainWordPatch carry_items_into_pouch;
+  MainWordPatch invincible;
 };
 
 constexpr std::uint64_t kMhguTitleId = 0x0100770008DD8000ULL;

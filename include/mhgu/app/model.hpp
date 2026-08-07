@@ -25,6 +25,7 @@ public:
   void cycle_frame_rate();
   void enable_map_and_large_monsters();
   void enable_carry_items_into_pouch();
+  void enable_invincible();
   void cycle_size_preset();
   void request_rescan();
 

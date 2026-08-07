@@ -43,6 +43,9 @@ UI_KEYS = [
   "fps60",
   "mapAndLargeMonsters",
   "carryItemsIntoPouch",
+  "battleFunctions",
+  "hunter",
+  "invincible",
   "openOverlay",
 ]
 

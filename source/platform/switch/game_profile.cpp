@@ -46,6 +46,11 @@ constexpr MainWordPatch kCarryItemsIntoPouchPatch{
   0x33000000,
 };
 
+constexpr MainWordPatch kInvinciblePatch{
+  0x0016B2A4,
+  0xE3A00000,
+};
+
 constexpr GameProfile kProfiles[]{
   {
     "MHGU 1.4.0",
@@ -60,6 +65,7 @@ constexpr GameProfile kProfiles[]{
     kShowMapPatch,
     kMarkLargeMonstersPatch,
     kCarryItemsIntoPouchPatch,
+    kInvinciblePatch,
   },
 };
 

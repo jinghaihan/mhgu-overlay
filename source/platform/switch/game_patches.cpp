@@ -143,4 +143,12 @@ bool GamePatches::enable_carry_items_into_pouch() {
   return apply_main_word_patch(profile_.carry_items_into_pouch, address);
 }
 
+bool GamePatches::enable_invincible() {
+  std::uint64_t address{};
+  if (!main_word_patch_address(profile_.invincible, address)) {
+    return false;
+  }
+  return apply_main_word_patch(profile_.invincible, address);
+}
+
 }  // namespace mhgu::platform::switch_adapter

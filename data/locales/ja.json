@@ -25,6 +25,9 @@
     "fps60": "60 FPS",
     "mapAndLargeMonsters": "マップ・大型モンスター位置",
     "carryItemsIntoPouch": "運搬アイテムをポーチへ",
+    "battleFunctions": "戦闘機能",
+    "hunter": "ハンター",
+    "invincible": "無敵",
     "openOverlay": "オーバーレイを開く"
   },
   "monsters": {

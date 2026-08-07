@@ -23,6 +23,7 @@ public:
   bool set_frame_rate(core::FrameRate frame_rate);
   bool enable_map_and_large_monsters();
   bool enable_carry_items_into_pouch();
+  bool enable_invincible();
 
 private:
   bool main_word_patch_address(

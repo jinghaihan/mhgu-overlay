@@ -96,6 +96,11 @@ void Model::enable_carry_items_into_pouch() {
   settings_.carry_items_into_pouch = true;
 }
 
+void Model::enable_invincible() {
+  const std::scoped_lock lock(mutex_);
+  settings_.invincible = true;
+}
+
 void Model::cycle_size_preset() {
   core::CoreSettings changed{};
   {
