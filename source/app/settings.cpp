@@ -352,9 +352,15 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
       core::NumericFeature::WycademyPoints
     )].value
   );
-  std::fprintf(file, "item_pouch_slot=%u\n", settings.item_pouch_slot);
   std::fprintf(
-    file, "item_pouch_quantity=%u\n", settings.item_pouch_quantity
+    file,
+    "item_pouch_slot=%u\n",
+    static_cast<unsigned>(settings.item_pouch_slot)
+  );
+  std::fprintf(
+    file,
+    "item_pouch_quantity=%u\n",
+    static_cast<unsigned>(settings.item_pouch_quantity)
   );
   const auto close_result = std::fclose(file);
   if (close_result != 0) {

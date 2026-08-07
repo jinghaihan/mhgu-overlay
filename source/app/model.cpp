@@ -191,7 +191,12 @@ void Model::adjust_item_pouch_quantity(const int delta) {
 }
 
 void Model::request_item_pouch_quantity_write() {
-  item_pouch_write_requested_ = true;
+  const auto current_settings = settings();
+  const auto request = static_cast<std::uint16_t>(
+    static_cast<std::uint16_t>(current_settings.item_pouch_slot) << 8 |
+    current_settings.item_pouch_quantity
+  );
+  item_pouch_write_request_.store(request);
 }
 
 void Model::cycle_size_preset() {
@@ -234,10 +239,12 @@ void Model::worker_main() {
     }
     const auto current_settings = settings();
     session.poll(current_settings);
-    if (item_pouch_write_requested_.exchange(false)) {
+    const auto item_pouch_write_request =
+      item_pouch_write_request_.exchange(0);
+    if (item_pouch_write_request != 0) {
       session.apply_item_pouch_quantity(
-        current_settings.item_pouch_slot,
-        current_settings.item_pouch_quantity
+        static_cast<std::uint8_t>(item_pouch_write_request >> 8),
+        static_cast<std::uint8_t>(item_pouch_write_request & 0xFF)
       );
     }
     {

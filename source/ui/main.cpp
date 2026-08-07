@@ -141,7 +141,10 @@ tsl::elm::ListItem* monster_damage_mode_item(Model& model) {
 void refresh_item_pouch_slot_item(tsl::elm::ListItem* item, Model& model) {
   char value[8]{};
   std::snprintf(
-    value, sizeof(value), "%u", model.settings().item_pouch_slot
+    value,
+    sizeof(value),
+    "%u",
+    static_cast<unsigned>(model.settings().item_pouch_slot)
   );
   item->setText(text(model, UiMessage::ItemPouchSlot));
   item->setValue(value);
@@ -179,7 +182,10 @@ void refresh_item_pouch_quantity_item(
 ) {
   char value[8]{};
   std::snprintf(
-    value, sizeof(value), "%u", model.settings().item_pouch_quantity
+    value,
+    sizeof(value),
+    "%u",
+    static_cast<unsigned>(model.settings().item_pouch_quantity)
   );
   item->setText(text(model, UiMessage::ItemPouchQuantity));
   item->setValue(value);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <cstdint>
 #include <mutex>
 #include <thread>
 
@@ -43,7 +44,7 @@ private:
   SettingsStore store_;
   std::atomic<bool> running_{false};
   std::atomic<bool> rescan_requested_{false};
-  std::atomic<bool> item_pouch_write_requested_{false};
+  std::atomic<std::uint16_t> item_pouch_write_request_{};
   std::thread worker_;
 };
 
