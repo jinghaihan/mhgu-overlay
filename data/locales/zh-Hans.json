@@ -50,6 +50,7 @@
     "combatParameters": "战斗参数",
     "attackMultiplier": "攻击倍率",
     "defenseMultiplier": "防御倍率",
+    "movementSpeedMultiplier": "移动速度倍率",
     "monsterInfoOverlay": "怪物信息 Overlay"
   },
   "monsters": {

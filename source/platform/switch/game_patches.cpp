@@ -1,6 +1,7 @@
 #include "mhgu/platform/switch/game_patches.hpp"
 
 #include <array>
+#include <cstring>
 #include <limits>
 
 namespace mhgu::platform::switch_adapter {
@@ -26,6 +27,13 @@ bool encode_numeric_word_patch(
   encoded.offset = patch.offset;
   if (patch.encoding == NumericWordEncoding::Fixed) {
     encoded.value = patch.base_value;
+    return true;
+  }
+  if (patch.encoding == NumericWordEncoding::FloatTenths) {
+    static_assert(sizeof(float) == sizeof(std::uint32_t));
+    static_assert(std::numeric_limits<float>::is_iec559);
+    const auto multiplier = static_cast<float>(input) / 10.0F;
+    std::memcpy(&encoded.value, &multiplier, sizeof(encoded.value));
     return true;
   }
   if (patch.encoding != NumericWordEncoding::LinearImmediate &&

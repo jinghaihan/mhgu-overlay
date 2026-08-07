@@ -150,6 +150,9 @@ int main() {
   const auto defense_multiplier_index = core::numeric_feature_index(
     core::NumericFeature::DefenseMultiplier
   );
+  const auto movement_speed_multiplier_index = core::numeric_feature_index(
+    core::NumericFeature::MovementSpeedMultiplier
+  );
   const auto weapon_transmog_index = core::runtime_feature_index(
     core::RuntimeFeature::WeaponTransmog
   );
@@ -430,6 +433,51 @@ int main() {
     matched_profile->numeric_patches[defense_multiplier_index].maximum == 10
   );
   assert(
+    matched_profile->numeric_patches[movement_speed_multiplier_index].count ==
+    5
+  );
+  assert(
+    matched_profile->numeric_patches[movement_speed_multiplier_index]
+        .patches[0]
+        .offset == 0x013F1E00
+  );
+  assert(
+    matched_profile->numeric_patches[movement_speed_multiplier_index]
+        .patches[3]
+        .encoding == NumericWordEncoding::FloatTenths
+  );
+  assert(
+    matched_profile->numeric_patches[movement_speed_multiplier_index]
+        .patches[4]
+        .offset == 0x0029BF3C
+  );
+  constexpr std::array<std::uint32_t, 5> kMovementSpeedPatchValues{
+    0xED9F0A01,
+    0xED800A00,
+    0xE12FFF1E,
+    0x00000000,
+    0xEB4557AF,
+  };
+  for (
+    std::size_t index = 0;
+    index < kMovementSpeedPatchValues.size();
+    ++index
+  ) {
+    assert(
+      matched_profile->numeric_patches[movement_speed_multiplier_index]
+        .patches[index]
+        .base_value == kMovementSpeedPatchValues[index]
+    );
+  }
+  assert(
+    matched_profile->numeric_patches[movement_speed_multiplier_index]
+        .minimum == 10
+  );
+  assert(
+    matched_profile->numeric_patches[movement_speed_multiplier_index]
+        .maximum == 50
+  );
+  assert(
     matched_profile->runtime_patches[weapon_transmog_index].count == 8
   );
   assert(
@@ -502,6 +550,11 @@ int main() {
     profile.numeric_patches[defense_multiplier_index].patches[index].offset =
       0x1CC + index * sizeof(std::uint32_t);
   }
+  for (std::size_t index = 0; index < 5; ++index) {
+    profile.numeric_patches[movement_speed_multiplier_index]
+      .patches[index]
+      .offset = 0x1F0 + index * sizeof(std::uint32_t);
+  }
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -542,6 +595,7 @@ int main() {
   constexpr std::uint32_t kOriginalLongSwordSpiritInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalAttackMultiplierInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalDefenseMultiplierInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalMovementSpeedInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -658,6 +712,13 @@ int main() {
       kMainBase + profile.numeric_patches[defense_multiplier_index]
         .patches[index].offset,
       kOriginalDefenseMultiplierInstruction
+    );
+  }
+  for (std::size_t index = 0; index < 5; ++index) {
+    memory.store(
+      kMainBase + profile.numeric_patches[movement_speed_multiplier_index]
+        .patches[index].offset,
+      kOriginalMovementSpeedInstruction
     );
   }
   for (std::size_t index = 0; index < 6; ++index) {
@@ -1204,6 +1265,78 @@ int main() {
       kMainBase + profile.numeric_patches[defense_multiplier_index]
         .patches[7].offset
     ) == 5
+  );
+
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::MovementSpeedMultiplier, 20
+  ));
+  assert(memory.write_count() == patch_writes + 5);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[movement_speed_multiplier_index]
+        .patches[0].offset
+    ) == 0xED9F0A01
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[movement_speed_multiplier_index]
+        .patches[3].offset
+    ) == 0x40000000
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[movement_speed_multiplier_index]
+        .patches[4].offset
+    ) == 0xEB4557AF
+  );
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::MovementSpeedMultiplier, 20
+  ));
+  assert(memory.write_count() == patch_writes);
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::MovementSpeedMultiplier, 25
+  ));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[movement_speed_multiplier_index]
+        .patches[3].offset
+    ) == 0x40200000
+  );
+  patch_writes = memory.write_count();
+  assert(!patches.set_numeric_feature(
+    core::NumericFeature::MovementSpeedMultiplier, 9
+  ));
+  assert(!patches.set_numeric_feature(
+    core::NumericFeature::MovementSpeedMultiplier, 51
+  ));
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_movement_speed_profile = profile;
+  invalid_movement_speed_profile
+    .numeric_patches[movement_speed_multiplier_index]
+    .patches[4]
+    .offset = 0x1000;
+  GamePatches invalid_movement_speed(
+    memory,
+    invalid_movement_speed_profile,
+    kMainBase,
+    0x1000,
+    0,
+    0x20000
+  );
+  patch_writes = memory.write_count();
+  assert(!invalid_movement_speed.set_numeric_feature(
+    core::NumericFeature::MovementSpeedMultiplier, 30
+  ));
+  assert(memory.write_count() == patch_writes);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[movement_speed_multiplier_index]
+        .patches[3].offset
+    ) == 0x40200000
   );
 
   auto invalid_palico_affinity_profile = profile;

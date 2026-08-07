@@ -68,6 +68,7 @@ UI_KEYS = [
   "combatParameters",
   "attackMultiplier",
   "defenseMultiplier",
+  "movementSpeedMultiplier",
   "monsterInfoOverlay",
 ]
 

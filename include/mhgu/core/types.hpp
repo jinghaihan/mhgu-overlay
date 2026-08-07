@@ -76,6 +76,7 @@ enum class NumericFeature : std::uint8_t {
   LongSwordSpiritGauge,
   AttackMultiplier,
   DefenseMultiplier,
+  MovementSpeedMultiplier,
   Count,
 };
 
@@ -113,6 +114,8 @@ constexpr NumericFeatureRange numeric_feature_range(
       return {1, 10};
     case NumericFeature::DefenseMultiplier:
       return {1, 10};
+    case NumericFeature::MovementSpeedMultiplier:
+      return {10, 50};
     default:
       return {0, 0};
   }
@@ -170,6 +173,7 @@ struct CoreSettings {
     {100, false},
     {2, false},
     {2, false},
+    {20, false},
   }};
 };
 

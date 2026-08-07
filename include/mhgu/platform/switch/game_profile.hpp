@@ -53,6 +53,7 @@ enum class NumericWordEncoding : std::uint8_t {
   Fixed,
   LinearImmediate,
   LinearWord,
+  FloatTenths,
 };
 
 struct NumericWordPatch {

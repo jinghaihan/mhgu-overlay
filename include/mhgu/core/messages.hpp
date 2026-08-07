@@ -55,6 +55,7 @@ enum class UiMessage : std::uint8_t {
   CombatParameters,
   AttackMultiplier,
   DefenseMultiplier,
+  MovementSpeedMultiplier,
   MonsterInfoOverlay,
 };
 
