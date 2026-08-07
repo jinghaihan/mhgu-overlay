@@ -38,6 +38,8 @@
     "spStatusNoExpire": "SP状态不消失",
     "bowgunAutoReload": "弩炮自动装填",
     "consumableItemsNoDecrease": "消耗道具不减",
+    "transmog": "装备幻化",
+    "weaponTransmog": "武器幻化",
     "hunterAffinity": "猎人会心率",
     "monsterInfoOverlay": "怪物信息 Overlay"
   },

@@ -43,6 +43,8 @@ enum class UiMessage : std::uint8_t {
   SpStatusNoExpire,
   BowgunAutoReload,
   ConsumableItemsNoDecrease,
+  Transmog,
+  WeaponTransmog,
   HunterAffinity,
   MonsterInfoOverlay,
 };

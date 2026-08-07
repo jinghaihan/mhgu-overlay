@@ -38,6 +38,8 @@
     "spStatusNoExpire": "SP状態時間無制限",
     "bowgunAutoReload": "ボウガン自動装填",
     "consumableItemsNoDecrease": "消耗アイテム減少なし",
+    "transmog": "装備重ね着",
+    "weaponTransmog": "武器重ね着",
     "hunterAffinity": "ハンター会心率",
     "monsterInfoOverlay": "モンスター情報オーバーレイ"
   },

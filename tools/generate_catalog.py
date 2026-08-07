@@ -56,6 +56,8 @@ UI_KEYS = [
   "spStatusNoExpire",
   "bowgunAutoReload",
   "consumableItemsNoDecrease",
+  "transmog",
+  "weaponTransmog",
   "hunterAffinity",
   "monsterInfoOverlay",
 ]

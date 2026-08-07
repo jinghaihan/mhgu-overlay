@@ -135,6 +135,9 @@ int main() {
   const auto affinity_index = core::numeric_feature_index(
     core::NumericFeature::HunterAffinity
   );
+  const auto weapon_transmog_index = core::runtime_feature_index(
+    core::RuntimeFeature::WeaponTransmog
+  );
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -275,6 +278,17 @@ int main() {
   assert(matched_profile->numeric_patches[affinity_index].minimum == 0);
   assert(matched_profile->numeric_patches[affinity_index].maximum == 100);
   assert(matched_profile->numeric_patches[affinity_index].scale == 2);
+  assert(
+    matched_profile->runtime_patches[weapon_transmog_index].count == 8
+  );
+  assert(
+    matched_profile->runtime_patches[weapon_transmog_index].patches[0].offset ==
+    0x000DAEE0
+  );
+  assert(
+    matched_profile->runtime_patches[weapon_transmog_index].patches[7].value ==
+    0xE3510002
+  );
   profile.runtime_patches[map_index].patches[0].offset = 0x100;
   profile.runtime_patches[map_index].patches[1].offset = 0x104;
   profile.runtime_patches[carry_index].patches[0].offset = 0x108;
@@ -296,6 +310,10 @@ int main() {
   profile.runtime_patches[bowgun_index].patches[0].offset = 0x140;
   profile.runtime_patches[consumable_index].patches[0].offset = 0x144;
   profile.numeric_patches[affinity_index].offset = 0x148;
+  for (std::size_t index = 0; index < 8; ++index) {
+    profile.runtime_patches[weapon_transmog_index].patches[index].offset =
+      0x150 + index * sizeof(std::uint32_t);
+  }
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -328,6 +346,7 @@ int main() {
   constexpr std::uint32_t kOriginalBowgunInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalConsumableInstruction = 0xE3500000;
   constexpr std::uint32_t kOriginalAffinityInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalWeaponTransmogInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -407,6 +426,13 @@ int main() {
     kMainBase + profile.numeric_patches[affinity_index].offset,
     kOriginalAffinityInstruction
   );
+  for (std::size_t index = 0; index < 8; ++index) {
+    memory.store(
+      kMainBase + profile.runtime_patches[weapon_transmog_index]
+        .patches[index].offset,
+      kOriginalWeaponTransmogInstruction
+    );
+  }
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
   );
@@ -709,6 +735,20 @@ int main() {
   assert(!invalid_affinity.set_numeric_feature(
     core::NumericFeature::HunterAffinity, 100
   ));
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_runtime_feature(
+    core::RuntimeFeature::WeaponTransmog
+  ));
+  assert(memory.write_count() == patch_writes + 8);
+  for (std::size_t index = 0; index < 8; ++index) {
+    assert(
+      memory.load<std::uint32_t>(
+        kMainBase + profile.runtime_patches[weapon_transmog_index]
+          .patches[index].offset
+      ) == profile.runtime_patches[weapon_transmog_index].patches[index].value
+    );
+  }
 
   const std::uint8_t one = 1;
   memory.store(kList, one);

@@ -38,6 +38,8 @@
     "spStatusNoExpire": "SP status does not expire",
     "bowgunAutoReload": "Bowgun auto reload",
     "consumableItemsNoDecrease": "Consumable items do not decrease",
+    "transmog": "Equipment transmog",
+    "weaponTransmog": "Weapon transmog",
     "hunterAffinity": "Hunter affinity",
     "monsterInfoOverlay": "Monster info overlay"
   },

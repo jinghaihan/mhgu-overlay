@@ -669,6 +669,44 @@ private:
   tsl::elm::ListItem* consumable_item_{};
 };
 
+class TransmogGui final : public tsl::Gui {
+public:
+  explicit TransmogGui(Model& model)
+    : model_(model) {}
+
+  tsl::elm::Element* createUI() override {
+    const auto locale = model_.display_locale();
+    auto* frame = new LocalizedOverlayFrame(
+      mhgu::core::ui_message(UiMessage::Transmog, locale), kVersion
+    );
+    auto* list = new tsl::elm::List(6);
+    weapon_item_ = runtime_feature_item(
+      model_, UiMessage::WeaponTransmog, RuntimeFeature::WeaponTransmog
+    );
+    list->addItem(weapon_item_);
+    frame->setContent(list);
+    return frame;
+  }
+
+  bool handleInput(
+    const u64 keys_down,
+    u64,
+    const HidTouchState&,
+    JoystickPosition,
+    JoystickPosition
+  ) override {
+    if ((keys_down & HidNpadButton_B) != 0) {
+      tsl::goBack();
+      return true;
+    }
+    return false;
+  }
+
+private:
+  Model& model_;
+  tsl::elm::ListItem* weapon_item_{};
+};
+
 class MainGui final : public tsl::Gui {
 public:
   explicit MainGui(Model& model)
@@ -784,6 +822,18 @@ public:
     );
     list->addItem(carry_item_);
 
+    transmog_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::Transmog, locale)
+    );
+    transmog_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0) {
+        tsl::changeTo<TransmogGui>(model_);
+        return true;
+      }
+      return false;
+    });
+    list->addItem(transmog_item_);
+
     battle_item_ = new tsl::elm::ListItem(
       mhgu::core::ui_message(UiMessage::BattleFunctions, locale)
     );
@@ -873,6 +923,9 @@ private:
     battle_item_->setText(
       mhgu::core::ui_message(UiMessage::BattleFunctions, locale)
     );
+    transmog_item_->setText(
+      mhgu::core::ui_message(UiMessage::Transmog, locale)
+    );
     scan_item_->setText(mhgu::core::ui_message(UiMessage::Scan, locale));
   }
 
@@ -884,6 +937,7 @@ private:
   tsl::elm::ListItem* preset_item_{};
   tsl::elm::ListItem* map_item_{};
   tsl::elm::ListItem* carry_item_{};
+  tsl::elm::ListItem* transmog_item_{};
   tsl::elm::ListItem* battle_item_{};
   tsl::elm::ListItem* scan_item_{};
 };

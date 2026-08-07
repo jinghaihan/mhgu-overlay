@@ -63,6 +63,7 @@ enum class RuntimeFeature : std::uint8_t {
   SpStatusNoExpire,
   BowgunAutoReload,
   ConsumableItemsNoDecrease,
+  WeaponTransmog,
   Count,
 };
 
