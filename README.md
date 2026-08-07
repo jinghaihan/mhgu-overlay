@@ -43,6 +43,7 @@ Generations Ultimate on Nintendo Switch.
 - Prevents Palico health from decreasing under the Palico section.
 - Sets Palico affinity to a user-selected value from 0% to 100%.
 - Sets the SP level from 1 to 4.
+- Sets the Long Sword Spirit Gauge from 0% to 100%.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -105,6 +106,8 @@ Generations Ultimate on Nintendo Switch.
   **Hunter affinity**, and updates both affinity instructions together.
 - **SP level** uses the left/right and L/R buttons to adjust one level at a
   time. Its selected level is saved, but its enabled state is not.
+- **Long Sword Spirit Gauge** uses the same percentage controls as affinity
+  settings and applies its dynamic and fixed instructions together.
 - Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.

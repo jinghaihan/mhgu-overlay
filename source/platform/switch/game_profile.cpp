@@ -183,11 +183,28 @@ constexpr NumericWordPatchSet kSpLevelPatches{
   4,
 };
 
+constexpr NumericWordPatchSet kLongSwordSpiritGaugePatches{
+  {{{0x002A31C0,
+     0xE3A01000,
+     NumericWordEncoding::LinearImmediate,
+     1,
+     0},
+    {0x002EC6FC,
+     0xE3A00001,
+     NumericWordEncoding::Fixed,
+     0,
+     0}}},
+  2,
+  0,
+  100,
+};
+
 constexpr std::array<NumericWordPatchSet, core::kNumericFeatureCount>
   kNumericPatches{
     kHunterAffinityPatches,
     kPalicoAffinityPatches,
     kSpLevelPatches,
+    kLongSwordSpiritGaugePatches,
   };
 
 constexpr GameProfile kProfiles[]{

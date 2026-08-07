@@ -142,6 +142,10 @@ core::CoreSettings SettingsStore::load() const {
       settings.numeric_features[core::numeric_feature_index(
         core::NumericFeature::SpLevel
       )].value = parse_sp_level(value);
+    } else if (std::strcmp(key, "long_sword_spirit_gauge") == 0) {
+      settings.numeric_features[core::numeric_feature_index(
+        core::NumericFeature::LongSwordSpiritGauge
+      )].value = parse_percentage(value);
     } else if (std::strcmp(key, "size_lock") == 0) {
       has_legacy_size_lock = true;
       legacy_size_lock_enabled = std::strcmp(value, "1") == 0;
@@ -186,6 +190,13 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
     "sp_level=%u\n",
     settings.numeric_features[core::numeric_feature_index(
       core::NumericFeature::SpLevel
+    )].value
+  );
+  std::fprintf(
+    file,
+    "long_sword_spirit_gauge=%u\n",
+    settings.numeric_features[core::numeric_feature_index(
+      core::NumericFeature::LongSwordSpiritGauge
     )].value
   );
   const auto close_result = std::fclose(file);

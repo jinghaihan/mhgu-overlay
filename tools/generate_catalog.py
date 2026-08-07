@@ -64,6 +64,7 @@ UI_KEYS = [
   "palicoAffinity",
   "hunterAffinity",
   "spLevel",
+  "longSwordSpiritGauge",
   "monsterInfoOverlay",
 ]
 

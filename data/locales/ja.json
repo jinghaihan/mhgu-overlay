@@ -46,6 +46,7 @@
     "palicoAffinity": "オトモ会心率",
     "hunterAffinity": "ハンター会心率",
     "spLevel": "SPレベル",
+    "longSwordSpiritGauge": "太刀練気ゲージ",
     "monsterInfoOverlay": "モンスター情報オーバーレイ"
   },
   "monsters": {

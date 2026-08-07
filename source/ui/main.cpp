@@ -612,6 +612,13 @@ public:
     );
     list->addItem(alchemy_item_);
 
+    long_sword_spirit_item_ = numeric_feature_item(
+      model_,
+      UiMessage::LongSwordSpiritGauge,
+      NumericFeature::LongSwordSpiritGauge
+    );
+    list->addItem(long_sword_spirit_item_);
+
     sp_level_item_ = numeric_feature_item(
       model_, UiMessage::SpLevel, NumericFeature::SpLevel
     );
@@ -679,6 +686,7 @@ private:
   tsl::elm::ListItem* hunter_arts_item_{};
   tsl::elm::ListItem* valor_item_{};
   tsl::elm::ListItem* alchemy_item_{};
+  tsl::elm::ListItem* long_sword_spirit_item_{};
   tsl::elm::ListItem* sp_level_item_{};
   tsl::elm::ListItem* sp_status_item_{};
   tsl::elm::ListItem* hunter_affinity_item_{};

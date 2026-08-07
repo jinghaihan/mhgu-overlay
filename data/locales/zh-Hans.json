@@ -46,6 +46,7 @@
     "palicoAffinity": "随从艾露猫会心率",
     "hunterAffinity": "猎人会心率",
     "spLevel": "SP等级",
+    "longSwordSpiritGauge": "太刀练气槽",
     "monsterInfoOverlay": "怪物信息 Overlay"
   },
   "monsters": {

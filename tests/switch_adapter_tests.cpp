@@ -141,6 +141,9 @@ int main() {
   const auto sp_level_index = core::numeric_feature_index(
     core::NumericFeature::SpLevel
   );
+  const auto long_sword_spirit_index = core::numeric_feature_index(
+    core::NumericFeature::LongSwordSpiritGauge
+  );
   const auto weapon_transmog_index = core::runtime_feature_index(
     core::RuntimeFeature::WeaponTransmog
   );
@@ -320,6 +323,24 @@ int main() {
   assert(matched_profile->numeric_patches[sp_level_index].minimum == 1);
   assert(matched_profile->numeric_patches[sp_level_index].maximum == 4);
   assert(
+    matched_profile->numeric_patches[long_sword_spirit_index].count == 2
+  );
+  assert(
+    matched_profile->numeric_patches[long_sword_spirit_index]
+        .patches[0]
+        .offset == 0x002A31C0
+  );
+  assert(
+    matched_profile->numeric_patches[long_sword_spirit_index]
+        .patches[1]
+        .offset == 0x002EC6FC
+  );
+  assert(
+    matched_profile->numeric_patches[long_sword_spirit_index]
+        .patches[1]
+        .encoding == NumericWordEncoding::Fixed
+  );
+  assert(
     matched_profile->runtime_patches[weapon_transmog_index].count == 8
   );
   assert(
@@ -382,6 +403,8 @@ int main() {
   profile.numeric_patches[palico_affinity_index].patches[0].offset = 0x190;
   profile.numeric_patches[palico_affinity_index].patches[1].offset = 0x194;
   profile.numeric_patches[sp_level_index].patches[0].offset = 0x198;
+  profile.numeric_patches[long_sword_spirit_index].patches[0].offset = 0x1A0;
+  profile.numeric_patches[long_sword_spirit_index].patches[1].offset = 0x1A4;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -419,6 +442,7 @@ int main() {
   constexpr std::uint32_t kOriginalPalicoHealthInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalPalicoAffinityInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalSpLevelInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalLongSwordSpiritInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -516,6 +540,13 @@ int main() {
     kMainBase + profile.numeric_patches[sp_level_index].patches[0].offset,
     kOriginalSpLevelInstruction
   );
+  for (std::size_t index = 0; index < 2; ++index) {
+    memory.store(
+      kMainBase + profile.numeric_patches[long_sword_spirit_index]
+        .patches[index].offset,
+      kOriginalLongSwordSpiritInstruction
+    );
+  }
   for (std::size_t index = 0; index < 6; ++index) {
     memory.store(
       kMainBase + profile.runtime_patches[palico_health_index]
@@ -894,6 +925,41 @@ int main() {
   patch_writes = memory.write_count();
   assert(!patches.set_numeric_feature(core::NumericFeature::SpLevel, 0));
   assert(memory.write_count() == patch_writes);
+
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::LongSwordSpiritGauge, 77
+  ));
+  assert(memory.write_count() == patch_writes + 2);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[long_sword_spirit_index]
+        .patches[0].offset
+    ) == 0xE3A0104D
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[long_sword_spirit_index]
+        .patches[1].offset
+    ) == 0xE3A00001
+  );
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::LongSwordSpiritGauge, 77
+  ));
+  assert(memory.write_count() == patch_writes);
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::LongSwordSpiritGauge, 100
+  ));
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[long_sword_spirit_index]
+        .patches[0].offset
+    ) == 0xE3A01064
+  );
+  assert(!patches.set_numeric_feature(
+    core::NumericFeature::LongSwordSpiritGauge, 101
+  ));
 
   auto invalid_palico_affinity_profile = profile;
   invalid_palico_affinity_profile.numeric_patches[palico_affinity_index]
