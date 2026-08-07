@@ -49,6 +49,14 @@ struct MainWordPatchSet {
   std::size_t count;
 };
 
+struct ScaledMainWordPatch {
+  std::uint64_t offset;
+  std::uint32_t base_value;
+  std::uint16_t minimum;
+  std::uint16_t maximum;
+  std::uint16_t scale;
+};
+
 struct GameProfile {
   const char* name;
   core::GameId game;
@@ -60,6 +68,7 @@ struct GameProfile {
   PointerListLayout pointer_list;
   FrameRatePatch frame_rate;
   std::array<MainWordPatchSet, core::kRuntimeFeatureCount> runtime_patches;
+  std::array<ScaledMainWordPatch, core::kNumericFeatureCount> numeric_patches;
 };
 
 constexpr std::uint64_t kMhguTitleId = 0x0100770008DD8000ULL;

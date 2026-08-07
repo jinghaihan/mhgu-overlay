@@ -1,6 +1,7 @@
 #include "mhgu/app/settings.hpp"
 
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <utility>
 
@@ -40,6 +41,21 @@ core::SizePreset parse_preset(const char* value) {
 core::FrameRate parse_frame_rate(const char* value) {
   return std::strcmp(value, "60") == 0 ? core::FrameRate::Fps60
                                        : core::FrameRate::Fps30;
+}
+
+std::uint16_t parse_percentage(const char* value) {
+  char* end{};
+  const auto parsed = std::strtol(value, &end, 10);
+  if (end == value || *end != '\0') {
+    return 100;
+  }
+  if (parsed < 0) {
+    return 0;
+  }
+  if (parsed > 100) {
+    return 100;
+  }
+  return static_cast<std::uint16_t>(parsed);
 }
 
 const char* locale_value(const core::LocaleMode mode) {
@@ -99,6 +115,10 @@ core::CoreSettings SettingsStore::load() const {
       settings.size_preset = parse_preset(value);
     } else if (std::strcmp(key, "frame_rate") == 0) {
       settings.frame_rate = parse_frame_rate(value);
+    } else if (std::strcmp(key, "hunter_affinity") == 0) {
+      settings.numeric_features[core::numeric_feature_index(
+        core::NumericFeature::HunterAffinity
+      )].value = parse_percentage(value);
     } else if (std::strcmp(key, "size_lock") == 0) {
       has_legacy_size_lock = true;
       legacy_size_lock_enabled = std::strcmp(value, "1") == 0;
@@ -124,6 +144,13 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
   std::fprintf(file, "language=%s\n", locale_value(settings.locale_mode));
   std::fprintf(file, "size_preset=%s\n", preset_value(settings.size_preset));
   std::fprintf(file, "frame_rate=%s\n", frame_rate_value(settings.frame_rate));
+  std::fprintf(
+    file,
+    "hunter_affinity=%u\n",
+    settings.numeric_features[core::numeric_feature_index(
+      core::NumericFeature::HunterAffinity
+    )].value
+  );
   const auto close_result = std::fclose(file);
   if (close_result != 0) {
     std::remove(temporary.c_str());

@@ -38,6 +38,7 @@
     "spStatusNoExpire": "SP status does not expire",
     "bowgunAutoReload": "Bowgun auto reload",
     "consumableItemsNoDecrease": "Consumable items do not decrease",
+    "hunterAffinity": "Hunter affinity",
     "monsterInfoOverlay": "Monster info overlay"
   },
   "monsters": {

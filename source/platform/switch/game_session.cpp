@@ -90,6 +90,7 @@ bool GameSession::attach() {
     );
     applied_frame_rate_ = core::FrameRate::Fps30;
     applied_runtime_features_ = {};
+    applied_numeric_features_ = {};
     view_ = {};
     view_.status = SessionStatus::Searching;
     view_.game = profile_->game;
@@ -117,6 +118,7 @@ void GameSession::detach(const SessionStatus status) {
   address_space_size_ = 0;
   applied_frame_rate_ = core::FrameRate::Fps30;
   applied_runtime_features_ = {};
+  applied_numeric_features_ = {};
   view_ = {};
   view_.status = status;
 }
@@ -152,6 +154,29 @@ bool GameSession::sync_runtime_features(
   return success;
 }
 
+bool GameSession::sync_numeric_features(
+  const core::CoreSettings& settings
+) {
+  bool success = true;
+  for (std::size_t index = 0; index < core::kNumericFeatureCount; ++index) {
+    const auto& requested = settings.numeric_features[index];
+    auto& applied = applied_numeric_features_[index];
+    if (!requested.enabled ||
+        (applied.enabled && applied.value == requested.value)) {
+      continue;
+    }
+    if (patches_ == nullptr || !patches_->set_numeric_feature(
+                                 static_cast<core::NumericFeature>(index),
+                                 requested.value
+                               )) {
+      success = false;
+      continue;
+    }
+    applied = requested;
+  }
+  return success;
+}
+
 void GameSession::poll(const core::CoreSettings& settings) {
   if (!initialized_ && !initialize()) {
     detach(SessionStatus::NoGame);
@@ -162,7 +187,9 @@ void GameSession::poll(const core::CoreSettings& settings) {
   }
   const auto frame_rate_ok = sync_frame_rate(settings.frame_rate);
   const auto runtime_features_ok = sync_runtime_features(settings);
-  const auto runtime_patches_ok = frame_rate_ok && runtime_features_ok;
+  const auto numeric_features_ok = sync_numeric_features(settings);
+  const auto runtime_patches_ok =
+    frame_rate_ok && runtime_features_ok && numeric_features_ok;
 
   if (view_.pointer_list == 0) {
     view_.status = SessionStatus::Searching;

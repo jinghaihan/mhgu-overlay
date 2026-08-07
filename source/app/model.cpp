@@ -1,5 +1,6 @@
 #include "mhgu/app/model.hpp"
 
+#include <algorithm>
 #include <chrono>
 
 #include "mhgu/core/locale.hpp"
@@ -91,6 +92,40 @@ void Model::enable_runtime_feature(const core::RuntimeFeature feature) {
   const auto index = core::runtime_feature_index(feature);
   if (index < settings_.runtime_features.size()) {
     settings_.runtime_features[index] = true;
+  }
+}
+
+void Model::adjust_numeric_feature(
+  const core::NumericFeature feature, const int delta
+) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    const auto index = core::numeric_feature_index(feature);
+    if (index >= settings_.numeric_features.size()) {
+      return;
+    }
+    auto& setting = settings_.numeric_features[index];
+    const auto range = core::numeric_feature_range(feature);
+    const auto adjusted = std::clamp(
+      static_cast<int>(setting.value) + delta,
+      static_cast<int>(range.minimum),
+      static_cast<int>(range.maximum)
+    );
+    if (adjusted == setting.value) {
+      return;
+    }
+    setting.value = static_cast<std::uint16_t>(adjusted);
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::enable_numeric_feature(const core::NumericFeature feature) {
+  const std::scoped_lock lock(mutex_);
+  const auto index = core::numeric_feature_index(feature);
+  if (index < settings_.numeric_features.size()) {
+    settings_.numeric_features[index].enabled = true;
   }
 }
 

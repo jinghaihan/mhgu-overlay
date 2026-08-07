@@ -16,6 +16,7 @@ namespace {
 using mhgu::app::Model;
 using mhgu::core::Locale;
 using mhgu::core::LocaleMode;
+using mhgu::core::NumericFeature;
 using mhgu::core::RuntimeFeature;
 using mhgu::core::SizePreset;
 using mhgu::core::UiMessage;
@@ -95,6 +96,76 @@ tsl::elm::ListItem* runtime_feature_item(
       item->setValue(mhgu::core::ui_message(
         UiMessage::On, model_ptr->display_locale()
       ));
+      return true;
+    }
+  );
+  return item;
+}
+
+mhgu::core::NumericFeatureSetting numeric_feature_setting(
+  Model& model, const NumericFeature feature
+) {
+  const auto settings = model.settings();
+  const auto index = mhgu::core::numeric_feature_index(feature);
+  if (index >= settings.numeric_features.size()) {
+    return {};
+  }
+  return settings.numeric_features[index];
+}
+
+void refresh_numeric_feature_item(
+  tsl::elm::ListItem* item,
+  Model& model,
+  const UiMessage label,
+  const NumericFeature feature
+) {
+  const auto locale = model.display_locale();
+  const auto setting = numeric_feature_setting(model, feature);
+  char value[32]{};
+  std::snprintf(
+    value,
+    sizeof(value),
+    "%s / %u%%",
+    mhgu::core::ui_message(
+      setting.enabled ? UiMessage::On : UiMessage::Off, locale
+    ),
+    setting.value
+  );
+  item->setText(mhgu::core::ui_message(label, locale));
+  item->setValue(value);
+}
+
+tsl::elm::ListItem* numeric_feature_item(
+  Model& model,
+  const UiMessage label,
+  const NumericFeature feature
+) {
+  auto* item = new tsl::elm::ListItem(
+    mhgu::core::ui_message(label, model.display_locale())
+  );
+  refresh_numeric_feature_item(item, model, label, feature);
+  item->setClickListener(
+    [model_ptr = &model, item, label, feature](const u64 keys) {
+      int delta{};
+      if ((keys & HidNpadButton_Left) != 0) {
+        delta = -1;
+      } else if ((keys & HidNpadButton_Right) != 0) {
+        delta = 1;
+      } else if ((keys & HidNpadButton_L) != 0) {
+        delta = -10;
+      } else if ((keys & HidNpadButton_R) != 0) {
+        delta = 10;
+      } else if ((keys & HidNpadButton_A) != 0) {
+        model_ptr->enable_numeric_feature(feature);
+        refresh_numeric_feature_item(
+          item, *model_ptr, label, feature
+        );
+        return true;
+      } else {
+        return false;
+      }
+      model_ptr->adjust_numeric_feature(feature, delta);
+      refresh_numeric_feature_item(item, *model_ptr, label, feature);
       return true;
     }
   );
@@ -547,6 +618,11 @@ public:
     );
     list->addItem(sp_status_item_);
 
+    hunter_affinity_item_ = numeric_feature_item(
+      model_, UiMessage::HunterAffinity, NumericFeature::HunterAffinity
+    );
+    list->addItem(hunter_affinity_item_);
+
     bowgun_item_ = runtime_feature_item(
       model_, UiMessage::BowgunAutoReload, RuntimeFeature::BowgunAutoReload
     );
@@ -588,6 +664,7 @@ private:
   tsl::elm::ListItem* valor_item_{};
   tsl::elm::ListItem* alchemy_item_{};
   tsl::elm::ListItem* sp_status_item_{};
+  tsl::elm::ListItem* hunter_affinity_item_{};
   tsl::elm::ListItem* bowgun_item_{};
   tsl::elm::ListItem* consumable_item_{};
 };

@@ -56,6 +56,7 @@ UI_KEYS = [
   "spStatusNoExpire",
   "bowgunAutoReload",
   "consumableItemsNoDecrease",
+  "hunterAffinity",
   "monsterInfoOverlay",
 ]
 

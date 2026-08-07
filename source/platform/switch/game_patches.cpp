@@ -149,4 +149,27 @@ bool GamePatches::enable_runtime_feature(
   return true;
 }
 
+bool GamePatches::set_numeric_feature(
+  const core::NumericFeature feature, const std::uint16_t value
+) {
+  const auto feature_index = core::numeric_feature_index(feature);
+  if (feature_index >= profile_.numeric_patches.size()) {
+    return false;
+  }
+  const auto& patch = profile_.numeric_patches[feature_index];
+  if (value < patch.minimum || value > patch.maximum || patch.scale == 0 ||
+      (patch.base_value & 0xFFU) != 0 ||
+      value > 0xFFU / patch.scale) {
+    return false;
+  }
+
+  const MainWordPatch encoded{
+    patch.offset,
+    patch.base_value | static_cast<std::uint32_t>(value * patch.scale),
+  };
+  std::uint64_t address{};
+  return main_word_patch_address(encoded, address) &&
+         apply_main_word_patch(encoded, address);
+}
+
 }  // namespace mhgu::platform::switch_adapter

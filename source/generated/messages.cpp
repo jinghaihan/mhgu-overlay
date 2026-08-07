@@ -43,6 +43,7 @@ constexpr const char* kMessages[][3] = {
   {"SP status does not expire", "SP状态不消失", "SP状態時間無制限"},
   {"Bowgun auto reload", "弩炮自动装填", "ボウガン自動装填"},
   {"Consumable items do not decrease", "消耗道具不减", "消耗アイテム減少なし"},
+  {"Hunter affinity", "猎人会心率", "ハンター会心率"},
   {"Monster info overlay", "怪物信息 Overlay", "モンスター情報オーバーレイ"},
 };
 

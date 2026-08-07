@@ -18,12 +18,18 @@ int main() {
   for (const auto enabled : defaults.runtime_features) {
     assert(!enabled);
   }
+  const auto affinity_index = core::numeric_feature_index(
+    core::NumericFeature::HunterAffinity
+  );
+  assert(defaults.numeric_features[affinity_index].value == 100);
+  assert(!defaults.numeric_features[affinity_index].enabled);
 
   core::CoreSettings expected{};
   expected.locale_mode = core::LocaleMode::SimplifiedChinese;
   expected.size_preset = core::SizePreset::Gold;
   expected.frame_rate = core::FrameRate::Fps60;
   expected.runtime_features.fill(true);
+  expected.numeric_features[affinity_index] = {73, true};
   assert(store.save(expected));
 
   const auto restored = store.load();
@@ -33,6 +39,26 @@ int main() {
   for (const auto enabled : restored.runtime_features) {
     assert(!enabled);
   }
+  assert(restored.numeric_features[affinity_index].value == 73);
+  assert(!restored.numeric_features[affinity_index].enabled);
+
+  auto* numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(numeric, "hunter_affinity=101\n");
+  assert(std::fclose(numeric) == 0);
+  assert(store.load().numeric_features[affinity_index].value == 100);
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(numeric, "hunter_affinity=-1\n");
+  assert(std::fclose(numeric) == 0);
+  assert(store.load().numeric_features[affinity_index].value == 0);
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(numeric, "hunter_affinity=invalid\n");
+  assert(std::fclose(numeric) == 0);
+  assert(store.load().numeric_features[affinity_index].value == 100);
 
   auto* legacy = std::fopen(kPath, "w");
   assert(legacy != nullptr);

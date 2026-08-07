@@ -115,6 +115,19 @@ constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
     kConsumableItemsNoDecreasePatches,
 };
 
+constexpr ScaledMainWordPatch kHunterAffinityPatch{
+  0x000E400C,
+  0xE3A00000,
+  0,
+  100,
+  2,
+};
+
+constexpr std::array<ScaledMainWordPatch, core::kNumericFeatureCount>
+  kNumericPatches{
+    kHunterAffinityPatch,
+  };
+
 constexpr GameProfile kProfiles[]{
   {
     "MHGU 1.4.0",
@@ -127,6 +140,7 @@ constexpr GameProfile kProfiles[]{
     kPointerListLayout,
     kFrameRatePatch,
     kRuntimePatches,
+    kNumericPatches,
   },
 };
 

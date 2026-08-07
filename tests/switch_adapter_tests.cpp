@@ -132,6 +132,9 @@ int main() {
   const auto consumable_index = core::runtime_feature_index(
     core::RuntimeFeature::ConsumableItemsNoDecrease
   );
+  const auto affinity_index = core::numeric_feature_index(
+    core::NumericFeature::HunterAffinity
+  );
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -262,6 +265,16 @@ int main() {
     matched_profile->runtime_patches[consumable_index].patches[0].value ==
     0xE3A07000
   );
+  assert(
+    matched_profile->numeric_patches[affinity_index].offset == 0x000E400C
+  );
+  assert(
+    matched_profile->numeric_patches[affinity_index].base_value ==
+    0xE3A00000
+  );
+  assert(matched_profile->numeric_patches[affinity_index].minimum == 0);
+  assert(matched_profile->numeric_patches[affinity_index].maximum == 100);
+  assert(matched_profile->numeric_patches[affinity_index].scale == 2);
   profile.runtime_patches[map_index].patches[0].offset = 0x100;
   profile.runtime_patches[map_index].patches[1].offset = 0x104;
   profile.runtime_patches[carry_index].patches[0].offset = 0x108;
@@ -282,6 +295,7 @@ int main() {
   profile.runtime_patches[sp_status_index].patches[0].offset = 0x13C;
   profile.runtime_patches[bowgun_index].patches[0].offset = 0x140;
   profile.runtime_patches[consumable_index].patches[0].offset = 0x144;
+  profile.numeric_patches[affinity_index].offset = 0x148;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -313,6 +327,7 @@ int main() {
   constexpr std::uint32_t kOriginalSpStatusInstruction = 0xE3500000;
   constexpr std::uint32_t kOriginalBowgunInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalConsumableInstruction = 0xE3500000;
+  constexpr std::uint32_t kOriginalAffinityInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -387,6 +402,10 @@ int main() {
   memory.store(
     kMainBase + profile.runtime_patches[consumable_index].patches[0].offset,
     kOriginalConsumableInstruction
+  );
+  memory.store(
+    kMainBase + profile.numeric_patches[affinity_index].offset,
+    kOriginalAffinityInstruction
   );
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
@@ -647,6 +666,49 @@ int main() {
       kMainBase + profile.runtime_patches[consumable_index].patches[0].offset
     ) == profile.runtime_patches[consumable_index].patches[0].value
   );
+
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(core::NumericFeature::HunterAffinity, 0));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[affinity_index].offset
+    ) == 0xE3A00000
+  );
+
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(core::NumericFeature::HunterAffinity, 0));
+  assert(memory.write_count() == patch_writes);
+  assert(patches.set_numeric_feature(core::NumericFeature::HunterAffinity, 37));
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[affinity_index].offset
+    ) == 0xE3A0004A
+  );
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::HunterAffinity, 100
+  ));
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[affinity_index].offset
+    ) == 0xE3A000C8
+  );
+
+  patch_writes = memory.write_count();
+  assert(!patches.set_numeric_feature(
+    core::NumericFeature::HunterAffinity, 101
+  ));
+  assert(!patches.set_numeric_feature(core::NumericFeature::Count, 100));
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_affinity_profile = profile;
+  invalid_affinity_profile.numeric_patches[affinity_index].offset = 0x1000;
+  GamePatches invalid_affinity(
+    memory, invalid_affinity_profile, kMainBase, 0x1000, 0, 0x20000
+  );
+  assert(!invalid_affinity.set_numeric_feature(
+    core::NumericFeature::HunterAffinity, 100
+  ));
 
   const std::uint8_t one = 1;
   memory.store(kList, one);

@@ -24,6 +24,8 @@ public:
   void cycle_language();
   void cycle_frame_rate();
   void enable_runtime_feature(core::RuntimeFeature feature);
+  void adjust_numeric_feature(core::NumericFeature feature, int delta);
+  void enable_numeric_feature(core::NumericFeature feature);
   void cycle_size_preset();
   void request_rescan();
 

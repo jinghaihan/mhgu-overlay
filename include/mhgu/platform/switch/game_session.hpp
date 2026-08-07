@@ -45,6 +45,7 @@ private:
   void detach(SessionStatus status);
   bool sync_frame_rate(core::FrameRate frame_rate);
   bool sync_runtime_features(const core::CoreSettings& settings);
+  bool sync_numeric_features(const core::CoreSettings& settings);
 
   bool initialized_{};
   DmntMemoryAccess memory_{};
@@ -62,6 +63,8 @@ private:
   std::uint64_t address_space_size_{};
   core::FrameRate applied_frame_rate_{core::FrameRate::Fps30};
   std::array<bool, core::kRuntimeFeatureCount> applied_runtime_features_{};
+  std::array<core::NumericFeatureSetting, core::kNumericFeatureCount>
+    applied_numeric_features_{};
 };
 
 }  // namespace mhgu::platform::switch_adapter

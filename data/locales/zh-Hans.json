@@ -38,6 +38,7 @@
     "spStatusNoExpire": "SP状态不消失",
     "bowgunAutoReload": "弩炮自动装填",
     "consumableItemsNoDecrease": "消耗道具不减",
+    "hunterAffinity": "猎人会心率",
     "monsterInfoOverlay": "怪物信息 Overlay"
   },
   "monsters": {
