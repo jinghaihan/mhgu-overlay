@@ -41,6 +41,7 @@ Generations Ultimate on Nintendo Switch.
 - Adds a one-way weapon transmog switch under Equipment transmog.
 - Adds a one-way armor transmog switch under Equipment transmog.
 - Prevents Palico health from decreasing under the Palico section.
+- Sets Palico affinity to a user-selected value from 0% to 100%.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -99,6 +100,8 @@ Generations Ultimate on Nintendo Switch.
   transmog** and remains active until the game is restarted.
 - **Palico health does not decrease** is a one-way instruction patch and
   remains active until the game is restarted.
+- **Palico affinity** uses the same controls and persistence behavior as
+  **Hunter affinity**, and updates both affinity instructions together.
 - Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.

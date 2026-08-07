@@ -642,6 +642,10 @@ public:
       RuntimeFeature::PalicoHealthNoDecrease
     );
     list->addItem(palico_health_item_);
+    palico_affinity_item_ = numeric_feature_item(
+      model_, UiMessage::PalicoAffinity, NumericFeature::PalicoAffinity
+    );
+    list->addItem(palico_affinity_item_);
 
     frame->setContent(list);
     return frame;
@@ -676,6 +680,7 @@ private:
   tsl::elm::ListItem* bowgun_item_{};
   tsl::elm::ListItem* consumable_item_{};
   tsl::elm::ListItem* palico_health_item_{};
+  tsl::elm::ListItem* palico_affinity_item_{};
 };
 
 class TransmogGui final : public tsl::Gui {

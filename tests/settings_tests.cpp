@@ -21,8 +21,13 @@ int main() {
   const auto affinity_index = core::numeric_feature_index(
     core::NumericFeature::HunterAffinity
   );
+  const auto palico_affinity_index = core::numeric_feature_index(
+    core::NumericFeature::PalicoAffinity
+  );
   assert(defaults.numeric_features[affinity_index].value == 100);
   assert(!defaults.numeric_features[affinity_index].enabled);
+  assert(defaults.numeric_features[palico_affinity_index].value == 100);
+  assert(!defaults.numeric_features[palico_affinity_index].enabled);
 
   core::CoreSettings expected{};
   expected.locale_mode = core::LocaleMode::SimplifiedChinese;
@@ -30,6 +35,7 @@ int main() {
   expected.frame_rate = core::FrameRate::Fps60;
   expected.runtime_features.fill(true);
   expected.numeric_features[affinity_index] = {73, true};
+  expected.numeric_features[palico_affinity_index] = {61, true};
   assert(store.save(expected));
 
   const auto restored = store.load();
@@ -41,12 +47,20 @@ int main() {
   }
   assert(restored.numeric_features[affinity_index].value == 73);
   assert(!restored.numeric_features[affinity_index].enabled);
+  assert(restored.numeric_features[palico_affinity_index].value == 61);
+  assert(!restored.numeric_features[palico_affinity_index].enabled);
 
   auto* numeric = std::fopen(kPath, "w");
   assert(numeric != nullptr);
   std::fprintf(numeric, "hunter_affinity=101\n");
   assert(std::fclose(numeric) == 0);
   assert(store.load().numeric_features[affinity_index].value == 100);
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(numeric, "palico_affinity=42\n");
+  assert(std::fclose(numeric) == 0);
+  assert(store.load().numeric_features[palico_affinity_index].value == 42);
 
   numeric = std::fopen(kPath, "w");
   assert(numeric != nullptr);

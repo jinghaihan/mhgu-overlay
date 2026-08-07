@@ -61,6 +61,7 @@ UI_KEYS = [
   "armorTransmog",
   "palico",
   "palicoHealthNoDecrease",
+  "palicoAffinity",
   "hunterAffinity",
   "monsterInfoOverlay",
 ]

@@ -135,6 +135,9 @@ int main() {
   const auto affinity_index = core::numeric_feature_index(
     core::NumericFeature::HunterAffinity
   );
+  const auto palico_affinity_index = core::numeric_feature_index(
+    core::NumericFeature::PalicoAffinity
+  );
   const auto weapon_transmog_index = core::runtime_feature_index(
     core::RuntimeFeature::WeaponTransmog
   );
@@ -274,16 +277,31 @@ int main() {
     matched_profile->runtime_patches[consumable_index].patches[0].value ==
     0xE3A07000
   );
+  assert(matched_profile->numeric_patches[affinity_index].count == 1);
   assert(
-    matched_profile->numeric_patches[affinity_index].offset == 0x000E400C
+    matched_profile->numeric_patches[affinity_index].patches[0].offset ==
+    0x000E400C
   );
   assert(
-    matched_profile->numeric_patches[affinity_index].base_value ==
+    matched_profile->numeric_patches[affinity_index].patches[0].base_value ==
     0xE3A00000
   );
   assert(matched_profile->numeric_patches[affinity_index].minimum == 0);
   assert(matched_profile->numeric_patches[affinity_index].maximum == 100);
-  assert(matched_profile->numeric_patches[affinity_index].scale == 2);
+  assert(
+    matched_profile->numeric_patches[affinity_index].patches[0].multiplier == 2
+  );
+  assert(matched_profile->numeric_patches[palico_affinity_index].count == 2);
+  assert(
+    matched_profile->numeric_patches[palico_affinity_index]
+        .patches[0]
+        .offset == 0x000E5C24
+  );
+  assert(
+    matched_profile->numeric_patches[palico_affinity_index]
+        .patches[1]
+        .offset == 0x000E5C38
+  );
   assert(
     matched_profile->runtime_patches[weapon_transmog_index].count == 8
   );
@@ -333,7 +351,7 @@ int main() {
   profile.runtime_patches[sp_status_index].patches[0].offset = 0x13C;
   profile.runtime_patches[bowgun_index].patches[0].offset = 0x140;
   profile.runtime_patches[consumable_index].patches[0].offset = 0x144;
-  profile.numeric_patches[affinity_index].offset = 0x148;
+  profile.numeric_patches[affinity_index].patches[0].offset = 0x148;
   for (std::size_t index = 0; index < 8; ++index) {
     profile.runtime_patches[weapon_transmog_index].patches[index].offset =
       0x150 + index * sizeof(std::uint32_t);
@@ -344,6 +362,8 @@ int main() {
     profile.runtime_patches[palico_health_index].patches[index].offset =
       0x178 + index * sizeof(std::uint32_t);
   }
+  profile.numeric_patches[palico_affinity_index].patches[0].offset = 0x190;
+  profile.numeric_patches[palico_affinity_index].patches[1].offset = 0x194;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -379,6 +399,7 @@ int main() {
   constexpr std::uint32_t kOriginalWeaponTransmogInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalArmorTransmogInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalPalicoHealthInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalPalicoAffinityInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -455,7 +476,7 @@ int main() {
     kOriginalConsumableInstruction
   );
   memory.store(
-    kMainBase + profile.numeric_patches[affinity_index].offset,
+    kMainBase + profile.numeric_patches[affinity_index].patches[0].offset,
     kOriginalAffinityInstruction
   );
   for (std::size_t index = 0; index < 8; ++index) {
@@ -477,6 +498,13 @@ int main() {
       kMainBase + profile.runtime_patches[palico_health_index]
         .patches[index].offset,
       kOriginalPalicoHealthInstruction
+    );
+  }
+  for (std::size_t index = 0; index < 2; ++index) {
+    memory.store(
+      kMainBase + profile.numeric_patches[palico_affinity_index]
+        .patches[index].offset,
+      kOriginalPalicoAffinityInstruction
     );
   }
   GamePatches patches(
@@ -758,7 +786,8 @@ int main() {
   assert(memory.write_count() == patch_writes + 1);
   assert(
     memory.load<std::uint32_t>(
-      kMainBase + profile.numeric_patches[affinity_index].offset
+      kMainBase +
+      profile.numeric_patches[affinity_index].patches[0].offset
     ) == 0xE3A00000
   );
 
@@ -768,7 +797,8 @@ int main() {
   assert(patches.set_numeric_feature(core::NumericFeature::HunterAffinity, 37));
   assert(
     memory.load<std::uint32_t>(
-      kMainBase + profile.numeric_patches[affinity_index].offset
+      kMainBase +
+      profile.numeric_patches[affinity_index].patches[0].offset
     ) == 0xE3A0004A
   );
   assert(patches.set_numeric_feature(
@@ -776,7 +806,8 @@ int main() {
   ));
   assert(
     memory.load<std::uint32_t>(
-      kMainBase + profile.numeric_patches[affinity_index].offset
+      kMainBase +
+      profile.numeric_patches[affinity_index].patches[0].offset
     ) == 0xE3A000C8
   );
 
@@ -788,13 +819,85 @@ int main() {
   assert(memory.write_count() == patch_writes);
 
   auto invalid_affinity_profile = profile;
-  invalid_affinity_profile.numeric_patches[affinity_index].offset = 0x1000;
+  invalid_affinity_profile.numeric_patches[affinity_index]
+    .patches[0]
+    .offset = 0x1000;
   GamePatches invalid_affinity(
     memory, invalid_affinity_profile, kMainBase, 0x1000, 0, 0x20000
   );
   assert(!invalid_affinity.set_numeric_feature(
     core::NumericFeature::HunterAffinity, 100
   ));
+
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::PalicoAffinity, 73
+  ));
+  assert(memory.write_count() == patch_writes + 2);
+  for (std::size_t index = 0; index < 2; ++index) {
+    assert(
+      memory.load<std::uint32_t>(
+        kMainBase + profile.numeric_patches[palico_affinity_index]
+          .patches[index].offset
+      ) == 0xE3A00092
+    );
+  }
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(
+    core::NumericFeature::PalicoAffinity, 73
+  ));
+  assert(memory.write_count() == patch_writes);
+  assert(!patches.set_numeric_feature(
+    core::NumericFeature::PalicoAffinity, 101
+  ));
+
+  auto invalid_palico_affinity_profile = profile;
+  invalid_palico_affinity_profile.numeric_patches[palico_affinity_index]
+    .patches[1]
+    .offset = 0x1000;
+  GamePatches invalid_palico_affinity(
+    memory,
+    invalid_palico_affinity_profile,
+    kMainBase,
+    0x1000,
+    0,
+    0x20000
+  );
+  patch_writes = memory.write_count();
+  assert(!invalid_palico_affinity.set_numeric_feature(
+    core::NumericFeature::PalicoAffinity, 100
+  ));
+  assert(memory.write_count() == patch_writes);
+
+  auto compound_numeric_profile = profile;
+  auto& compound = compound_numeric_profile.numeric_patches[affinity_index];
+  compound.count = 2;
+  compound.minimum = 1;
+  compound.maximum = 4;
+  compound.patches[0] = {
+    0x198,
+    0xE3A02000,
+    NumericWordEncoding::LinearImmediate,
+    1,
+    -1,
+  };
+  compound.patches[1] = {
+    0x19C,
+    0xE3A00001,
+    NumericWordEncoding::Fixed,
+    0,
+    0,
+  };
+  memory.store(kMainBase + 0x198, std::uint32_t{0xE1A00000});
+  memory.store(kMainBase + 0x19C, std::uint32_t{0xE1A00000});
+  GamePatches compound_numeric(
+    memory, compound_numeric_profile, kMainBase, 0x1000, 0, 0x20000
+  );
+  assert(compound_numeric.set_numeric_feature(
+    core::NumericFeature::HunterAffinity, 4
+  ));
+  assert(memory.load<std::uint32_t>(kMainBase + 0x198) == 0xE3A02003);
+  assert(memory.load<std::uint32_t>(kMainBase + 0x19C) == 0xE3A00001);
 
   patch_writes = memory.write_count();
   assert(patches.enable_runtime_feature(

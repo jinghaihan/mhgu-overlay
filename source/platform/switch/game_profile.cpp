@@ -145,17 +145,37 @@ constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
     kPalicoHealthNoDecreasePatches,
   };
 
-constexpr ScaledMainWordPatch kHunterAffinityPatch{
-  0x000E400C,
-  0xE3A00000,
+constexpr NumericWordPatchSet kHunterAffinityPatches{
+  {{{0x000E400C,
+     0xE3A00000,
+     NumericWordEncoding::LinearImmediate,
+     2,
+     0}}},
+  1,
   0,
   100,
-  2,
 };
 
-constexpr std::array<ScaledMainWordPatch, core::kNumericFeatureCount>
+constexpr NumericWordPatchSet kPalicoAffinityPatches{
+  {{{0x000E5C24,
+     0xE3A00000,
+     NumericWordEncoding::LinearImmediate,
+     2,
+     0},
+    {0x000E5C38,
+     0xE3A00000,
+     NumericWordEncoding::LinearImmediate,
+     2,
+     0}}},
+  2,
+  0,
+  100,
+};
+
+constexpr std::array<NumericWordPatchSet, core::kNumericFeatureCount>
   kNumericPatches{
-    kHunterAffinityPatch,
+    kHunterAffinityPatches,
+    kPalicoAffinityPatches,
   };
 
 constexpr GameProfile kProfiles[]{

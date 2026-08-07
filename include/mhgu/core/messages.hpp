@@ -48,6 +48,7 @@ enum class UiMessage : std::uint8_t {
   ArmorTransmog,
   Palico,
   PalicoHealthNoDecrease,
+  PalicoAffinity,
   HunterAffinity,
   MonsterInfoOverlay,
 };

@@ -18,6 +18,31 @@ bool checked_add(
   return true;
 }
 
+bool encode_numeric_word_patch(
+  const NumericWordPatch& patch,
+  const std::uint16_t input,
+  MainWordPatch& encoded
+) {
+  encoded.offset = patch.offset;
+  if (patch.encoding == NumericWordEncoding::Fixed) {
+    encoded.value = patch.base_value;
+    return true;
+  }
+  if (patch.encoding != NumericWordEncoding::LinearImmediate ||
+      (patch.base_value & 0xFFU) != 0) {
+    return false;
+  }
+
+  const auto immediate =
+    static_cast<std::int64_t>(input) * patch.multiplier + patch.addend;
+  if (immediate < 0 || immediate > 0xFF) {
+    return false;
+  }
+  encoded.value =
+    patch.base_value | static_cast<std::uint32_t>(immediate);
+  return true;
+}
+
 }  // namespace
 
 GamePatches::GamePatches(
@@ -156,20 +181,29 @@ bool GamePatches::set_numeric_feature(
   if (feature_index >= profile_.numeric_patches.size()) {
     return false;
   }
-  const auto& patch = profile_.numeric_patches[feature_index];
-  if (value < patch.minimum || value > patch.maximum || patch.scale == 0 ||
-      (patch.base_value & 0xFFU) != 0 ||
-      value > 0xFFU / patch.scale) {
+  const auto& patch_set = profile_.numeric_patches[feature_index];
+  if (patch_set.count == 0 ||
+      patch_set.count > patch_set.patches.size() ||
+      value < patch_set.minimum || value > patch_set.maximum) {
     return false;
   }
 
-  const MainWordPatch encoded{
-    patch.offset,
-    patch.base_value | static_cast<std::uint32_t>(value * patch.scale),
-  };
-  std::uint64_t address{};
-  return main_word_patch_address(encoded, address) &&
-         apply_main_word_patch(encoded, address);
+  std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> encoded{};
+  std::array<std::uint64_t, kMaxMainWordPatchesPerFeature> addresses{};
+  for (std::size_t index = 0; index < patch_set.count; ++index) {
+    if (!encode_numeric_word_patch(
+          patch_set.patches[index], value, encoded[index]
+        ) ||
+        !main_word_patch_address(encoded[index], addresses[index])) {
+      return false;
+    }
+  }
+  for (std::size_t index = 0; index < patch_set.count; ++index) {
+    if (!apply_main_word_patch(encoded[index], addresses[index])) {
+      return false;
+    }
+  }
+  return true;
 }
 
 }  // namespace mhgu::platform::switch_adapter

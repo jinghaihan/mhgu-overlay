@@ -43,6 +43,7 @@
     "armorTransmog": "Armor transmog",
     "palico": "Palico",
     "palicoHealthNoDecrease": "Palico health does not decrease",
+    "palicoAffinity": "Palico affinity",
     "hunterAffinity": "Hunter affinity",
     "monsterInfoOverlay": "Monster info overlay"
   },

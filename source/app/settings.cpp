@@ -119,6 +119,10 @@ core::CoreSettings SettingsStore::load() const {
       settings.numeric_features[core::numeric_feature_index(
         core::NumericFeature::HunterAffinity
       )].value = parse_percentage(value);
+    } else if (std::strcmp(key, "palico_affinity") == 0) {
+      settings.numeric_features[core::numeric_feature_index(
+        core::NumericFeature::PalicoAffinity
+      )].value = parse_percentage(value);
     } else if (std::strcmp(key, "size_lock") == 0) {
       has_legacy_size_lock = true;
       legacy_size_lock_enabled = std::strcmp(value, "1") == 0;
@@ -149,6 +153,13 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
     "hunter_affinity=%u\n",
     settings.numeric_features[core::numeric_feature_index(
       core::NumericFeature::HunterAffinity
+    )].value
+  );
+  std::fprintf(
+    file,
+    "palico_affinity=%u\n",
+    settings.numeric_features[core::numeric_feature_index(
+      core::NumericFeature::PalicoAffinity
     )].value
   );
   const auto close_result = std::fclose(file);
