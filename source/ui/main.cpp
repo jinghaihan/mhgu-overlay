@@ -62,6 +62,45 @@ bool runtime_feature_enabled(
          settings.runtime_features[index];
 }
 
+void refresh_runtime_feature_item(
+  tsl::elm::ListItem* item,
+  Model& model,
+  const UiMessage label,
+  const RuntimeFeature feature
+) {
+  const auto locale = model.display_locale();
+  item->setText(mhgu::core::ui_message(label, locale));
+  item->setValue(mhgu::core::ui_message(
+    runtime_feature_enabled(model, feature) ? UiMessage::On : UiMessage::Off,
+    locale
+  ));
+}
+
+tsl::elm::ListItem* runtime_feature_item(
+  Model& model,
+  const UiMessage label,
+  const RuntimeFeature feature
+) {
+  auto* item = new tsl::elm::ListItem(
+    mhgu::core::ui_message(label, model.display_locale())
+  );
+  refresh_runtime_feature_item(item, model, label, feature);
+  item->setClickListener(
+    [model_ptr = &model, item, feature](const u64 keys) {
+      if ((keys & HidNpadButton_A) == 0 ||
+          runtime_feature_enabled(*model_ptr, feature)) {
+        return false;
+      }
+      model_ptr->enable_runtime_feature(feature);
+      item->setValue(mhgu::core::ui_message(
+        UiMessage::On, model_ptr->display_locale()
+      ));
+      return true;
+    }
+  );
+  return item;
+}
+
 const char* status_value(const SessionStatus status, const Locale locale) {
   switch (status) {
     case SessionStatus::Unsupported:
@@ -456,50 +495,14 @@ public:
     auto* list = new tsl::elm::List(6);
     list->addItem(section_header(model_, UiMessage::Hunter), 44);
 
-    invincible_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::Invincible, locale)
+    invincible_item_ = runtime_feature_item(
+      model_, UiMessage::Invincible, RuntimeFeature::Invincible
     );
-    invincible_item_->setValue(mhgu::core::ui_message(
-      runtime_feature_enabled(model_, RuntimeFeature::Invincible)
-        ? UiMessage::On
-        : UiMessage::Off,
-      locale
-    ));
-    invincible_item_->setClickListener([this](const u64 keys) {
-      if ((keys & HidNpadButton_A) != 0 &&
-          !runtime_feature_enabled(model_, RuntimeFeature::Invincible)) {
-        model_.enable_runtime_feature(RuntimeFeature::Invincible);
-        invincible_item_->setValue(mhgu::core::ui_message(
-          UiMessage::On, model_.display_locale()
-        ));
-        return true;
-      }
-      return false;
-    });
     list->addItem(invincible_item_);
 
-    health_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::HealthNoDecrease, locale)
+    health_item_ = runtime_feature_item(
+      model_, UiMessage::HealthNoDecrease, RuntimeFeature::HealthNoDecrease
     );
-    health_item_->setValue(mhgu::core::ui_message(
-      runtime_feature_enabled(model_, RuntimeFeature::HealthNoDecrease)
-        ? UiMessage::On
-        : UiMessage::Off,
-      locale
-    ));
-    health_item_->setClickListener([this](const u64 keys) {
-      if ((keys & HidNpadButton_A) != 0 &&
-          !runtime_feature_enabled(
-            model_, RuntimeFeature::HealthNoDecrease
-          )) {
-        model_.enable_runtime_feature(RuntimeFeature::HealthNoDecrease);
-        health_item_->setValue(mhgu::core::ui_message(
-          UiMessage::On, model_.display_locale()
-        ));
-        return true;
-      }
-      return false;
-    });
     list->addItem(health_item_);
 
     frame->setContent(list);
@@ -627,48 +630,18 @@ public:
     });
     list->addItem(preset_item_);
 
-    map_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::MapAndLargeMonsters, locale)
+    map_item_ = runtime_feature_item(
+      model_,
+      UiMessage::MapAndLargeMonsters,
+      RuntimeFeature::MapAndLargeMonsters
     );
-    map_item_->setValue(mhgu::core::ui_message(
-      runtime_feature_enabled(model_, RuntimeFeature::MapAndLargeMonsters)
-        ? UiMessage::On
-        : UiMessage::Off,
-      locale
-    ));
-    map_item_->setClickListener([this](const u64 keys) {
-      if ((keys & HidNpadButton_A) != 0 &&
-          !runtime_feature_enabled(
-            model_, RuntimeFeature::MapAndLargeMonsters
-          )) {
-        model_.enable_runtime_feature(RuntimeFeature::MapAndLargeMonsters);
-        refresh_labels();
-        return true;
-      }
-      return false;
-    });
     list->addItem(map_item_);
 
-    carry_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::CarryItemsIntoPouch, locale)
+    carry_item_ = runtime_feature_item(
+      model_,
+      UiMessage::CarryItemsIntoPouch,
+      RuntimeFeature::CarryItemsIntoPouch
     );
-    carry_item_->setValue(mhgu::core::ui_message(
-      runtime_feature_enabled(model_, RuntimeFeature::CarryItemsIntoPouch)
-        ? UiMessage::On
-        : UiMessage::Off,
-      locale
-    ));
-    carry_item_->setClickListener([this](const u64 keys) {
-      if ((keys & HidNpadButton_A) != 0 &&
-          !runtime_feature_enabled(
-            model_, RuntimeFeature::CarryItemsIntoPouch
-          )) {
-        model_.enable_runtime_feature(RuntimeFeature::CarryItemsIntoPouch);
-        refresh_labels();
-        return true;
-      }
-      return false;
-    });
     list->addItem(carry_item_);
 
     battle_item_ = new tsl::elm::ListItem(
@@ -745,24 +718,18 @@ private:
     preset_item_->setValue(
       mhgu::core::size_preset_label(model_.settings().size_preset, locale)
     );
-    map_item_->setText(
-      mhgu::core::ui_message(UiMessage::MapAndLargeMonsters, locale)
+    refresh_runtime_feature_item(
+      map_item_,
+      model_,
+      UiMessage::MapAndLargeMonsters,
+      RuntimeFeature::MapAndLargeMonsters
     );
-    map_item_->setValue(mhgu::core::ui_message(
-      runtime_feature_enabled(model_, RuntimeFeature::MapAndLargeMonsters)
-        ? UiMessage::On
-        : UiMessage::Off,
-      locale
-    ));
-    carry_item_->setText(
-      mhgu::core::ui_message(UiMessage::CarryItemsIntoPouch, locale)
+    refresh_runtime_feature_item(
+      carry_item_,
+      model_,
+      UiMessage::CarryItemsIntoPouch,
+      RuntimeFeature::CarryItemsIntoPouch
     );
-    carry_item_->setValue(mhgu::core::ui_message(
-      runtime_feature_enabled(model_, RuntimeFeature::CarryItemsIntoPouch)
-        ? UiMessage::On
-        : UiMessage::Off,
-      locale
-    ));
     battle_item_->setText(
       mhgu::core::ui_message(UiMessage::BattleFunctions, locale)
     );
