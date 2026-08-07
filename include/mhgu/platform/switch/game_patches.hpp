@@ -21,6 +21,7 @@ public:
   );
 
   bool set_frame_rate(core::FrameRate frame_rate);
+  bool set_monster_damage_mode(core::MonsterDamageMode mode);
   bool enable_runtime_feature(core::RuntimeFeature feature);
   bool set_numeric_feature(core::NumericFeature feature, std::uint32_t value);
 

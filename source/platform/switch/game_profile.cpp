@@ -31,6 +31,12 @@ constexpr FrameRatePatch kFrameRatePatch{
   0x42700000,
 };
 
+constexpr MonsterDamagePatch kMonsterDamagePatch{
+  0x00098BB0,
+  0xE1A00006,
+  0xE2860001,
+};
+
 constexpr MainWordPatchSet kMapAndLargeMonstersPatches{
   {{{0x0061BAD0, 0xE1A00000}, {0x0061CC94, 0xE3A00001}}},
   2,
@@ -302,6 +308,7 @@ constexpr GameProfile kProfiles[]{
     kMonsterLayout,
     kPointerListLayout,
     kFrameRatePatch,
+    kMonsterDamagePatch,
     kRuntimePatches,
     kNumericPatches,
   },

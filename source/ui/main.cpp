@@ -16,6 +16,7 @@ namespace {
 using mhgu::app::Model;
 using mhgu::core::Locale;
 using mhgu::core::LocaleMode;
+using mhgu::core::MonsterDamageMode;
 using mhgu::core::NumericFeature;
 using mhgu::core::RuntimeFeature;
 using mhgu::core::SizePreset;
@@ -96,6 +97,41 @@ tsl::elm::ListItem* runtime_feature_item(
       item->setValue(mhgu::core::ui_message(
         UiMessage::On, model_ptr->display_locale()
       ));
+      return true;
+    }
+  );
+  return item;
+}
+
+const char* monster_damage_mode_value(Model& model) {
+  switch (model.settings().monster_damage_mode) {
+    case MonsterDamageMode::InstantKill:
+      return text(model, UiMessage::InstantKill);
+    case MonsterDamageMode::LeaveOneHp:
+      return text(model, UiMessage::LeaveOneHp);
+    default:
+      return text(model, UiMessage::Off);
+  }
+}
+
+tsl::elm::ListItem* monster_damage_mode_item(Model& model) {
+  auto* item = new tsl::elm::ListItem(
+    text(model, UiMessage::MonsterDamageMode)
+  );
+  item->setValue(monster_damage_mode_value(model));
+  item->setClickListener(
+    [model_ptr = &model, item](const u64 keys) {
+      int direction{};
+      if ((keys & HidNpadButton_Left) != 0) {
+        direction = -1;
+      } else if ((keys & (HidNpadButton_A | HidNpadButton_Right)) != 0) {
+        direction = 1;
+      } else {
+        return false;
+      }
+      model_ptr->cycle_monster_damage_mode(direction);
+      item->setText(text(*model_ptr, UiMessage::MonsterDamageMode));
+      item->setValue(monster_damage_mode_value(*model_ptr));
       return true;
     }
   );
@@ -684,6 +720,8 @@ public:
     list->addItem(consumable_item_);
 
     list->addItem(section_header(model_, UiMessage::CombatParameters), 44);
+    monster_damage_mode_item_ = monster_damage_mode_item(model_);
+    list->addItem(monster_damage_mode_item_);
     attack_multiplier_item_ = numeric_feature_item(
       model_, UiMessage::AttackMultiplier, NumericFeature::AttackMultiplier
     );
@@ -755,6 +793,7 @@ private:
   tsl::elm::ListItem* hunter_affinity_item_{};
   tsl::elm::ListItem* bowgun_item_{};
   tsl::elm::ListItem* consumable_item_{};
+  tsl::elm::ListItem* monster_damage_mode_item_{};
   tsl::elm::ListItem* attack_multiplier_item_{};
   tsl::elm::ListItem* defense_multiplier_item_{};
   tsl::elm::ListItem* movement_speed_multiplier_item_{};

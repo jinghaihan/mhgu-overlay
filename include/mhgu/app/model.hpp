@@ -23,6 +23,7 @@ public:
 
   void cycle_language();
   void cycle_frame_rate();
+  void cycle_monster_damage_mode(int direction);
   void enable_runtime_feature(core::RuntimeFeature feature);
   void adjust_numeric_feature(core::NumericFeature feature, int delta);
   void enable_numeric_feature(core::NumericFeature feature);

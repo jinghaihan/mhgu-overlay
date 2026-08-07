@@ -37,6 +37,12 @@ struct FrameRatePatch {
   std::uint32_t fps60_value;
 };
 
+struct MonsterDamagePatch {
+  std::uint64_t offset;
+  std::uint32_t instant_kill_value;
+  std::uint32_t leave_one_hp_value;
+};
+
 struct MainWordPatch {
   std::uint64_t offset;
   std::uint32_t value;
@@ -83,6 +89,7 @@ struct GameProfile {
   MonsterLayout monster;
   PointerListLayout pointer_list;
   FrameRatePatch frame_rate;
+  MonsterDamagePatch monster_damage;
   std::array<MainWordPatchSet, core::kRuntimeFeatureCount> runtime_patches;
   std::array<NumericWordPatchSet, core::kNumericFeatureCount> numeric_patches;
 };

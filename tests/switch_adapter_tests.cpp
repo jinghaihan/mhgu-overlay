@@ -168,6 +168,13 @@ int main() {
   const auto palico_health_index = core::runtime_feature_index(
     core::RuntimeFeature::PalicoHealthNoDecrease
   );
+  assert(matched_profile->monster_damage.offset == 0x00098BB0);
+  assert(
+    matched_profile->monster_damage.instant_kill_value == 0xE1A00006
+  );
+  assert(
+    matched_profile->monster_damage.leave_one_hp_value == 0xE2860001
+  );
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -649,6 +656,7 @@ int main() {
     profile.numeric_patches[wycademy_points_index].patches[index].offset =
       0x218 + index * sizeof(std::uint32_t);
   }
+  profile.monster_damage.offset = 0x230;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -692,6 +700,7 @@ int main() {
   constexpr std::uint32_t kOriginalMovementSpeedInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalZennyInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalWycademyPointsInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalMonsterDamageInstruction = 0xE0800001;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -830,6 +839,10 @@ int main() {
       kOriginalWycademyPointsInstruction
     );
   }
+  memory.store(
+    kMainBase + profile.monster_damage.offset,
+    kOriginalMonsterDamageInstruction
+  );
   for (std::size_t index = 0; index < 6; ++index) {
     memory.store(
       kMainBase + profile.runtime_patches[palico_health_index]
@@ -893,6 +906,58 @@ int main() {
   assert(memory.write_count() == patch_writes);
   memory.store(
     kMainBase + kFrameRatePointer, kFrameRateTargetBase
+  );
+
+  patch_writes = memory.write_count();
+  assert(!patches.set_monster_damage_mode(core::MonsterDamageMode::Off));
+  assert(memory.write_count() == patch_writes);
+  assert(patches.set_monster_damage_mode(
+    core::MonsterDamageMode::InstantKill
+  ));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.monster_damage.offset
+    ) == profile.monster_damage.instant_kill_value
+  );
+  patch_writes = memory.write_count();
+  assert(patches.set_monster_damage_mode(
+    core::MonsterDamageMode::InstantKill
+  ));
+  assert(memory.write_count() == patch_writes);
+  assert(patches.set_monster_damage_mode(
+    core::MonsterDamageMode::LeaveOneHp
+  ));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.monster_damage.offset
+    ) == profile.monster_damage.leave_one_hp_value
+  );
+  patch_writes = memory.write_count();
+  assert(!patches.set_monster_damage_mode(
+    static_cast<core::MonsterDamageMode>(0xFF)
+  ));
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_monster_damage_profile = profile;
+  invalid_monster_damage_profile.monster_damage.offset = 0x1000;
+  GamePatches invalid_monster_damage(
+    memory,
+    invalid_monster_damage_profile,
+    kMainBase,
+    0x1000,
+    0,
+    0x20000
+  );
+  assert(!invalid_monster_damage.set_monster_damage_mode(
+    core::MonsterDamageMode::InstantKill
+  ));
+  assert(memory.write_count() == patch_writes);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.monster_damage.offset
+    ) == profile.monster_damage.leave_one_hp_value
   );
 
   patch_writes = memory.write_count();

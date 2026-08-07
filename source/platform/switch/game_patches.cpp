@@ -178,6 +178,27 @@ bool GamePatches::set_frame_rate(const core::FrameRate frame_rate) {
          verified == desired;
 }
 
+bool GamePatches::set_monster_damage_mode(
+  const core::MonsterDamageMode mode
+) {
+  std::uint32_t value{};
+  switch (mode) {
+    case core::MonsterDamageMode::InstantKill:
+      value = profile_.monster_damage.instant_kill_value;
+      break;
+    case core::MonsterDamageMode::LeaveOneHp:
+      value = profile_.monster_damage.leave_one_hp_value;
+      break;
+    default:
+      return false;
+  }
+
+  const MainWordPatch patch{profile_.monster_damage.offset, value};
+  std::uint64_t address{};
+  return main_word_patch_address(patch, address) &&
+         apply_main_word_patch(patch, address);
+}
+
 bool GamePatches::enable_runtime_feature(
   const core::RuntimeFeature feature
 ) {

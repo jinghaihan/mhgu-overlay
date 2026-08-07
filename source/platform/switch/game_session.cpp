@@ -89,6 +89,7 @@ bool GameSession::attach() {
       memory_, *profile_, heap_base_, heap_size_
     );
     applied_frame_rate_ = core::FrameRate::Fps30;
+    applied_monster_damage_mode_ = core::MonsterDamageMode::Off;
     applied_runtime_features_ = {};
     applied_numeric_features_ = {};
     view_ = {};
@@ -117,6 +118,7 @@ void GameSession::detach(const SessionStatus status) {
   address_space_base_ = 0;
   address_space_size_ = 0;
   applied_frame_rate_ = core::FrameRate::Fps30;
+  applied_monster_damage_mode_ = core::MonsterDamageMode::Off;
   applied_runtime_features_ = {};
   applied_numeric_features_ = {};
   view_ = {};
@@ -131,6 +133,20 @@ bool GameSession::sync_frame_rate(const core::FrameRate frame_rate) {
     return false;
   }
   applied_frame_rate_ = frame_rate;
+  return true;
+}
+
+bool GameSession::sync_monster_damage_mode(
+  const core::MonsterDamageMode mode
+) {
+  if (mode == core::MonsterDamageMode::Off ||
+      mode == applied_monster_damage_mode_) {
+    return true;
+  }
+  if (patches_ == nullptr || !patches_->set_monster_damage_mode(mode)) {
+    return false;
+  }
+  applied_monster_damage_mode_ = mode;
   return true;
 }
 
@@ -186,10 +202,13 @@ void GameSession::poll(const core::CoreSettings& settings) {
     return;
   }
   const auto frame_rate_ok = sync_frame_rate(settings.frame_rate);
+  const auto monster_damage_mode_ok =
+    sync_monster_damage_mode(settings.monster_damage_mode);
   const auto runtime_features_ok = sync_runtime_features(settings);
   const auto numeric_features_ok = sync_numeric_features(settings);
   const auto runtime_patches_ok =
-    frame_rate_ok && runtime_features_ok && numeric_features_ok;
+    frame_rate_ok && monster_damage_mode_ok && runtime_features_ok &&
+    numeric_features_ok;
 
   if (view_.pointer_list == 0) {
     view_.status = SessionStatus::Searching;

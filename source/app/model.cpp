@@ -87,6 +87,35 @@ void Model::cycle_frame_rate() {
   persist(changed);
 }
 
+void Model::cycle_monster_damage_mode(const int direction) {
+  const std::scoped_lock lock(mutex_);
+  if (direction < 0) {
+    switch (settings_.monster_damage_mode) {
+      case core::MonsterDamageMode::Off:
+        settings_.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
+        break;
+      case core::MonsterDamageMode::InstantKill:
+        settings_.monster_damage_mode = core::MonsterDamageMode::Off;
+        break;
+      default:
+        settings_.monster_damage_mode = core::MonsterDamageMode::InstantKill;
+        break;
+    }
+    return;
+  }
+  switch (settings_.monster_damage_mode) {
+    case core::MonsterDamageMode::Off:
+      settings_.monster_damage_mode = core::MonsterDamageMode::InstantKill;
+      break;
+    case core::MonsterDamageMode::InstantKill:
+      settings_.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
+      break;
+    default:
+      settings_.monster_damage_mode = core::MonsterDamageMode::Off;
+      break;
+  }
+}
+
 void Model::enable_runtime_feature(const core::RuntimeFeature feature) {
   const std::scoped_lock lock(mutex_);
   const auto index = core::runtime_feature_index(feature);

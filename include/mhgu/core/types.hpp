@@ -49,6 +49,12 @@ enum class FrameRate : std::uint8_t {
   Fps60,
 };
 
+enum class MonsterDamageMode : std::uint8_t {
+  Off,
+  InstantKill,
+  LeaveOneHp,
+};
+
 enum class RuntimeFeature : std::uint8_t {
   MapAndLargeMonsters,
   CarryItemsIntoPouch,
@@ -171,6 +177,7 @@ struct CoreSettings {
   LocaleMode locale_mode{LocaleMode::Auto};
   SizePreset size_preset{SizePreset::Off};
   FrameRate frame_rate{FrameRate::Fps30};
+  MonsterDamageMode monster_damage_mode{MonsterDamageMode::Off};
   std::array<bool, kRuntimeFeatureCount> runtime_features{};
   std::array<NumericFeatureSetting, kNumericFeatureCount> numeric_features{{
     {100, false},

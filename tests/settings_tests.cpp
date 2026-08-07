@@ -15,6 +15,7 @@ int main() {
   assert(defaults.locale_mode == core::LocaleMode::Auto);
   assert(defaults.size_preset == core::SizePreset::Off);
   assert(defaults.frame_rate == core::FrameRate::Fps30);
+  assert(defaults.monster_damage_mode == core::MonsterDamageMode::Off);
   for (const auto enabled : defaults.runtime_features) {
     assert(!enabled);
   }
@@ -72,6 +73,7 @@ int main() {
   expected.locale_mode = core::LocaleMode::SimplifiedChinese;
   expected.size_preset = core::SizePreset::Gold;
   expected.frame_rate = core::FrameRate::Fps60;
+  expected.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
   expected.runtime_features.fill(true);
   expected.numeric_features[affinity_index] = {73, true};
   expected.numeric_features[palico_affinity_index] = {61, true};
@@ -88,6 +90,7 @@ int main() {
   assert(restored.locale_mode == expected.locale_mode);
   assert(restored.size_preset == expected.size_preset);
   assert(restored.frame_rate == expected.frame_rate);
+  assert(restored.monster_damage_mode == core::MonsterDamageMode::Off);
   for (const auto enabled : restored.runtime_features) {
     assert(!enabled);
   }
