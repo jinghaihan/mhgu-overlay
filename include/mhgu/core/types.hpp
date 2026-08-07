@@ -62,6 +62,7 @@ enum class RuntimeFeature : std::uint8_t {
   AlchemyGaugeFull,
   SpStatusNoExpire,
   BowgunAutoReload,
+  ConsumableItemsNoDecrease,
   Count,
 };
 

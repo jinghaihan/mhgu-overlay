@@ -93,6 +93,11 @@ constexpr MainWordPatchSet kBowgunAutoReloadPatches{
   1,
 };
 
+constexpr MainWordPatchSet kConsumableItemsNoDecreasePatches{
+  {{{0x003015F8, 0xE3A07000}}},
+  1,
+};
+
 constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
   kRuntimePatches{
     kMapAndLargeMonstersPatches,
@@ -107,6 +112,7 @@ constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
     kAlchemyGaugeFullPatches,
     kSpStatusNoExpirePatches,
     kBowgunAutoReloadPatches,
+    kConsumableItemsNoDecreasePatches,
 };
 
 constexpr GameProfile kProfiles[]{

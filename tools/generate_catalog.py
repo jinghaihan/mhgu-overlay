@@ -55,6 +55,7 @@ UI_KEYS = [
   "alchemyGaugeFull",
   "spStatusNoExpire",
   "bowgunAutoReload",
+  "consumableItemsNoDecrease",
   "monsterInfoOverlay",
 ]
 

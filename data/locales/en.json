@@ -37,6 +37,7 @@
     "alchemyGaugeFull": "Fill Alchemy gauge",
     "spStatusNoExpire": "SP status does not expire",
     "bowgunAutoReload": "Bowgun auto reload",
+    "consumableItemsNoDecrease": "Consumable items do not decrease",
     "monsterInfoOverlay": "Monster info overlay"
   },
   "monsters": {

@@ -37,6 +37,7 @@
     "alchemyGaugeFull": "炼金槽全满",
     "spStatusNoExpire": "SP状态不消失",
     "bowgunAutoReload": "弩炮自动装填",
+    "consumableItemsNoDecrease": "消耗道具不减",
     "monsterInfoOverlay": "怪物信息 Overlay"
   },
   "monsters": {

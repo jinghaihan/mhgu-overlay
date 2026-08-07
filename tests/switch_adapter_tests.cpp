@@ -129,6 +129,9 @@ int main() {
   const auto bowgun_index = core::runtime_feature_index(
     core::RuntimeFeature::BowgunAutoReload
   );
+  const auto consumable_index = core::runtime_feature_index(
+    core::RuntimeFeature::ConsumableItemsNoDecrease
+  );
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -250,6 +253,15 @@ int main() {
     matched_profile->runtime_patches[bowgun_index].patches[0].value ==
     0xE1C120B2
   );
+  assert(matched_profile->runtime_patches[consumable_index].count == 1);
+  assert(
+    matched_profile->runtime_patches[consumable_index].patches[0].offset ==
+    0x003015F8
+  );
+  assert(
+    matched_profile->runtime_patches[consumable_index].patches[0].value ==
+    0xE3A07000
+  );
   profile.runtime_patches[map_index].patches[0].offset = 0x100;
   profile.runtime_patches[map_index].patches[1].offset = 0x104;
   profile.runtime_patches[carry_index].patches[0].offset = 0x108;
@@ -269,6 +281,7 @@ int main() {
   profile.runtime_patches[alchemy_index].patches[1].offset = 0x138;
   profile.runtime_patches[sp_status_index].patches[0].offset = 0x13C;
   profile.runtime_patches[bowgun_index].patches[0].offset = 0x140;
+  profile.runtime_patches[consumable_index].patches[0].offset = 0x144;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -299,6 +312,7 @@ int main() {
   constexpr std::uint32_t kOriginalAlchemyInstruction1 = 0xE3500000;
   constexpr std::uint32_t kOriginalSpStatusInstruction = 0xE3500000;
   constexpr std::uint32_t kOriginalBowgunInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalConsumableInstruction = 0xE3500000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -369,6 +383,10 @@ int main() {
   memory.store(
     kMainBase + profile.runtime_patches[bowgun_index].patches[0].offset,
     kOriginalBowgunInstruction
+  );
+  memory.store(
+    kMainBase + profile.runtime_patches[consumable_index].patches[0].offset,
+    kOriginalConsumableInstruction
   );
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
@@ -617,6 +635,17 @@ int main() {
     memory.load<std::uint32_t>(
       kMainBase + profile.runtime_patches[bowgun_index].patches[0].offset
     ) == profile.runtime_patches[bowgun_index].patches[0].value
+  );
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_runtime_feature(
+    core::RuntimeFeature::ConsumableItemsNoDecrease
+  ));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.runtime_patches[consumable_index].patches[0].offset
+    ) == profile.runtime_patches[consumable_index].patches[0].value
   );
 
   const std::uint8_t one = 1;

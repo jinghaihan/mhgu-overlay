@@ -42,6 +42,7 @@ enum class UiMessage : std::uint8_t {
   AlchemyGaugeFull,
   SpStatusNoExpire,
   BowgunAutoReload,
+  ConsumableItemsNoDecrease,
   MonsterInfoOverlay,
 };
 

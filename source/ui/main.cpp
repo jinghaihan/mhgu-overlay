@@ -552,6 +552,13 @@ public:
     );
     list->addItem(bowgun_item_);
 
+    consumable_item_ = runtime_feature_item(
+      model_,
+      UiMessage::ConsumableItemsNoDecrease,
+      RuntimeFeature::ConsumableItemsNoDecrease
+    );
+    list->addItem(consumable_item_);
+
     frame->setContent(list);
     return frame;
   }
@@ -582,6 +589,7 @@ private:
   tsl::elm::ListItem* alchemy_item_{};
   tsl::elm::ListItem* sp_status_item_{};
   tsl::elm::ListItem* bowgun_item_{};
+  tsl::elm::ListItem* consumable_item_{};
 };
 
 class MainGui final : public tsl::Gui {
