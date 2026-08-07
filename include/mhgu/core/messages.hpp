@@ -25,7 +25,6 @@ enum class UiMessage : std::uint8_t {
   WriteFailed,
   Hyper,
   Hud,
-  BackHint,
 };
 
 const char* ui_message(UiMessage message, Locale locale);

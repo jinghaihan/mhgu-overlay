@@ -13,14 +13,13 @@
     "mini": "小金冠",
     "silver": "大银冠",
     "gold": "大金冠",
-    "scan": "查找怪物列表",
+    "scan": "重新扫描",
     "scanning": "正在扫描游戏内存",
     "ready": "已就绪",
     "unsupported": "不支持的游戏版本",
     "writeFailed": "体型写入失败",
     "hyper": "狞猛",
-    "hud": "打开紧凑 HUD",
-    "backHint": "同时按住左右摇杆返回"
+    "hud": "打开紧凑 HUD"
   },
   "monsters": {
     "great-maccao": "跳狗龙王",

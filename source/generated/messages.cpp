@@ -18,14 +18,13 @@ constexpr const char* kMessages[][3] = {
   {"Mini crown", "小金冠", "小冠"},
   {"Silver crown", "大银冠", "銀冠"},
   {"Gold crown", "大金冠", "金冠"},
-  {"Find monster list", "查找怪物列表", "モンスターリストを検索"},
+  {"Rescan", "重新扫描", "再スキャン"},
   {"Scanning game memory", "正在扫描游戏内存", "ゲームメモリを検索中"},
   {"Ready", "已就绪", "準備完了"},
   {"Unsupported game version", "不支持的游戏版本", "未対応のゲームバージョン"},
   {"Size write failed", "体型写入失败", "サイズの書き込みに失敗"},
   {"Hyper", "狞猛", "獰猛"},
   {"Open compact HUD", "打开紧凑 HUD", "コンパクト HUD を開く"},
-  {"Hold L Stick + R Stick to return", "同时按住左右摇杆返回", "L/R スティックを押し続けて戻る"},
 };
 
 }  // namespace

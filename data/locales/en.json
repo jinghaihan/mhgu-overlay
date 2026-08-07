@@ -13,14 +13,13 @@
     "mini": "Mini crown",
     "silver": "Silver crown",
     "gold": "Gold crown",
-    "scan": "Find monster list",
+    "scan": "Rescan",
     "scanning": "Scanning game memory",
     "ready": "Ready",
     "unsupported": "Unsupported game version",
     "writeFailed": "Size write failed",
     "hyper": "Hyper",
-    "hud": "Open compact HUD",
-    "backHint": "Hold L Stick + R Stick to return"
+    "hud": "Open compact HUD"
   },
   "monsters": {
     "great-maccao": "Great Maccao",

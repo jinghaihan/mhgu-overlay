@@ -411,6 +411,20 @@ public:
     );
     auto* list = new tsl::elm::List(6);
 
+    language_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::Language, locale)
+    );
+    language_item_->setValue(language_value(model_));
+    language_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0) {
+        model_.cycle_language();
+        refresh_labels();
+        return true;
+      }
+      return false;
+    });
+    list->addItem(language_item_);
+
     list->addItem(
       new tsl::elm::CustomDrawer([this](
                                    tsl::gfx::Renderer* renderer,
@@ -454,20 +468,6 @@ public:
     });
     list->addItem(hud_item_);
 
-    language_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::Language, locale)
-    );
-    language_item_->setValue(language_value(model_));
-    language_item_->setClickListener([this](const u64 keys) {
-      if ((keys & HidNpadButton_A) != 0) {
-        model_.cycle_language();
-        refresh_labels();
-        return true;
-      }
-      return false;
-    });
-    list->addItem(language_item_);
-
     preset_item_ = new tsl::elm::ListItem(
       mhgu::core::ui_message(UiMessage::SizePreset, locale)
     );
@@ -494,26 +494,6 @@ public:
       return false;
     });
     list->addItem(scan_item_);
-
-    list->addItem(
-      new tsl::elm::CustomDrawer([this](
-                                   tsl::gfx::Renderer* renderer,
-                                   const u16 x,
-                                   const u16 y,
-                                   const u16,
-                                   const u16
-                                 ) {
-        renderer->drawString(
-          text(model_, UiMessage::BackHint),
-          false,
-          x + 8,
-          y + 28,
-          15,
-          renderer->a({0x9, 0x9, 0x9, 0xF})
-        );
-      }),
-      52
-    );
 
     frame_->setContent(list);
     return frame_;

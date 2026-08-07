@@ -38,7 +38,6 @@ UI_KEYS = [
   "writeFailed",
   "hyper",
   "hud",
-  "backHint",
 ]
 
 

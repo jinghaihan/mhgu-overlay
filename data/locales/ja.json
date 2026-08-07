@@ -13,14 +13,13 @@
     "mini": "小冠",
     "silver": "銀冠",
     "gold": "金冠",
-    "scan": "モンスターリストを検索",
+    "scan": "再スキャン",
     "scanning": "ゲームメモリを検索中",
     "ready": "準備完了",
     "unsupported": "未対応のゲームバージョン",
     "writeFailed": "サイズの書き込みに失敗",
     "hyper": "獰猛",
-    "hud": "コンパクト HUD を開く",
-    "backHint": "L/R スティックを押し続けて戻る"
+    "hud": "コンパクト HUD を開く"
   },
   "monsters": {
     "great-maccao": "ドスマッカォ",
