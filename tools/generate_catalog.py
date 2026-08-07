@@ -51,6 +51,7 @@ UI_KEYS = [
   "sharpnessNoDecrease",
   "unlockHunterArtSlots",
   "unlimitedHunterArts",
+  "valorGaugeNoDecrease",
   "openOverlay",
 ]
 

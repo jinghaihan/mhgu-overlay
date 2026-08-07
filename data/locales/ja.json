@@ -33,6 +33,7 @@
     "sharpnessNoDecrease": "斬れ味減少なし",
     "unlockHunterArtSlots": "狩技スロット解放",
     "unlimitedHunterArts": "狩技無限使用",
+    "valorGaugeNoDecrease": "ブレイヴゲージ減少なし",
     "openOverlay": "オーバーレイを開く"
   },
   "monsters": {

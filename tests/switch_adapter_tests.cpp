@@ -117,6 +117,9 @@ int main() {
   const auto unlimited_hunter_arts_index = core::runtime_feature_index(
     core::RuntimeFeature::UnlimitedHunterArts
   );
+  const auto valor_index = core::runtime_feature_index(
+    core::RuntimeFeature::ValorGaugeNoDecrease
+  );
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -178,6 +181,31 @@ int main() {
         .patches[1]
         .value == 0xE1500000
   );
+  assert(matched_profile->runtime_patches[valor_index].count == 3);
+  assert(
+    matched_profile->runtime_patches[valor_index].patches[0].offset ==
+    0x00639C68
+  );
+  assert(
+    matched_profile->runtime_patches[valor_index].patches[0].value ==
+    0xEEBD0AC1
+  );
+  assert(
+    matched_profile->runtime_patches[valor_index].patches[1].offset ==
+    0x00639C6C
+  );
+  assert(
+    matched_profile->runtime_patches[valor_index].patches[1].value ==
+    0xED800A00
+  );
+  assert(
+    matched_profile->runtime_patches[valor_index].patches[2].offset ==
+    0x00639C70
+  );
+  assert(
+    matched_profile->runtime_patches[valor_index].patches[2].value ==
+    0xED841A18
+  );
   profile.runtime_patches[map_index].patches[0].offset = 0x100;
   profile.runtime_patches[map_index].patches[1].offset = 0x104;
   profile.runtime_patches[carry_index].patches[0].offset = 0x108;
@@ -190,6 +218,9 @@ int main() {
     0x120;
   profile.runtime_patches[unlimited_hunter_arts_index].patches[1].offset =
     0x124;
+  profile.runtime_patches[valor_index].patches[0].offset = 0x128;
+  profile.runtime_patches[valor_index].patches[1].offset = 0x12C;
+  profile.runtime_patches[valor_index].patches[2].offset = 0x130;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -213,6 +244,9 @@ int main() {
     0xE1A00000;
   constexpr std::uint32_t kOriginalUnlimitedHunterArtsInstruction1 =
     0xE3500000;
+  constexpr std::uint32_t kOriginalValorInstruction0 = 0xE1A00000;
+  constexpr std::uint32_t kOriginalValorInstruction1 = 0xE3500000;
+  constexpr std::uint32_t kOriginalValorInstruction2 = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -255,6 +289,18 @@ int main() {
     kMainBase +
       profile.runtime_patches[unlimited_hunter_arts_index].patches[1].offset,
     kOriginalUnlimitedHunterArtsInstruction1
+  );
+  memory.store(
+    kMainBase + profile.runtime_patches[valor_index].patches[0].offset,
+    kOriginalValorInstruction0
+  );
+  memory.store(
+    kMainBase + profile.runtime_patches[valor_index].patches[1].offset,
+    kOriginalValorInstruction1
+  );
+  memory.store(
+    kMainBase + profile.runtime_patches[valor_index].patches[2].offset,
+    kOriginalValorInstruction2
   );
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
@@ -458,6 +504,19 @@ int main() {
       profile.runtime_patches[unlimited_hunter_arts_index].patches[1].offset
     ) == profile.runtime_patches[unlimited_hunter_arts_index].patches[1].value
   );
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_runtime_feature(
+    core::RuntimeFeature::ValorGaugeNoDecrease
+  ));
+  assert(memory.write_count() == patch_writes + 3);
+  for (std::size_t index = 0; index < 3; ++index) {
+    assert(
+      memory.load<std::uint32_t>(
+        kMainBase + profile.runtime_patches[valor_index].patches[index].offset
+      ) == profile.runtime_patches[valor_index].patches[index].value
+    );
+  }
 
   const std::uint8_t one = 1;
   memory.store(kList, one);

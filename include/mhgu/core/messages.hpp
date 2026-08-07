@@ -38,6 +38,7 @@ enum class UiMessage : std::uint8_t {
   SharpnessNoDecrease,
   UnlockHunterArtSlots,
   UnlimitedHunterArts,
+  ValorGaugeNoDecrease,
   OpenOverlay,
 };
 
