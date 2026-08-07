@@ -79,6 +79,7 @@ UI_KEYS = [
   "itemPouchQuantity",
   "applyItemPouchQuantity",
   "monsterInfoOverlay",
+  "damageDisplay",
 ]
 
 

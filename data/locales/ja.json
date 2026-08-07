@@ -60,7 +60,8 @@
     "itemPouchSlot": "アイテムポーチの枠",
     "itemPouchQuantity": "個数",
     "applyItemPouchQuantity": "アイテム個数を適用",
-    "monsterInfoOverlay": "モンスター情報オーバーレイ"
+    "monsterInfoOverlay": "モンスター情報オーバーレイ",
+    "damageDisplay": "ダメージ表示"
   },
   "monsters": {
     "great-maccao": "ドスマッカォ",

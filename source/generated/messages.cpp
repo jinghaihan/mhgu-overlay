@@ -66,6 +66,7 @@ constexpr const char* kMessages[][3] = {
   {"Quantity", "数量", "個数"},
   {"Apply item quantity", "应用道具数量", "アイテム個数を適用"},
   {"Monster info overlay", "怪物信息 Overlay", "モンスター情報オーバーレイ"},
+  {"Damage display", "伤害显示", "ダメージ表示"},
 };
 
 }  // namespace

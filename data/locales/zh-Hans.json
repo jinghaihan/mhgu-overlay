@@ -60,7 +60,8 @@
     "itemPouchSlot": "道具袋格位",
     "itemPouchQuantity": "数量",
     "applyItemPouchQuantity": "应用道具数量",
-    "monsterInfoOverlay": "怪物信息 Overlay"
+    "monsterInfoOverlay": "怪物信息 Overlay",
+    "damageDisplay": "伤害显示"
   },
   "monsters": {
     "great-maccao": "跳狗龙王",

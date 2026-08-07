@@ -60,7 +60,8 @@
     "itemPouchSlot": "Item pouch slot",
     "itemPouchQuantity": "Quantity",
     "applyItemPouchQuantity": "Apply item quantity",
-    "monsterInfoOverlay": "Monster info overlay"
+    "monsterInfoOverlay": "Monster info overlay",
+    "damageDisplay": "Damage display"
   },
   "monsters": {
     "great-maccao": "Great Maccao",

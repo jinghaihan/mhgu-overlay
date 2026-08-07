@@ -66,6 +66,7 @@ enum class UiMessage : std::uint8_t {
   ItemPouchQuantity,
   ApplyItemPouchQuantity,
   MonsterInfoOverlay,
+  DamageDisplay,
 };
 
 const char* ui_message(UiMessage message, Locale locale);

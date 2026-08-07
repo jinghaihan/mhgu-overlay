@@ -2,7 +2,10 @@
 #include <tesla.hpp>
 
 #include <algorithm>
+#include <array>
+#include <chrono>
 #include <cstdio>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
@@ -28,6 +31,14 @@ using mhgu::platform::switch_adapter::SessionStatus;
 #endif
 
 constexpr const char* kVersion = "v" MHGU_OVERLAY_VERSION;
+
+std::uint64_t monotonic_milliseconds() {
+  return static_cast<std::uint64_t>(
+    std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::steady_clock::now().time_since_epoch()
+    ).count()
+  );
+}
 
 const char* text(Model& model, const UiMessage message) {
   return mhgu::core::ui_message(message, model.display_locale());
@@ -413,6 +424,7 @@ public:
   void draw(tsl::gfx::Renderer* renderer) override {
     renderer->clearScreen();
     const auto view = model_.session_view();
+    const auto settings = model_.settings();
     const auto locale = model_.display_locale();
     const auto count = std::min<std::size_t>(
       view.output.monster_count, mhgu::core::kMaxMonsters
@@ -424,20 +436,23 @@ public:
           ? mhgu::core::ui_message(UiMessage::NoMonsters, locale)
           : status_value(view.status, locale);
       draw_status(renderer, locale, message);
-      return;
+    } else {
+      const auto stack_height =
+        static_cast<s32>(count * kCardHeight + (count - 1) * kCardGap);
+      const s32 first_y =
+        tsl::cfg::FramebufferHeight - kMargin - stack_height;
+      for (std::size_t index = 0; index < count; ++index) {
+        draw_monster(
+          renderer,
+          view.output.monsters[index],
+          locale,
+          kMargin,
+          first_y + static_cast<s32>(index * (kCardHeight + kCardGap))
+        );
+      }
     }
-
-    const auto stack_height =
-      static_cast<s32>(count * kCardHeight + (count - 1) * kCardGap);
-    const s32 first_y = tsl::cfg::FramebufferHeight - kMargin - stack_height;
-    for (std::size_t index = 0; index < count; ++index) {
-      draw_monster(
-        renderer,
-        view.output.monsters[index],
-        locale,
-        kMargin,
-        first_y + static_cast<s32>(index * (kCardHeight + kCardGap))
-      );
+    if (settings.damage_display_enabled) {
+      draw_damage_events(renderer, view.damage, monotonic_milliseconds());
     }
   }
 
@@ -460,6 +475,7 @@ private:
   static constexpr s32 kCardHeight = 58;
   static constexpr s32 kCardGap = 5;
   static constexpr s32 kMargin = 12;
+  static constexpr std::uint64_t kDamageFadeStartMs = 650;
 
   static u32 text_width(
     tsl::gfx::Renderer* renderer,
@@ -523,6 +539,98 @@ private:
     renderer->drawString(
       value.c_str(), false, right - width, y, font_size, renderer->a(color)
     );
+  }
+
+  static float damage_scale(const std::uint64_t age_ms) {
+    if (age_ms < 80) {
+      return 0.70F + 0.50F * static_cast<float>(age_ms) / 80.0F;
+    }
+    if (age_ms < 160) {
+      return 1.20F - 0.20F * static_cast<float>(age_ms - 80) / 80.0F;
+    }
+    return 1.0F;
+  }
+
+  static std::uint8_t damage_alpha(const std::uint64_t age_ms) {
+    if (age_ms <= kDamageFadeStartMs) {
+      return 0xF;
+    }
+    const auto remaining = mhgu::core::kDamageEventLifetimeMs - age_ms;
+    return static_cast<std::uint8_t>(
+      std::min<std::uint64_t>(0xF, remaining * 0xF /
+                                      (mhgu::core::kDamageEventLifetimeMs -
+                                       kDamageFadeStartMs))
+    );
+  }
+
+  static void draw_damage_events(
+    tsl::gfx::Renderer* renderer,
+    const mhgu::core::DamageOutput& damage,
+    const std::uint64_t now_ms
+  ) {
+    constexpr std::array<s32, 5> lane_offsets{0, -52, 52, -94, 94};
+    constexpr std::array<s32, 5> drift_directions{0, -1, 1, -1, 1};
+    constexpr float base_font_size = 38.0F;
+    const auto count = std::min(damage.event_count, damage.events.size());
+    for (std::size_t index = 0; index < count; ++index) {
+      const auto& event = damage.events[index];
+      if (now_ms < event.created_at_ms) {
+        continue;
+      }
+      const auto age_ms = now_ms - event.created_at_ms;
+      if (age_ms >= mhgu::core::kDamageEventLifetimeMs) {
+        continue;
+      }
+
+      const auto lane = static_cast<std::size_t>(
+        (event.sequence - 1) % lane_offsets.size()
+      );
+      const auto progress = static_cast<float>(age_ms) /
+                            mhgu::core::kDamageEventLifetimeMs;
+      const auto inverse = 1.0F - progress;
+      const auto eased = 1.0F - inverse * inverse;
+      const auto font_size = base_font_size * damage_scale(age_ms);
+      const auto center_x = static_cast<s32>(tsl::cfg::FramebufferWidth / 2) +
+                            lane_offsets[lane] +
+                            static_cast<s32>(
+                              drift_directions[lane] * 14.0F * progress
+                            );
+      const auto baseline_y =
+        static_cast<s32>(tsl::cfg::FramebufferHeight * 28 / 100) -
+        static_cast<s32>(55.0F * eased);
+
+      char value[16]{};
+      std::snprintf(
+        value,
+        sizeof(value),
+        "%u",
+        static_cast<unsigned>(event.damage)
+      );
+      const auto width =
+        static_cast<s32>(text_width(renderer, value, font_size));
+      const auto left = std::clamp<s32>(
+        center_x - width / 2,
+        0,
+        std::max<s32>(0, tsl::cfg::FramebufferWidth - width)
+      );
+      const auto alpha = damage_alpha(age_ms);
+      renderer->drawString(
+        value,
+        false,
+        left + 2,
+        baseline_y + 2,
+        font_size,
+        renderer->a({0x1, 0x1, 0x1, alpha})
+      );
+      renderer->drawString(
+        value,
+        false,
+        left,
+        baseline_y,
+        font_size,
+        renderer->a({0xF, 0xC, 0x3, alpha})
+      );
+    }
   }
 
   static void draw_status(
@@ -686,7 +794,7 @@ public:
     FullMode = false;
     alphabackground = 0;
     deactivateOriginalFooter = true;
-    TeslaFPS = 10;
+    TeslaFPS = model_.settings().damage_display_enabled ? 30 : 10;
     tsl::hlp::requestForeground(false);
   }
 
@@ -1022,6 +1130,23 @@ public:
     });
     list->addItem(hud_item_);
 
+    damage_display_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::DamageDisplay, locale)
+    );
+    damage_display_item_->setValue(mhgu::core::ui_message(
+      model_.settings().damage_display_enabled ? UiMessage::On : UiMessage::Off,
+      locale
+    ));
+    damage_display_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0) {
+        model_.toggle_damage_display();
+        refresh_labels();
+        return true;
+      }
+      return false;
+    });
+    list->addItem(damage_display_item_);
+
     frame_rate_item_ = new tsl::elm::ListItem(
       mhgu::core::ui_message(UiMessage::FrameRate, locale)
     );
@@ -1138,6 +1263,13 @@ private:
     hud_item_->setText(
       mhgu::core::ui_message(UiMessage::MonsterInfoOverlay, locale)
     );
+    damage_display_item_->setText(
+      mhgu::core::ui_message(UiMessage::DamageDisplay, locale)
+    );
+    damage_display_item_->setValue(mhgu::core::ui_message(
+      model_.settings().damage_display_enabled ? UiMessage::On : UiMessage::Off,
+      locale
+    ));
     frame_rate_item_->setText(
       mhgu::core::ui_message(UiMessage::FrameRate, locale)
     );
@@ -1176,6 +1308,7 @@ private:
   Model& model_;
   LocalizedOverlayFrame* frame_{};
   tsl::elm::ListItem* hud_item_{};
+  tsl::elm::ListItem* damage_display_item_{};
   tsl::elm::ListItem* language_item_{};
   tsl::elm::ListItem* frame_rate_item_{};
   tsl::elm::ListItem* preset_item_{};
