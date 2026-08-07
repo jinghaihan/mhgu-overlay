@@ -23,6 +23,7 @@ public:
 
   void cycle_language();
   void cycle_frame_rate();
+  void enable_map_and_large_monsters();
   void cycle_size_preset();
   void request_rescan();
 

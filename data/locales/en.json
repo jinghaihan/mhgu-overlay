@@ -10,6 +10,7 @@
     "automatic": "Automatic",
     "sizePreset": "Size lock",
     "off": "Off",
+    "on": "On",
     "mini": "Mini crown",
     "silver": "Silver crown",
     "gold": "Gold crown",
@@ -22,6 +23,7 @@
     "frameRate": "Frame rate",
     "fps30": "30 FPS",
     "fps60": "60 FPS",
+    "mapAndLargeMonsters": "Map & large monster locations",
     "openOverlay": "Open overlay"
   },
   "monsters": {

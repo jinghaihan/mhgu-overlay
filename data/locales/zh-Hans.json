@@ -10,6 +10,7 @@
     "automatic": "自动",
     "sizePreset": "体型锁定",
     "off": "关闭",
+    "on": "开启",
     "mini": "小金冠",
     "silver": "大银冠",
     "gold": "大金冠",
@@ -22,6 +23,7 @@
     "frameRate": "帧率",
     "fps30": "30 FPS",
     "fps60": "60 FPS",
+    "mapAndLargeMonsters": "地图及大型怪物位置",
     "openOverlay": "打开 Overlay"
   },
   "monsters": {

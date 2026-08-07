@@ -10,6 +10,7 @@
     "automatic": "自動",
     "sizePreset": "サイズ固定",
     "off": "オフ",
+    "on": "オン",
     "mini": "小冠",
     "silver": "銀冠",
     "gold": "金冠",
@@ -22,6 +23,7 @@
     "frameRate": "フレームレート",
     "fps30": "30 FPS",
     "fps60": "60 FPS",
+    "mapAndLargeMonsters": "マップ・大型モンスター位置",
     "openOverlay": "オーバーレイを開く"
   },
   "monsters": {

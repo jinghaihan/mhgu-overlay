@@ -7,9 +7,11 @@ Generations Ultimate on Nintendo Switch.
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 > [!IMPORTANT]
-> Frame-rate control and size presets modify live game memory. Back up your
-> save before enabling memory features, avoid online use, and read
+> Overlay features modify live game memory. Back up your save before enabling
+> memory features, avoid online use, and read
 > [Size presets and safety](docs/size-lock.md).
+> One-way code patches, including automatic map display and large-monster
+> locations, remain enabled until the game is restarted.
 
 <p align="center">
   <img src="./assets/screenshot.jpg" alt="MHGU monster overlay" width="520" />
@@ -23,6 +25,7 @@ Generations Ultimate on Nintendo Switch.
 - Shows the size multiplier, calculated actual size, crown class, and Hyper
   status.
 - Switches between the original 30 FPS target and a 60 FPS target.
+- Automatically displays the map and marks large-monster locations.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -53,6 +56,9 @@ Generations Ultimate on Nintendo Switch.
 - Choose the language manually or leave it on **Auto**.
 - Choose **30 FPS** or **60 FPS**; **30 FPS** is the default.
 - Choose a size preset before entering a quest; **Off** is the default.
+- **Map & large monster locations** combines automatic map display and large
+  monster markers. Its enabled state is not saved, and restarting the game
+  restores the original behavior.
 - Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.

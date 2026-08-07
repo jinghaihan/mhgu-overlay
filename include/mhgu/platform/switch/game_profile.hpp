@@ -37,6 +37,11 @@ struct FrameRatePatch {
   std::uint32_t fps60_value;
 };
 
+struct MainWordPatch {
+  std::uint64_t offset;
+  std::uint32_t value;
+};
+
 struct GameProfile {
   const char* name;
   core::GameId game;
@@ -47,6 +52,8 @@ struct GameProfile {
   MonsterLayout monster;
   PointerListLayout pointer_list;
   FrameRatePatch frame_rate;
+  MainWordPatch show_map;
+  MainWordPatch mark_large_monsters;
 };
 
 constexpr std::uint64_t kMhguTitleId = 0x0100770008DD8000ULL;

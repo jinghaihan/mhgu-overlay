@@ -508,6 +508,25 @@ public:
     });
     list->addItem(preset_item_);
 
+    map_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::MapAndLargeMonsters, locale)
+    );
+    map_item_->setValue(mhgu::core::ui_message(
+      model_.settings().show_map_and_large_monsters ? UiMessage::On
+                                                    : UiMessage::Off,
+      locale
+    ));
+    map_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0 &&
+          !model_.settings().show_map_and_large_monsters) {
+        model_.enable_map_and_large_monsters();
+        refresh_labels();
+        return true;
+      }
+      return false;
+    });
+    list->addItem(map_item_);
+
     scan_item_ =
       new tsl::elm::ListItem(mhgu::core::ui_message(UiMessage::Scan, locale));
     scan_item_->setClickListener([this](const u64 keys) {
@@ -570,6 +589,14 @@ private:
     preset_item_->setValue(
       mhgu::core::size_preset_label(model_.settings().size_preset, locale)
     );
+    map_item_->setText(
+      mhgu::core::ui_message(UiMessage::MapAndLargeMonsters, locale)
+    );
+    map_item_->setValue(mhgu::core::ui_message(
+      model_.settings().show_map_and_large_monsters ? UiMessage::On
+                                                    : UiMessage::Off,
+      locale
+    ));
     scan_item_->setText(mhgu::core::ui_message(UiMessage::Scan, locale));
   }
 
@@ -579,6 +606,7 @@ private:
   tsl::elm::ListItem* language_item_{};
   tsl::elm::ListItem* frame_rate_item_{};
   tsl::elm::ListItem* preset_item_{};
+  tsl::elm::ListItem* map_item_{};
   tsl::elm::ListItem* scan_item_{};
 };
 

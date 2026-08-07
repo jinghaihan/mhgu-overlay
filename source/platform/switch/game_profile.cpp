@@ -31,6 +31,16 @@ constexpr FrameRatePatch kFrameRatePatch{
   0x42700000,
 };
 
+constexpr MainWordPatch kShowMapPatch{
+  0x0061BAD0,
+  0xE1A00000,
+};
+
+constexpr MainWordPatch kMarkLargeMonstersPatch{
+  0x0061CC94,
+  0xE3A00001,
+};
+
 constexpr GameProfile kProfiles[]{
   {
     "MHGU 1.4.0",
@@ -42,6 +52,8 @@ constexpr GameProfile kProfiles[]{
     kMonsterLayout,
     kPointerListLayout,
     kFrameRatePatch,
+    kShowMapPatch,
+    kMarkLargeMonstersPatch,
   },
 };
 

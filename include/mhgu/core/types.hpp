@@ -88,6 +88,7 @@ struct CoreSettings {
   LocaleMode locale_mode{LocaleMode::Auto};
   SizePreset size_preset{SizePreset::Off};
   FrameRate frame_rate{FrameRate::Fps30};
+  bool show_map_and_large_monsters{};
 };
 
 struct MonsterView {

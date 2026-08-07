@@ -139,6 +139,13 @@ default 30 FPS preference does not write on first attachment, so the overlay
 does not override an unrelated external patch unless the user changes the
 selector.
 
+The map and large-monster-location selector applies two static ARM instruction
+patches from the same build profile. Both addresses are validated against the
+main NSO before either write begins; each write is then read back immediately.
+The selector is intentionally one-way and is not persisted. Reapplying it is
+idempotent, while restoring the original instructions is left to a game
+restart.
+
 Candidate validation prevents a coincidental byte pattern from becoming a
 write target. A failed list validation discards the address and forces a new
 scan. Unknown location states and defeated objects are rejected. Immediately
@@ -247,6 +254,7 @@ Host CI checks:
 - pointer-list validation and scanning;
 - bounded, verified size writes;
 - bounded, verified 30/60 FPS writes;
+- version-gated, bounded static instruction patches;
 - settings persistence.
 
 Switch CI compiles the complete `.ovl` with devkitA64 and both submodules. Hardware testing remains necessary for process permissions, firmware behavior, pointer profiles, visual layout, hitboxes, crown registration, and save effects.

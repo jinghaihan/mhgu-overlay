@@ -93,6 +93,8 @@ int main() {
   constexpr std::uint64_t kFrameRateTargetOffset = 0x20;
   profile.frame_rate.pointer_from_main = kFrameRatePointer;
   profile.frame_rate.target_from_pointer = kFrameRateTargetOffset;
+  profile.show_map.offset = 0x100;
+  profile.mark_large_monsters.offset = 0x104;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -103,6 +105,15 @@ int main() {
   memory.store(
     kFrameRateTargetBase + kFrameRateTargetOffset,
     profile.frame_rate.fps30_value
+  );
+  constexpr std::uint32_t kOriginalShowMapInstruction = 0x0A000001;
+  constexpr std::uint32_t kOriginalMarkInstruction = 0xE3A00000;
+  memory.store(
+    kMainBase + profile.show_map.offset, kOriginalShowMapInstruction
+  );
+  memory.store(
+    kMainBase + profile.mark_large_monsters.offset,
+    kOriginalMarkInstruction
   );
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
@@ -153,6 +164,34 @@ int main() {
   memory.store(
     kMainBase + kFrameRatePointer, kFrameRateTargetBase
   );
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_map_and_large_monsters());
+  assert(memory.write_count() == patch_writes + 2);
+  assert(
+    memory.load<std::uint32_t>(kMainBase + profile.show_map.offset) ==
+    profile.show_map.value
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.mark_large_monsters.offset
+    ) == profile.mark_large_monsters.value
+  );
+  patch_writes = memory.write_count();
+  assert(patches.enable_map_and_large_monsters());
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_map_profile = profile;
+  invalid_map_profile.mark_large_monsters.offset = 0x1000;
+  memory.store(
+    kMainBase + profile.show_map.offset, kOriginalShowMapInstruction
+  );
+  GamePatches invalid_map(
+    memory, invalid_map_profile, kMainBase, 0x1000, 0, 0x20000
+  );
+  patch_writes = memory.write_count();
+  assert(!invalid_map.enable_map_and_large_monsters());
+  assert(memory.write_count() == patch_writes);
 
   const std::uint8_t one = 1;
   memory.store(kList, one);

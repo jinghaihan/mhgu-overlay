@@ -89,6 +89,7 @@ bool GameSession::attach() {
       memory_, *profile_, heap_base_, heap_size_
     );
     applied_frame_rate_ = core::FrameRate::Fps30;
+    map_and_large_monsters_applied_ = false;
     view_ = {};
     view_.status = SessionStatus::Searching;
     view_.game = profile_->game;
@@ -115,6 +116,7 @@ void GameSession::detach(const SessionStatus status) {
   address_space_base_ = 0;
   address_space_size_ = 0;
   applied_frame_rate_ = core::FrameRate::Fps30;
+  map_and_large_monsters_applied_ = false;
   view_ = {};
   view_.status = status;
 }
@@ -130,6 +132,18 @@ bool GameSession::sync_frame_rate(const core::FrameRate frame_rate) {
   return true;
 }
 
+bool GameSession::sync_map_and_large_monsters(const bool enabled) {
+  if (!enabled || map_and_large_monsters_applied_) {
+    return true;
+  }
+  if (patches_ == nullptr ||
+      !patches_->enable_map_and_large_monsters()) {
+    return false;
+  }
+  map_and_large_monsters_applied_ = true;
+  return true;
+}
+
 void GameSession::poll(const core::CoreSettings& settings) {
   if (!initialized_ && !initialize()) {
     detach(SessionStatus::NoGame);
@@ -139,12 +153,16 @@ void GameSession::poll(const core::CoreSettings& settings) {
     return;
   }
   const auto frame_rate_ok = sync_frame_rate(settings.frame_rate);
+  const auto map_ok = sync_map_and_large_monsters(
+    settings.show_map_and_large_monsters
+  );
+  const auto runtime_patches_ok = frame_rate_ok && map_ok;
 
   if (view_.pointer_list == 0) {
     view_.status = SessionStatus::Searching;
     view_.pointer_list = reader_->find_pointer_list();
     if (view_.pointer_list == 0) {
-      if (!frame_rate_ok) {
+      if (!runtime_patches_ok) {
         view_.status = SessionStatus::WriteFailed;
       }
       return;
@@ -163,8 +181,8 @@ void GameSession::poll(const core::CoreSettings& settings) {
   }
 
   view_.output = engine_.update(snapshot, settings);
-  view_.status = frame_rate_ok ? SessionStatus::Ready
-                               : SessionStatus::WriteFailed;
+  view_.status = runtime_patches_ok ? SessionStatus::Ready
+                                    : SessionStatus::WriteFailed;
   for (std::size_t index = 0; index < view_.output.write_count; ++index) {
     std::uint16_t verified{};
     if (!reader_->apply_size(

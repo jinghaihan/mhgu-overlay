@@ -86,6 +86,11 @@ void Model::cycle_frame_rate() {
   persist(changed);
 }
 
+void Model::enable_map_and_large_monsters() {
+  const std::scoped_lock lock(mutex_);
+  settings_.show_map_and_large_monsters = true;
+}
+
 void Model::cycle_size_preset() {
   core::CoreSettings changed{};
   {

@@ -15,6 +15,7 @@ enum class UiMessage : std::uint8_t {
   Automatic,
   SizePreset,
   Off,
+  On,
   Mini,
   Silver,
   Gold,
@@ -27,6 +28,7 @@ enum class UiMessage : std::uint8_t {
   FrameRate,
   Fps30,
   Fps60,
+  MapAndLargeMonsters,
   OpenOverlay,
 };
 

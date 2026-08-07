@@ -21,8 +21,15 @@ public:
   );
 
   bool set_frame_rate(core::FrameRate frame_rate);
+  bool enable_map_and_large_monsters();
 
 private:
+  bool main_word_patch_address(
+    const MainWordPatch& patch, std::uint64_t& address
+  ) const;
+  bool apply_main_word_patch(
+    const MainWordPatch& patch, std::uint64_t address
+  );
   bool contains(
     std::uint64_t region_base,
     std::uint64_t region_size,

@@ -46,6 +46,32 @@ bool GamePatches::contains(
   return address - region_base <= region_size - size;
 }
 
+bool GamePatches::main_word_patch_address(
+  const MainWordPatch& patch, std::uint64_t& address
+) const {
+  return checked_add(main_base_, patch.offset, address) &&
+         contains(main_base_, main_size_, address, sizeof(std::uint32_t));
+}
+
+bool GamePatches::apply_main_word_patch(
+  const MainWordPatch& patch, const std::uint64_t address
+) {
+  std::uint32_t current{};
+  if (!memory_.read(address, &current, sizeof(current))) {
+    return false;
+  }
+  if (current == patch.value) {
+    return true;
+  }
+  if (!memory_.write(address, &patch.value, sizeof(patch.value))) {
+    return false;
+  }
+
+  std::uint32_t verified{};
+  return memory_.read(address, &verified, sizeof(verified)) &&
+         verified == patch.value;
+}
+
 bool GamePatches::set_frame_rate(const core::FrameRate frame_rate) {
   const auto& patch = profile_.frame_rate;
   std::uint64_t pointer_address{};
@@ -92,6 +118,21 @@ bool GamePatches::set_frame_rate(const core::FrameRate frame_rate) {
   std::uint32_t verified{};
   return memory_.read(target_address, &verified, sizeof(verified)) &&
          verified == desired;
+}
+
+bool GamePatches::enable_map_and_large_monsters() {
+  std::uint64_t show_map_address{};
+  std::uint64_t mark_monsters_address{};
+  if (!main_word_patch_address(profile_.show_map, show_map_address) ||
+      !main_word_patch_address(
+        profile_.mark_large_monsters, mark_monsters_address
+      )) {
+    return false;
+  }
+  return apply_main_word_patch(profile_.show_map, show_map_address) &&
+         apply_main_word_patch(
+           profile_.mark_large_monsters, mark_monsters_address
+         );
 }
 
 }  // namespace mhgu::platform::switch_adapter

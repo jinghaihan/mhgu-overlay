@@ -15,6 +15,7 @@ constexpr const char* kMessages[][3] = {
   {"Automatic", "自动", "自動"},
   {"Size lock", "体型锁定", "サイズ固定"},
   {"Off", "关闭", "オフ"},
+  {"On", "开启", "オン"},
   {"Mini crown", "小金冠", "小冠"},
   {"Silver crown", "大银冠", "銀冠"},
   {"Gold crown", "大金冠", "金冠"},
@@ -27,6 +28,7 @@ constexpr const char* kMessages[][3] = {
   {"Frame rate", "帧率", "フレームレート"},
   {"30 FPS", "30 FPS", "30 FPS"},
   {"60 FPS", "60 FPS", "60 FPS"},
+  {"Map & large monster locations", "地图及大型怪物位置", "マップ・大型モンスター位置"},
   {"Open overlay", "打开 Overlay", "オーバーレイを開く"},
 };
 

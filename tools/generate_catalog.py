@@ -28,6 +28,7 @@ UI_KEYS = [
   "automatic",
   "sizePreset",
   "off",
+  "on",
   "mini",
   "silver",
   "gold",
@@ -40,6 +41,7 @@ UI_KEYS = [
   "frameRate",
   "fps30",
   "fps60",
+  "mapAndLargeMonsters",
   "openOverlay",
 ]
 
