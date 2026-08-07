@@ -35,6 +35,7 @@
     "unlimitedHunterArts": "狩技無限使用",
     "valorGaugeNoDecrease": "ブレイヴゲージ減少なし",
     "alchemyGaugeFull": "錬金ゲージ満タン",
+    "spStatusNoExpire": "SP状態時間無制限",
     "monsterInfoOverlay": "モンスター情報オーバーレイ"
   },
   "monsters": {

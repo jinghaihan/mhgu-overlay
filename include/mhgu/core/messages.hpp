@@ -40,6 +40,7 @@ enum class UiMessage : std::uint8_t {
   UnlimitedHunterArts,
   ValorGaugeNoDecrease,
   AlchemyGaugeFull,
+  SpStatusNoExpire,
   MonsterInfoOverlay,
 };
 

@@ -35,6 +35,7 @@
     "unlimitedHunterArts": "狩技无限使用",
     "valorGaugeNoDecrease": "勇气槽不减",
     "alchemyGaugeFull": "炼金槽全满",
+    "spStatusNoExpire": "SP状态不消失",
     "monsterInfoOverlay": "怪物信息 Overlay"
   },
   "monsters": {

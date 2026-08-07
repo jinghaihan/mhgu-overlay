@@ -53,6 +53,7 @@ UI_KEYS = [
   "unlimitedHunterArts",
   "valorGaugeNoDecrease",
   "alchemyGaugeFull",
+  "spStatusNoExpire",
   "monsterInfoOverlay",
 ]
 

@@ -542,6 +542,11 @@ public:
     );
     list->addItem(alchemy_item_);
 
+    sp_status_item_ = runtime_feature_item(
+      model_, UiMessage::SpStatusNoExpire, RuntimeFeature::SpStatusNoExpire
+    );
+    list->addItem(sp_status_item_);
+
     frame->setContent(list);
     return frame;
   }
@@ -570,6 +575,7 @@ private:
   tsl::elm::ListItem* hunter_arts_item_{};
   tsl::elm::ListItem* valor_item_{};
   tsl::elm::ListItem* alchemy_item_{};
+  tsl::elm::ListItem* sp_status_item_{};
 };
 
 class MainGui final : public tsl::Gui {

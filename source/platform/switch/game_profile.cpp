@@ -83,6 +83,11 @@ constexpr MainWordPatchSet kAlchemyGaugeFullPatches{
   2,
 };
 
+constexpr MainWordPatchSet kSpStatusNoExpirePatches{
+  {{{0x0029E5AC, 0xE3A00000}}},
+  1,
+};
+
 constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
   kRuntimePatches{
     kMapAndLargeMonstersPatches,
@@ -95,6 +100,7 @@ constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
     kUnlimitedHunterArtsPatches,
     kValorGaugeNoDecreasePatches,
     kAlchemyGaugeFullPatches,
+    kSpStatusNoExpirePatches,
 };
 
 constexpr GameProfile kProfiles[]{

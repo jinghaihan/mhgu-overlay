@@ -123,6 +123,9 @@ int main() {
   const auto alchemy_index = core::runtime_feature_index(
     core::RuntimeFeature::AlchemyGaugeFull
   );
+  const auto sp_status_index = core::runtime_feature_index(
+    core::RuntimeFeature::SpStatusNoExpire
+  );
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -226,6 +229,15 @@ int main() {
     matched_profile->runtime_patches[alchemy_index].patches[1].value ==
     0xE5860000
   );
+  assert(matched_profile->runtime_patches[sp_status_index].count == 1);
+  assert(
+    matched_profile->runtime_patches[sp_status_index].patches[0].offset ==
+    0x0029E5AC
+  );
+  assert(
+    matched_profile->runtime_patches[sp_status_index].patches[0].value ==
+    0xE3A00000
+  );
   profile.runtime_patches[map_index].patches[0].offset = 0x100;
   profile.runtime_patches[map_index].patches[1].offset = 0x104;
   profile.runtime_patches[carry_index].patches[0].offset = 0x108;
@@ -243,6 +255,7 @@ int main() {
   profile.runtime_patches[valor_index].patches[2].offset = 0x130;
   profile.runtime_patches[alchemy_index].patches[0].offset = 0x134;
   profile.runtime_patches[alchemy_index].patches[1].offset = 0x138;
+  profile.runtime_patches[sp_status_index].patches[0].offset = 0x13C;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -271,6 +284,7 @@ int main() {
   constexpr std::uint32_t kOriginalValorInstruction2 = 0xE1A00000;
   constexpr std::uint32_t kOriginalAlchemyInstruction0 = 0xE1A00000;
   constexpr std::uint32_t kOriginalAlchemyInstruction1 = 0xE3500000;
+  constexpr std::uint32_t kOriginalSpStatusInstruction = 0xE3500000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -333,6 +347,10 @@ int main() {
   memory.store(
     kMainBase + profile.runtime_patches[alchemy_index].patches[1].offset,
     kOriginalAlchemyInstruction1
+  );
+  memory.store(
+    kMainBase + profile.runtime_patches[sp_status_index].patches[0].offset,
+    kOriginalSpStatusInstruction
   );
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
@@ -562,6 +580,17 @@ int main() {
       ) == profile.runtime_patches[alchemy_index].patches[index].value
     );
   }
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_runtime_feature(
+    core::RuntimeFeature::SpStatusNoExpire
+  ));
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.runtime_patches[sp_status_index].patches[0].offset
+    ) == profile.runtime_patches[sp_status_index].patches[0].value
+  );
 
   const std::uint8_t one = 1;
   memory.store(kList, one);

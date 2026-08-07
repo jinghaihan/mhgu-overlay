@@ -40,6 +40,7 @@ constexpr const char* kMessages[][3] = {
   {"Unlimited Hunter Arts", "狩技无限使用", "狩技無限使用"},
   {"Valor gauge does not decrease", "勇气槽不减", "ブレイヴゲージ減少なし"},
   {"Fill Alchemy gauge", "炼金槽全满", "錬金ゲージ満タン"},
+  {"SP status does not expire", "SP状态不消失", "SP状態時間無制限"},
   {"Monster info overlay", "怪物信息 Overlay", "モンスター情報オーバーレイ"},
 };
 

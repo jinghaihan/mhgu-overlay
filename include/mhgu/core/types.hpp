@@ -60,6 +60,7 @@ enum class RuntimeFeature : std::uint8_t {
   UnlimitedHunterArts,
   ValorGaugeNoDecrease,
   AlchemyGaugeFull,
+  SpStatusNoExpire,
   Count,
 };
 
