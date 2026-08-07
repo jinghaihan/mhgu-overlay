@@ -41,6 +41,11 @@ constexpr MainWordPatch kMarkLargeMonstersPatch{
   0xE3A00001,
 };
 
+constexpr MainWordPatch kCarryItemsIntoPouchPatch{
+  0x001943CC,
+  0x33000000,
+};
+
 constexpr GameProfile kProfiles[]{
   {
     "MHGU 1.4.0",
@@ -54,6 +59,7 @@ constexpr GameProfile kProfiles[]{
     kFrameRatePatch,
     kShowMapPatch,
     kMarkLargeMonstersPatch,
+    kCarryItemsIntoPouchPatch,
   },
 };
 

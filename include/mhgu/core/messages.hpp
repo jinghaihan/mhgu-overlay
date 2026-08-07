@@ -29,6 +29,7 @@ enum class UiMessage : std::uint8_t {
   Fps30,
   Fps60,
   MapAndLargeMonsters,
+  CarryItemsIntoPouch,
   OpenOverlay,
 };
 

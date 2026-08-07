@@ -54,6 +54,7 @@ struct GameProfile {
   FrameRatePatch frame_rate;
   MainWordPatch show_map;
   MainWordPatch mark_large_monsters;
+  MainWordPatch carry_items_into_pouch;
 };
 
 constexpr std::uint64_t kMhguTitleId = 0x0100770008DD8000ULL;

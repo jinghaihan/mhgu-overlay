@@ -24,6 +24,7 @@
     "fps30": "30 FPS",
     "fps60": "60 FPS",
     "mapAndLargeMonsters": "Map & large monster locations",
+    "carryItemsIntoPouch": "Carry items into pouch",
     "openOverlay": "Open overlay"
   },
   "monsters": {

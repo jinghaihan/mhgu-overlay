@@ -89,6 +89,7 @@ struct CoreSettings {
   SizePreset size_preset{SizePreset::Off};
   FrameRate frame_rate{FrameRate::Fps30};
   bool show_map_and_large_monsters{};
+  bool carry_items_into_pouch{};
 };
 
 struct MonsterView {

@@ -91,6 +91,11 @@ void Model::enable_map_and_large_monsters() {
   settings_.show_map_and_large_monsters = true;
 }
 
+void Model::enable_carry_items_into_pouch() {
+  const std::scoped_lock lock(mutex_);
+  settings_.carry_items_into_pouch = true;
+}
+
 void Model::cycle_size_preset() {
   core::CoreSettings changed{};
   {

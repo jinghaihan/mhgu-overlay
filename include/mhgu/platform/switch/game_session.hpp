@@ -44,6 +44,7 @@ private:
   void detach(SessionStatus status);
   bool sync_frame_rate(core::FrameRate frame_rate);
   bool sync_map_and_large_monsters(bool enabled);
+  bool sync_carry_items_into_pouch(bool enabled);
 
   bool initialized_{};
   DmntMemoryAccess memory_{};
@@ -61,6 +62,7 @@ private:
   std::uint64_t address_space_size_{};
   core::FrameRate applied_frame_rate_{core::FrameRate::Fps30};
   bool map_and_large_monsters_applied_{};
+  bool carry_items_into_pouch_applied_{};
 };
 
 }  // namespace mhgu::platform::switch_adapter

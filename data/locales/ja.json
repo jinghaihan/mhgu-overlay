@@ -24,6 +24,7 @@
     "fps30": "30 FPS",
     "fps60": "60 FPS",
     "mapAndLargeMonsters": "マップ・大型モンスター位置",
+    "carryItemsIntoPouch": "運搬アイテムをポーチへ",
     "openOverlay": "オーバーレイを開く"
   },
   "monsters": {

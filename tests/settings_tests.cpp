@@ -16,12 +16,14 @@ int main() {
   assert(defaults.size_preset == core::SizePreset::Off);
   assert(defaults.frame_rate == core::FrameRate::Fps30);
   assert(!defaults.show_map_and_large_monsters);
+  assert(!defaults.carry_items_into_pouch);
 
   core::CoreSettings expected{};
   expected.locale_mode = core::LocaleMode::SimplifiedChinese;
   expected.size_preset = core::SizePreset::Gold;
   expected.frame_rate = core::FrameRate::Fps60;
   expected.show_map_and_large_monsters = true;
+  expected.carry_items_into_pouch = true;
   assert(store.save(expected));
 
   const auto restored = store.load();
@@ -29,6 +31,7 @@ int main() {
   assert(restored.size_preset == expected.size_preset);
   assert(restored.frame_rate == expected.frame_rate);
   assert(!restored.show_map_and_large_monsters);
+  assert(!restored.carry_items_into_pouch);
 
   auto* legacy = std::fopen(kPath, "w");
   assert(legacy != nullptr);

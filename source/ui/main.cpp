@@ -527,6 +527,25 @@ public:
     });
     list->addItem(map_item_);
 
+    carry_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::CarryItemsIntoPouch, locale)
+    );
+    carry_item_->setValue(mhgu::core::ui_message(
+      model_.settings().carry_items_into_pouch ? UiMessage::On
+                                               : UiMessage::Off,
+      locale
+    ));
+    carry_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0 &&
+          !model_.settings().carry_items_into_pouch) {
+        model_.enable_carry_items_into_pouch();
+        refresh_labels();
+        return true;
+      }
+      return false;
+    });
+    list->addItem(carry_item_);
+
     scan_item_ =
       new tsl::elm::ListItem(mhgu::core::ui_message(UiMessage::Scan, locale));
     scan_item_->setClickListener([this](const u64 keys) {
@@ -597,6 +616,14 @@ private:
                                                     : UiMessage::Off,
       locale
     ));
+    carry_item_->setText(
+      mhgu::core::ui_message(UiMessage::CarryItemsIntoPouch, locale)
+    );
+    carry_item_->setValue(mhgu::core::ui_message(
+      model_.settings().carry_items_into_pouch ? UiMessage::On
+                                               : UiMessage::Off,
+      locale
+    ));
     scan_item_->setText(mhgu::core::ui_message(UiMessage::Scan, locale));
   }
 
@@ -607,6 +634,7 @@ private:
   tsl::elm::ListItem* frame_rate_item_{};
   tsl::elm::ListItem* preset_item_{};
   tsl::elm::ListItem* map_item_{};
+  tsl::elm::ListItem* carry_item_{};
   tsl::elm::ListItem* scan_item_{};
 };
 

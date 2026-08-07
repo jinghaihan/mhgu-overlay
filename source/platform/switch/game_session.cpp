@@ -90,6 +90,7 @@ bool GameSession::attach() {
     );
     applied_frame_rate_ = core::FrameRate::Fps30;
     map_and_large_monsters_applied_ = false;
+    carry_items_into_pouch_applied_ = false;
     view_ = {};
     view_.status = SessionStatus::Searching;
     view_.game = profile_->game;
@@ -117,6 +118,7 @@ void GameSession::detach(const SessionStatus status) {
   address_space_size_ = 0;
   applied_frame_rate_ = core::FrameRate::Fps30;
   map_and_large_monsters_applied_ = false;
+  carry_items_into_pouch_applied_ = false;
   view_ = {};
   view_.status = status;
 }
@@ -144,6 +146,17 @@ bool GameSession::sync_map_and_large_monsters(const bool enabled) {
   return true;
 }
 
+bool GameSession::sync_carry_items_into_pouch(const bool enabled) {
+  if (!enabled || carry_items_into_pouch_applied_) {
+    return true;
+  }
+  if (patches_ == nullptr || !patches_->enable_carry_items_into_pouch()) {
+    return false;
+  }
+  carry_items_into_pouch_applied_ = true;
+  return true;
+}
+
 void GameSession::poll(const core::CoreSettings& settings) {
   if (!initialized_ && !initialize()) {
     detach(SessionStatus::NoGame);
@@ -156,7 +169,11 @@ void GameSession::poll(const core::CoreSettings& settings) {
   const auto map_ok = sync_map_and_large_monsters(
     settings.show_map_and_large_monsters
   );
-  const auto runtime_patches_ok = frame_rate_ok && map_ok;
+  const auto carry_items_ok = sync_carry_items_into_pouch(
+    settings.carry_items_into_pouch
+  );
+  const auto runtime_patches_ok =
+    frame_rate_ok && map_ok && carry_items_ok;
 
   if (view_.pointer_list == 0) {
     view_.status = SessionStatus::Searching;

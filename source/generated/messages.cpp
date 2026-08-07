@@ -29,6 +29,7 @@ constexpr const char* kMessages[][3] = {
   {"30 FPS", "30 FPS", "30 FPS"},
   {"60 FPS", "60 FPS", "60 FPS"},
   {"Map & large monster locations", "地图及大型怪物位置", "マップ・大型モンスター位置"},
+  {"Carry items into pouch", "搬运物品收入道具袋", "運搬アイテムをポーチへ"},
   {"Open overlay", "打开 Overlay", "オーバーレイを開く"},
 };
 

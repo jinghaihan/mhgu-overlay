@@ -42,6 +42,7 @@ UI_KEYS = [
   "fps30",
   "fps60",
   "mapAndLargeMonsters",
+  "carryItemsIntoPouch",
   "openOverlay",
 ]
 

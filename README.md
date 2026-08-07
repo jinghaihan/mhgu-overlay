@@ -10,8 +10,9 @@ Generations Ultimate on Nintendo Switch.
 > Overlay features modify live game memory. Back up your save before enabling
 > memory features, avoid online use, and read
 > [Size presets and safety](docs/size-lock.md).
-> One-way code patches, including automatic map display and large-monster
-> locations, remain enabled until the game is restarted.
+> One-way code patches, including automatic map display, large-monster
+> locations, and carrying items into the pouch, remain enabled until the game
+> is restarted.
 
 <p align="center">
   <img src="./assets/screenshot.jpg" alt="MHGU monster overlay" width="520" />
@@ -26,6 +27,7 @@ Generations Ultimate on Nintendo Switch.
   status.
 - Switches between the original 30 FPS target and a 60 FPS target.
 - Automatically displays the map and marks large-monster locations.
+- Allows carried items, such as eggs, to enter the item pouch.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -59,6 +61,8 @@ Generations Ultimate on Nintendo Switch.
 - **Map & large monster locations** combines automatic map display and large
   monster markers. Its enabled state is not saved, and restarting the game
   restores the original behavior.
+- **Carry items into pouch** is also a one-way, non-persistent selector;
+  restarting the game restores the original carrying behavior.
 - Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.

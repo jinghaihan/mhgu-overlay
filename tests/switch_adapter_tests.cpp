@@ -95,6 +95,7 @@ int main() {
   profile.frame_rate.target_from_pointer = kFrameRateTargetOffset;
   profile.show_map.offset = 0x100;
   profile.mark_large_monsters.offset = 0x104;
+  profile.carry_items_into_pouch.offset = 0x108;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -108,12 +109,17 @@ int main() {
   );
   constexpr std::uint32_t kOriginalShowMapInstruction = 0x0A000001;
   constexpr std::uint32_t kOriginalMarkInstruction = 0xE3A00000;
+  constexpr std::uint32_t kOriginalCarryInstruction = 0x1A000001;
   memory.store(
     kMainBase + profile.show_map.offset, kOriginalShowMapInstruction
   );
   memory.store(
     kMainBase + profile.mark_large_monsters.offset,
     kOriginalMarkInstruction
+  );
+  memory.store(
+    kMainBase + profile.carry_items_into_pouch.offset,
+    kOriginalCarryInstruction
   );
   GamePatches patches(
     memory, profile, kMainBase, 0x1000, 0, 0x20000
@@ -191,6 +197,27 @@ int main() {
   );
   patch_writes = memory.write_count();
   assert(!invalid_map.enable_map_and_large_monsters());
+  assert(memory.write_count() == patch_writes);
+
+  patch_writes = memory.write_count();
+  assert(patches.enable_carry_items_into_pouch());
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.carry_items_into_pouch.offset
+    ) == profile.carry_items_into_pouch.value
+  );
+  patch_writes = memory.write_count();
+  assert(patches.enable_carry_items_into_pouch());
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_carry_profile = profile;
+  invalid_carry_profile.carry_items_into_pouch.offset = 0x1000;
+  GamePatches invalid_carry(
+    memory, invalid_carry_profile, kMainBase, 0x1000, 0, 0x20000
+  );
+  patch_writes = memory.write_count();
+  assert(!invalid_carry.enable_carry_items_into_pouch());
   assert(memory.write_count() == patch_writes);
 
   const std::uint8_t one = 1;

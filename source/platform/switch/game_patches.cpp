@@ -135,4 +135,12 @@ bool GamePatches::enable_map_and_large_monsters() {
          );
 }
 
+bool GamePatches::enable_carry_items_into_pouch() {
+  std::uint64_t address{};
+  if (!main_word_patch_address(profile_.carry_items_into_pouch, address)) {
+    return false;
+  }
+  return apply_main_word_patch(profile_.carry_items_into_pouch, address);
+}
+
 }  // namespace mhgu::platform::switch_adapter

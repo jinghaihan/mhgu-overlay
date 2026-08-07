@@ -24,6 +24,7 @@
     "fps30": "30 FPS",
     "fps60": "60 FPS",
     "mapAndLargeMonsters": "地图及大型怪物位置",
+    "carryItemsIntoPouch": "搬运物品收入道具袋",
     "openOverlay": "打开 Overlay"
   },
   "monsters": {
