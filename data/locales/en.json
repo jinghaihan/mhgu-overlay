@@ -19,7 +19,7 @@
     "unsupported": "Unsupported game version",
     "writeFailed": "Size write failed",
     "hyper": "Hyper",
-    "hud": "Open compact HUD"
+    "openOverlay": "Open overlay"
   },
   "monsters": {
     "great-maccao": "Great Maccao",

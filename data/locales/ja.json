@@ -19,7 +19,7 @@
     "unsupported": "未対応のゲームバージョン",
     "writeFailed": "サイズの書き込みに失敗",
     "hyper": "獰猛",
-    "hud": "コンパクト HUD を開く"
+    "openOverlay": "オーバーレイを開く"
   },
   "monsters": {
     "great-maccao": "ドスマッカォ",

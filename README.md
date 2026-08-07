@@ -12,7 +12,7 @@ Generations Ultimate on Nintendo Switch.
 > [Size presets and safety](docs/size-lock.md).
 
 <p align="center">
-  <img src="./assets/screenshot.jpg" alt="MHGU Overlay compact HUD" width="520" />
+  <img src="./assets/screenshot.jpg" alt="MHGU monster overlay" width="520" />
 </p>
 
 ## Features
@@ -46,12 +46,12 @@ Generations Ultimate on Nintendo Switch.
 
 ## Use
 
-- **Open compact HUD** hides the settings page and returns input to the game.
-- Hold `L3 + R3` in the compact HUD to return to settings.
+- **Open overlay** hides the settings page and returns input to the game.
+- Hold `L3 + R3` in the overlay to return to settings.
 - Press `B` on the settings page to close the overlay.
 - Choose the language manually or leave it on **Auto**.
 - Choose a size preset before entering a quest; **Off** is the default.
-- Use **Find monster list** to discard the cached pointer and scan again.
+- Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.
 

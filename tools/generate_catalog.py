@@ -37,7 +37,7 @@ UI_KEYS = [
   "unsupported",
   "writeFailed",
   "hyper",
-  "hud",
+  "openOverlay",
 ]
 
 

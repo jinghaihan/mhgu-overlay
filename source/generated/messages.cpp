@@ -24,7 +24,7 @@ constexpr const char* kMessages[][3] = {
   {"Unsupported game version", "不支持的游戏版本", "未対応のゲームバージョン"},
   {"Size write failed", "体型写入失败", "サイズの書き込みに失敗"},
   {"Hyper", "狞猛", "獰猛"},
-  {"Open compact HUD", "打开紧凑 HUD", "コンパクト HUD を開く"},
+  {"Open overlay", "打开 Overlay", "オーバーレイを開く"},
 };
 
 }  // namespace

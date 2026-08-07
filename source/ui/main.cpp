@@ -457,8 +457,9 @@ public:
       70
     );
 
-    hud_item_ =
-      new tsl::elm::ListItem(mhgu::core::ui_message(UiMessage::Hud, locale));
+    hud_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::OpenOverlay, locale)
+    );
     hud_item_->setClickListener([this](const u64 keys) {
       if ((keys & HidNpadButton_A) != 0) {
         tsl::changeTo<HudGui>(model_);
@@ -529,7 +530,9 @@ private:
   void refresh_labels() {
     const auto locale = model_.display_locale();
     frame_->setTitle(mhgu::core::ui_message(UiMessage::Title, locale));
-    hud_item_->setText(mhgu::core::ui_message(UiMessage::Hud, locale));
+    hud_item_->setText(
+      mhgu::core::ui_message(UiMessage::OpenOverlay, locale)
+    );
     language_item_->setText(
       mhgu::core::ui_message(UiMessage::Language, locale)
     );
