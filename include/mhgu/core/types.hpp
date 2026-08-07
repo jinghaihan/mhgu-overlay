@@ -77,6 +77,7 @@ enum class NumericFeature : std::uint8_t {
   AttackMultiplier,
   DefenseMultiplier,
   MovementSpeedMultiplier,
+  Zenny,
   Count,
 };
 
@@ -95,8 +96,8 @@ constexpr std::size_t numeric_feature_index(const NumericFeature feature) {
 }
 
 struct NumericFeatureRange {
-  std::uint16_t minimum;
-  std::uint16_t maximum;
+  std::uint32_t minimum;
+  std::uint32_t maximum;
 };
 
 constexpr NumericFeatureRange numeric_feature_range(
@@ -116,13 +117,15 @@ constexpr NumericFeatureRange numeric_feature_range(
       return {1, 10};
     case NumericFeature::MovementSpeedMultiplier:
       return {10, 50};
+    case NumericFeature::Zenny:
+      return {0, 9999999};
     default:
       return {0, 0};
   }
 }
 
 struct NumericFeatureSetting {
-  std::uint16_t value;
+  std::uint32_t value;
   bool enabled;
 };
 
@@ -174,6 +177,7 @@ struct CoreSettings {
     {2, false},
     {2, false},
     {20, false},
+    {7777777, false},
   }};
 };
 

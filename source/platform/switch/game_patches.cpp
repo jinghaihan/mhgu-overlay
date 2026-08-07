@@ -21,7 +21,7 @@ bool checked_add(
 
 bool encode_numeric_word_patch(
   const NumericWordPatch& patch,
-  const std::uint16_t input,
+  const std::uint32_t input,
   MainWordPatch& encoded
 ) {
   encoded.offset = patch.offset;
@@ -34,6 +34,23 @@ bool encode_numeric_word_patch(
     static_assert(std::numeric_limits<float>::is_iec559);
     const auto multiplier = static_cast<float>(input) / 10.0F;
     std::memcpy(&encoded.value, &multiplier, sizeof(encoded.value));
+    return true;
+  }
+  if (patch.encoding == NumericWordEncoding::ArmMovwImmediate ||
+      patch.encoding == NumericWordEncoding::ArmMovtImmediate) {
+    constexpr std::uint32_t kArmImmediateMask = 0x000F0FFF;
+    if ((patch.base_value & kArmImmediateMask) != 0) {
+      return false;
+    }
+    std::uint32_t immediate{};
+    if (patch.encoding == NumericWordEncoding::ArmMovwImmediate) {
+      immediate = input & 0xFFFFU;
+    } else {
+      immediate = input >> 16;
+    }
+    encoded.value = patch.base_value |
+                    ((immediate & 0xF000U) << 4) |
+                    (immediate & 0x0FFFU);
     return true;
   }
   if (patch.encoding != NumericWordEncoding::LinearImmediate &&
@@ -190,7 +207,7 @@ bool GamePatches::enable_runtime_feature(
 }
 
 bool GamePatches::set_numeric_feature(
-  const core::NumericFeature feature, const std::uint16_t value
+  const core::NumericFeature feature, const std::uint32_t value
 ) {
   const auto feature_index = core::numeric_feature_index(feature);
   if (feature_index >= profile_.numeric_patches.size()) {

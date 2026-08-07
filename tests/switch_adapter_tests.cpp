@@ -153,6 +153,9 @@ int main() {
   const auto movement_speed_multiplier_index = core::numeric_feature_index(
     core::NumericFeature::MovementSpeedMultiplier
   );
+  const auto zenny_index = core::numeric_feature_index(
+    core::NumericFeature::Zenny
+  );
   const auto weapon_transmog_index = core::runtime_feature_index(
     core::RuntimeFeature::WeaponTransmog
   );
@@ -477,6 +480,39 @@ int main() {
     matched_profile->numeric_patches[movement_speed_multiplier_index]
         .maximum == 50
   );
+  assert(matched_profile->numeric_patches[zenny_index].count == 5);
+  assert(
+    matched_profile->numeric_patches[zenny_index].patches[0].offset ==
+    0x013F1E10
+  );
+  assert(
+    matched_profile->numeric_patches[zenny_index].patches[0].encoding ==
+    NumericWordEncoding::ArmMovwImmediate
+  );
+  assert(
+    matched_profile->numeric_patches[zenny_index].patches[1].encoding ==
+    NumericWordEncoding::ArmMovtImmediate
+  );
+  assert(
+    matched_profile->numeric_patches[zenny_index].patches[4].offset ==
+    0x0062E500
+  );
+  constexpr std::array<std::uint32_t, 5> kZennyPatchValues{
+    0xE3003000,
+    0xE3403000,
+    0xE5853024,
+    0xE12FFF1E,
+    0xEB370E42,
+  };
+  for (std::size_t index = 0; index < kZennyPatchValues.size(); ++index) {
+    assert(
+      matched_profile->numeric_patches[zenny_index]
+        .patches[index]
+        .base_value == kZennyPatchValues[index]
+    );
+  }
+  assert(matched_profile->numeric_patches[zenny_index].minimum == 0);
+  assert(matched_profile->numeric_patches[zenny_index].maximum == 9999999);
   assert(
     matched_profile->runtime_patches[weapon_transmog_index].count == 8
   );
@@ -555,6 +591,10 @@ int main() {
       .patches[index]
       .offset = 0x1F0 + index * sizeof(std::uint32_t);
   }
+  for (std::size_t index = 0; index < 5; ++index) {
+    profile.numeric_patches[zenny_index].patches[index].offset =
+      0x204 + index * sizeof(std::uint32_t);
+  }
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
@@ -596,6 +636,7 @@ int main() {
   constexpr std::uint32_t kOriginalAttackMultiplierInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalDefenseMultiplierInstruction = 0xE1A00000;
   constexpr std::uint32_t kOriginalMovementSpeedInstruction = 0xE1A00000;
+  constexpr std::uint32_t kOriginalZennyInstruction = 0xE1A00000;
   memory.store(
     kMainBase + profile.runtime_patches[map_index].patches[0].offset,
     kOriginalShowMapInstruction
@@ -719,6 +760,12 @@ int main() {
       kMainBase + profile.numeric_patches[movement_speed_multiplier_index]
         .patches[index].offset,
       kOriginalMovementSpeedInstruction
+    );
+  }
+  for (std::size_t index = 0; index < 5; ++index) {
+    memory.store(
+      kMainBase + profile.numeric_patches[zenny_index].patches[index].offset,
+      kOriginalZennyInstruction
     );
   }
   for (std::size_t index = 0; index < 6; ++index) {
@@ -1338,6 +1385,71 @@ int main() {
         .patches[3].offset
     ) == 0x40200000
   );
+
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(core::NumericFeature::Zenny, 7777777));
+  assert(memory.write_count() == patch_writes + 5);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[zenny_index].patches[0].offset
+    ) == 0xE30A3DF1
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[zenny_index].patches[1].offset
+    ) == 0xE3403076
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[zenny_index].patches[4].offset
+    ) == 0xEB370E42
+  );
+  patch_writes = memory.write_count();
+  assert(patches.set_numeric_feature(core::NumericFeature::Zenny, 7777777));
+  assert(memory.write_count() == patch_writes);
+  assert(patches.set_numeric_feature(core::NumericFeature::Zenny, 0x123456));
+  assert(memory.write_count() == patch_writes + 2);
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[zenny_index].patches[0].offset
+    ) == 0xE3033456
+  );
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.numeric_patches[zenny_index].patches[1].offset
+    ) == 0xE3403012
+  );
+  patch_writes = memory.write_count();
+  assert(!patches.set_numeric_feature(core::NumericFeature::Zenny, 10000000));
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_zenny_profile = profile;
+  invalid_zenny_profile.numeric_patches[zenny_index].patches[4].offset =
+    0x1000;
+  GamePatches invalid_zenny(
+    memory, invalid_zenny_profile, kMainBase, 0x1000, 0, 0x20000
+  );
+  patch_writes = memory.write_count();
+  assert(!invalid_zenny.set_numeric_feature(core::NumericFeature::Zenny, 1));
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_zenny_encoding_profile = profile;
+  invalid_zenny_encoding_profile.numeric_patches[zenny_index]
+    .patches[0]
+    .base_value |= 1;
+  GamePatches invalid_zenny_encoding(
+    memory,
+    invalid_zenny_encoding_profile,
+    kMainBase,
+    0x1000,
+    0,
+    0x20000
+  );
+  patch_writes = memory.write_count();
+  assert(!invalid_zenny_encoding.set_numeric_feature(
+    core::NumericFeature::Zenny, 1
+  ));
+  assert(memory.write_count() == patch_writes);
 
   auto invalid_palico_affinity_profile = profile;
   invalid_palico_affinity_profile.numeric_patches[palico_affinity_index]

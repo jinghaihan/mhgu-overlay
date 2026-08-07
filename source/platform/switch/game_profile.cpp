@@ -240,6 +240,25 @@ constexpr NumericWordPatchSet kMovementSpeedMultiplierPatches{
   50,
 };
 
+constexpr NumericWordPatchSet kZennyPatches{
+  {{{0x013F1E10,
+     0xE3003000,
+     NumericWordEncoding::ArmMovwImmediate,
+     0,
+     0},
+    {0x013F1E14,
+     0xE3403000,
+     NumericWordEncoding::ArmMovtImmediate,
+     0,
+     0},
+    {0x013F1E18, 0xE5853024, NumericWordEncoding::Fixed, 0, 0},
+    {0x013F1E1C, 0xE12FFF1E, NumericWordEncoding::Fixed, 0, 0},
+    {0x0062E500, 0xEB370E42, NumericWordEncoding::Fixed, 0, 0}}},
+  5,
+  0,
+  9999999,
+};
+
 constexpr std::array<NumericWordPatchSet, core::kNumericFeatureCount>
   kNumericPatches{
     kHunterAffinityPatches,
@@ -249,6 +268,7 @@ constexpr std::array<NumericWordPatchSet, core::kNumericFeatureCount>
     kAttackMultiplierPatches,
     kDefenseMultiplierPatches,
     kMovementSpeedMultiplierPatches,
+    kZennyPatches,
   };
 
 constexpr GameProfile kProfiles[]{

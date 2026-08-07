@@ -69,6 +69,8 @@ UI_KEYS = [
   "attackMultiplier",
   "defenseMultiplier",
   "movementSpeedMultiplier",
+  "resources",
+  "zenny",
   "monsterInfoOverlay",
 ]
 

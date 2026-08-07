@@ -108,14 +108,14 @@ void Model::adjust_numeric_feature(
     auto& setting = settings_.numeric_features[index];
     const auto range = core::numeric_feature_range(feature);
     const auto adjusted = std::clamp(
-      static_cast<int>(setting.value) + delta,
-      static_cast<int>(range.minimum),
-      static_cast<int>(range.maximum)
+      static_cast<std::int64_t>(setting.value) + delta,
+      static_cast<std::int64_t>(range.minimum),
+      static_cast<std::int64_t>(range.maximum)
     );
     if (adjusted == setting.value) {
       return;
     }
-    setting.value = static_cast<std::uint16_t>(adjusted);
+    setting.value = static_cast<std::uint32_t>(adjusted);
     changed = settings_;
   }
   persist(changed);

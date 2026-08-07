@@ -54,6 +54,8 @@ enum class NumericWordEncoding : std::uint8_t {
   LinearImmediate,
   LinearWord,
   FloatTenths,
+  ArmMovwImmediate,
+  ArmMovtImmediate,
 };
 
 struct NumericWordPatch {
@@ -67,8 +69,8 @@ struct NumericWordPatch {
 struct NumericWordPatchSet {
   std::array<NumericWordPatch, kMaxMainWordPatchesPerFeature> patches;
   std::size_t count;
-  std::uint16_t minimum;
-  std::uint16_t maximum;
+  std::uint32_t minimum;
+  std::uint32_t maximum;
 };
 
 struct GameProfile {

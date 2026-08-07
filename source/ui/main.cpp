@@ -139,6 +139,8 @@ void refresh_numeric_feature_item(
       setting.value / 10,
       setting.value % 10
     );
+  } else if (feature == NumericFeature::Zenny) {
+    std::snprintf(value, sizeof(value), "%s / %u", state, setting.value);
   } else {
     std::snprintf(value, sizeof(value), "%s / %u%%", state, setting.value);
   }
@@ -146,7 +148,14 @@ void refresh_numeric_feature_item(
   item->setValue(value);
 }
 
+int numeric_feature_small_step(const NumericFeature feature) {
+  return feature == NumericFeature::Zenny ? 10000 : 1;
+}
+
 int numeric_feature_large_step(const NumericFeature feature) {
+  if (feature == NumericFeature::Zenny) {
+    return 1000000;
+  }
   if (feature == NumericFeature::MovementSpeedMultiplier) {
     return 5;
   }
@@ -170,9 +179,9 @@ tsl::elm::ListItem* numeric_feature_item(
     [model_ptr = &model, item, label, feature](const u64 keys) {
       int delta{};
       if ((keys & HidNpadButton_Left) != 0) {
-        delta = -1;
+        delta = -numeric_feature_small_step(feature);
       } else if ((keys & HidNpadButton_Right) != 0) {
-        delta = 1;
+        delta = numeric_feature_small_step(feature);
       } else if ((keys & HidNpadButton_L) != 0) {
         delta = -numeric_feature_large_step(feature);
       } else if ((keys & HidNpadButton_R) != 0) {
@@ -685,6 +694,12 @@ public:
     );
     list->addItem(movement_speed_multiplier_item_);
 
+    list->addItem(section_header(model_, UiMessage::Resources), 44);
+    zenny_item_ = numeric_feature_item(
+      model_, UiMessage::Zenny, NumericFeature::Zenny
+    );
+    list->addItem(zenny_item_);
+
     list->addItem(section_header(model_, UiMessage::Palico), 44);
     palico_health_item_ = runtime_feature_item(
       model_,
@@ -734,6 +749,7 @@ private:
   tsl::elm::ListItem* attack_multiplier_item_{};
   tsl::elm::ListItem* defense_multiplier_item_{};
   tsl::elm::ListItem* movement_speed_multiplier_item_{};
+  tsl::elm::ListItem* zenny_item_{};
   tsl::elm::ListItem* palico_health_item_{};
   tsl::elm::ListItem* palico_affinity_item_{};
 };

@@ -51,6 +51,8 @@
     "attackMultiplier": "Attack multiplier",
     "defenseMultiplier": "Defense multiplier",
     "movementSpeedMultiplier": "Movement speed multiplier",
+    "resources": "Resources",
+    "zenny": "Zenny",
     "monsterInfoOverlay": "Monster info overlay"
   },
   "monsters": {

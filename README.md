@@ -47,6 +47,7 @@ Generations Ultimate on Nintendo Switch.
 - Sets the attack multiplier from x1 to x10.
 - Sets the defense multiplier from x1 to x10.
 - Sets the movement speed multiplier from x1.0 to x5.0.
+- Sets Zenny to a user-selected value from 0 to 9,999,999.
 - Optionally locks each monster to its own Mini, Silver, or Gold crown
   threshold; **Off** remains the default.
 - English, Simplified Chinese, and Japanese, with automatic detection and
@@ -118,6 +119,10 @@ Generations Ultimate on Nintendo Switch.
 - **Movement speed multiplier** uses Left/Right for 0.1-step adjustments and
   L/R for 0.5-step adjustments from x1.0 to x5.0. Its selected value is saved,
   but its enabled state is not.
+- **Zenny** uses Left/Right for 10,000-step adjustments and L/R for
+  1,000,000-step adjustments. The default selected value is 7,777,777; the
+  value is saved, but the enabled state is not. Restart the game to restore
+  the original instruction.
 - Use **Rescan** to discard the cached pointer and scan again.
 
 Settings are saved to `sdmc:/config/mhgu-overlay/settings.ini`.
