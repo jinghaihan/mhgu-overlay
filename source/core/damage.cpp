@@ -20,6 +20,9 @@ DamageOutput DamageTracker::update(
   std::array<TrackedMonster, kMaxMonsters> next_tracked{};
   std::size_t next_tracked_count{};
   const auto sample_count = std::min(snapshot.monster_count, kMaxMonsters);
+  if (sample_count == 0) {
+    return output();
+  }
   for (std::size_t index = 0; index < sample_count; ++index) {
     const auto& sample = snapshot.monsters[index];
     if (!valid_sample(sample)) {
@@ -59,6 +62,9 @@ DamageOutput DamageTracker::update(
     };
   }
 
+  if (next_tracked_count == 0) {
+    return output();
+  }
   tracked_ = next_tracked;
   tracked_count_ = next_tracked_count;
   return output();

@@ -70,6 +70,15 @@ int main() {
   output = tracker.update(reused, 1160);
   assert(output.event_count == 6);
 
+  DamageTracker interrupted;
+  output = interrupted.update(snapshot(5000), 1200);
+  assert(output.event_count == 0);
+  output = interrupted.update(empty, 1216);
+  assert(output.event_count == 0);
+  output = interrupted.update(snapshot(4800), 1232);
+  assert(output.event_count == 1);
+  assert(output.events[0].damage == 200);
+
   output = tracker.current(1016 + kDamageEventLifetimeMs);
   assert(output.event_count == 5);
   assert(output.events[0].sequence == 2);
