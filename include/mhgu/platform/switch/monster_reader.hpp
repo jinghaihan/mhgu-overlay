@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 
@@ -51,6 +52,12 @@ public:
   );
 
 private:
+  bool read_pointer_list(
+    std::uint64_t address,
+    bool allow_empty,
+    std::array<std::uint8_t, 0x41>& bytes
+  );
+  bool plausible_monster(std::uint64_t address);
   bool read_monster(std::uint64_t address, core::MonsterSnapshot& snapshot);
   bool monster_identity(std::uint64_t address, ResolvedMonster& resolved);
   bool pointer_list_contains(

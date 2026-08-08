@@ -150,8 +150,12 @@ std::uint64_t MonsterReader::find_pointer_list() {
   return 0;
 }
 
-bool MonsterReader::validate_pointer_list(const std::uint64_t address) {
-  std::array<std::uint8_t, 0x41> bytes{};
+bool MonsterReader::read_pointer_list(
+  const std::uint64_t address,
+  const bool allow_empty,
+  std::array<std::uint8_t, 0x41>& bytes
+) {
+  bytes = {};
   if (profile_.pointer_list.byte_size > bytes.size() ||
       !contains_heap_range(address, profile_.pointer_list.byte_size) ||
       !memory_.read(address, bytes.data(), profile_.pointer_list.byte_size)) {
@@ -170,20 +174,69 @@ bool MonsterReader::validate_pointer_list(const std::uint64_t address) {
   }
 
   const auto count = bytes[layout.count];
-  if (count == 0 || count > kPointerCapacity) {
+  if ((!allow_empty && count == 0) || count > kPointerCapacity) {
     return false;
   }
   for (std::size_t index = 0; index < kPointerCapacity; ++index) {
     const auto pointer =
       read_u32(bytes.data() + layout.pointers + index * sizeof(std::uint32_t));
-    if ((index < count && pointer == 0) || (index >= count && pointer != 0)) {
+    if ((index < count && (pointer == 0 || !contains_monster(pointer))) ||
+        (index >= count && pointer != 0)) {
       return false;
     }
   }
+  return true;
+}
 
-  ResolvedMonster first{};
-  const auto first_pointer = read_u32(bytes.data() + layout.pointers);
-  return monster_identity(first_pointer, first) && first.monster_id != 0;
+bool MonsterReader::plausible_monster(const std::uint64_t address) {
+  std::uint8_t location{};
+  std::uint8_t secondary{};
+  std::uint32_t health{};
+  std::uint32_t maximum_health{};
+  if (!contains_monster(address) ||
+      !read_value(memory_, address + profile_.monster.location_flag, location) ||
+      !is_known_location(profile_, location) ||
+      !read_value(
+        memory_, address + profile_.monster.secondary_identifier, secondary
+      ) ||
+      !read_value(memory_, address + profile_.monster.health, health) ||
+      !read_value(
+        memory_, address + profile_.monster.maximum_health, maximum_health
+      ) ||
+      maximum_health == 0 || maximum_health > 20'000'000U ||
+      health > maximum_health) {
+    return false;
+  }
+
+  if (secondary == 0 || secondary == 0x80) {
+    return true;
+  }
+
+  ResolvedMonster resolved{};
+  float size_multiplier{};
+  return monster_identity(address, resolved) && resolved.monster_id != 0 &&
+         read_value(
+           memory_, address + profile_.monster.size_multiplier, size_multiplier
+         ) &&
+         multiplier_percent(size_multiplier) != 0;
+}
+
+bool MonsterReader::validate_pointer_list(const std::uint64_t address) {
+  std::array<std::uint8_t, 0x41> bytes{};
+  if (!read_pointer_list(address, false, bytes)) {
+    return false;
+  }
+
+  const auto& layout = profile_.pointer_list;
+  const auto count = bytes[layout.count];
+  for (std::size_t index = 0; index < count; ++index) {
+    const auto pointer =
+      read_u32(bytes.data() + layout.pointers + index * sizeof(std::uint32_t));
+    if (plausible_monster(pointer)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool MonsterReader::monster_identity(
@@ -209,15 +262,13 @@ bool MonsterReader::monster_identity(
 bool MonsterReader::pointer_list_contains(
   const std::uint64_t pointer_list_address, const core::MonsterHandle handle
 ) {
-  if (handle == 0 || !validate_pointer_list(pointer_list_address)) {
+  if (handle == 0) {
     return false;
   }
 
   std::array<std::uint8_t, 0x41> bytes{};
   const auto& layout = profile_.pointer_list;
-  if (layout.byte_size > bytes.size() ||
-      !contains_heap_range(pointer_list_address, layout.byte_size) ||
-      !memory_.read(pointer_list_address, bytes.data(), layout.byte_size)) {
+  if (!read_pointer_list(pointer_list_address, false, bytes)) {
     return false;
   }
 
@@ -285,9 +336,7 @@ bool MonsterReader::read_snapshot(
 
   std::array<std::uint8_t, 0x41> bytes{};
   const auto& layout = profile_.pointer_list;
-  if (layout.byte_size > bytes.size() ||
-      !contains_heap_range(pointer_list_address, layout.byte_size) ||
-      !memory_.read(pointer_list_address, bytes.data(), layout.byte_size)) {
+  if (!read_pointer_list(pointer_list_address, true, bytes)) {
     return false;
   }
 

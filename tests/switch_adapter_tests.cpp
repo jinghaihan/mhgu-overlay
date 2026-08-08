@@ -1962,5 +1962,47 @@ int main() {
   assert(reader.apply_size(kList, request, verified));
   assert(memory.write_count() == writes_before_guard);
 
+  constexpr std::uint32_t kSmallMonster = 0x10000;
+  const std::uint8_t small_identifier = 0;
+  const std::uint32_t small_health = 100;
+  const std::uint32_t small_maximum_health = 200;
+  memory.store(
+    kSmallMonster + profile.monster.location_flag, current_location
+  );
+  memory.store(
+    kSmallMonster + profile.monster.secondary_identifier, small_identifier
+  );
+  memory.store(kSmallMonster + profile.monster.health, small_health);
+  memory.store(
+    kSmallMonster + profile.monster.maximum_health, small_maximum_health
+  );
+  memory.store(kList + profile.pointer_list.pointers, kSmallMonster);
+  memory.store(
+    kList + profile.pointer_list.pointers + sizeof(std::uint32_t), kMonster
+  );
+  memory.store(kList + profile.pointer_list.count, two);
+  assert(reader.validate_pointer_list(kList));
+  assert(reader.find_pointer_list() == kList);
+
+  core::GameSnapshot small_first{};
+  assert(reader.read_snapshot(kList, core::Locale::English, small_first));
+  assert(small_first.monster_count == 1);
+  assert(small_first.monsters[0].handle == kMonster);
+
+  const std::uint32_t no_pointer = 0;
+  const std::uint8_t no_monsters = 0;
+  memory.store(kList + profile.pointer_list.pointers, no_pointer);
+  memory.store(
+    kList + profile.pointer_list.pointers + sizeof(std::uint32_t), no_pointer
+  );
+  memory.store(kList + profile.pointer_list.count, no_monsters);
+  assert(!reader.validate_pointer_list(kList));
+
+  core::GameSnapshot temporarily_empty{};
+  assert(reader.read_snapshot(
+    kList, core::Locale::English, temporarily_empty
+  ));
+  assert(temporarily_empty.monster_count == 0);
+
   std::cout << "switch adapter tests passed\n";
 }

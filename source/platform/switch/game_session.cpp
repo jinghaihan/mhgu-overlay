@@ -11,6 +11,11 @@
 #include "mhgu/platform/switch/language.hpp"
 
 namespace mhgu::platform::switch_adapter {
+namespace {
+
+constexpr std::uint8_t kPointerReadFailureLimit = 4;
+
+}  // namespace
 
 bool GameSession::initialize() {
   if (initialized_) {
@@ -110,6 +115,7 @@ bool GameSession::attach() {
     applied_monster_damage_mode_ = core::MonsterDamageMode::Off;
     applied_runtime_features_ = {};
     applied_numeric_features_ = {};
+    pointer_read_failures_ = 0;
     damage_tracker_.reset();
     view_ = {};
     view_.status = SessionStatus::Searching;
@@ -136,6 +142,7 @@ void GameSession::detach(const SessionStatus status) {
   heap_size_ = 0;
   address_space_base_ = 0;
   address_space_size_ = 0;
+  pointer_read_failures_ = 0;
   frame_rate_applied_ = false;
   applied_frame_rate_ = core::FrameRate::Fps30;
   applied_monster_damage_mode_ = core::MonsterDamageMode::Off;
@@ -238,18 +245,22 @@ void GameSession::poll(const core::CoreSettings& settings) {
     if (view_.pointer_list == 0) {
       return;
     }
+    pointer_read_failures_ = 0;
   }
 
   core::GameSnapshot snapshot{};
-  if (!reader_->validate_pointer_list(view_.pointer_list) ||
-      !reader_->read_snapshot(
+  if (!reader_->read_snapshot(
         view_.pointer_list, view_.detected_locale, snapshot
       )) {
+    if (++pointer_read_failures_ < kPointerReadFailureLimit) {
+      return;
+    }
     view_.pointer_list = 0;
     view_.output = {};
     view_.status = SessionStatus::ReadFailed;
     return;
   }
+  pointer_read_failures_ = 0;
 
   view_.output = engine_.update(snapshot, settings);
   view_.status = SessionStatus::Ready;
@@ -298,6 +309,7 @@ void GameSession::poll_damage(
 }
 
 void GameSession::request_rescan() {
+  pointer_read_failures_ = 0;
   view_.pointer_list = 0;
   view_.output = {};
   view_.damage = {};
