@@ -27,6 +27,7 @@ using mhgu::core::UiMessage;
 using mhgu::platform::switch_adapter::SessionStatus;
 using mhgu::platform::switch_adapter::QuestScanStatus;
 using mhgu::platform::switch_adapter::QuestDataLayout;
+using mhgu::platform::switch_adapter::ResourceScanStatus;
 
 #ifndef MHGU_OVERLAY_VERSION
 #define MHGU_OVERLAY_VERSION "development"
@@ -1239,6 +1240,314 @@ private:
   tsl::elm::ListItem* start_item_{};
 };
 
+class ResourceScanGui final : public tsl::Gui {
+public:
+  explicit ResourceScanGui(Model& model)
+    : model_(model) {}
+
+  tsl::elm::Element* createUI() override {
+    const auto locale = model_.display_locale();
+    frame_ = new LocalizedOverlayFrame(
+      mhgu::core::ui_message(UiMessage::ResourceDataDiagnostic, locale),
+      kVersion
+    );
+    auto* list = new tsl::elm::List(6);
+    zenny_item_ = resource_value_item(UiMessage::Zenny, false);
+    list->addItem(zenny_item_);
+    points_item_ = resource_value_item(UiMessage::WycademyPoints, true);
+    list->addItem(points_item_);
+
+    step_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::DiagnosticInputStep, locale)
+    );
+    step_item_->setClickListener([this](const u64 keys) {
+      auto direction = 0;
+      if ((keys & HidNpadButton_Left) != 0) {
+        direction = -1;
+      } else if ((keys & HidNpadButton_Right) != 0) {
+        direction = 1;
+      } else {
+        return false;
+      }
+      model_.adjust_resource_diagnostic_step(direction);
+      refresh_inputs();
+      return true;
+    });
+    list->addItem(step_item_);
+
+    initial_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::StartInitialScan, locale)
+    );
+    initial_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) == 0 || scan_active()) {
+        return false;
+      }
+      model_.request_resource_scan(false);
+      return true;
+    });
+    list->addItem(initial_item_);
+
+    filter_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::FilterCandidates, locale)
+    );
+    filter_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) == 0 || scan_active()) {
+        return false;
+      }
+      model_.request_resource_scan(true);
+      return true;
+    });
+    list->addItem(filter_item_);
+
+    list->addItem(
+      new tsl::elm::CustomDrawer([this](
+                                   tsl::gfx::Renderer* renderer,
+                                   const u16 x,
+                                   const u16 y,
+                                   const u16,
+                                   const u16
+                                 ) { draw_status(renderer, x, y); }),
+      245
+    );
+    frame_->setContent(list);
+    refresh_inputs();
+    return frame_;
+  }
+
+  void update() override {
+    const auto locale = model_.display_locale();
+    frame_->setTitle(
+      mhgu::core::ui_message(UiMessage::ResourceDataDiagnostic, locale)
+    );
+    zenny_item_->setText(mhgu::core::ui_message(UiMessage::Zenny, locale));
+    points_item_->setText(
+      mhgu::core::ui_message(UiMessage::WycademyPoints, locale)
+    );
+    step_item_->setText(
+      mhgu::core::ui_message(UiMessage::DiagnosticInputStep, locale)
+    );
+    initial_item_->setText(
+      mhgu::core::ui_message(UiMessage::StartInitialScan, locale)
+    );
+    filter_item_->setText(
+      mhgu::core::ui_message(UiMessage::FilterCandidates, locale)
+    );
+    refresh_inputs();
+  }
+
+  bool handleInput(
+    const u64 keys_down,
+    u64,
+    const HidTouchState&,
+    JoystickPosition,
+    JoystickPosition
+  ) override {
+    if ((keys_down & HidNpadButton_B) != 0) {
+      tsl::goBack();
+      return true;
+    }
+    return false;
+  }
+
+private:
+  tsl::elm::ListItem* resource_value_item(
+    const UiMessage label, const bool points
+  ) {
+    auto* item = new tsl::elm::ListItem(
+      mhgu::core::ui_message(label, model_.display_locale())
+    );
+    item->setClickListener([this, points](const u64 keys) {
+      auto direction = 0;
+      if ((keys & HidNpadButton_Left) != 0) {
+        direction = -1;
+      } else if ((keys & HidNpadButton_Right) != 0) {
+        direction = 1;
+      } else if ((keys & HidNpadButton_L) != 0) {
+        direction = -10;
+      } else if ((keys & HidNpadButton_R) != 0) {
+        direction = 10;
+      } else {
+        return false;
+      }
+      model_.adjust_resource_diagnostic_value(points, direction);
+      refresh_inputs();
+      return true;
+    });
+    return item;
+  }
+
+  bool scan_active() const {
+    return model_.session_view().resource_scan.status ==
+           ResourceScanStatus::Scanning;
+  }
+
+  void refresh_inputs() {
+    const auto input = model_.resource_diagnostic_input();
+    char value[32]{};
+    std::snprintf(value, sizeof(value), "%u", input.zenny);
+    zenny_item_->setValue(value);
+    std::snprintf(value, sizeof(value), "%u", input.wycademy_points);
+    points_item_->setValue(value);
+    std::snprintf(value, sizeof(value), "%u", input.step);
+    step_item_->setValue(value);
+  }
+
+  void draw_status(
+    tsl::gfx::Renderer* renderer, const u16 x, const u16 y
+  ) const {
+    const auto scan = model_.session_view().resource_scan;
+    const auto locale = model_.display_locale();
+    auto* status =
+      mhgu::core::ui_message(UiMessage::ResourceScanIdle, locale);
+    if (scan.status == ResourceScanStatus::Scanning) {
+      status =
+        mhgu::core::ui_message(UiMessage::ResourceScanRunning, locale);
+    } else if (scan.status == ResourceScanStatus::Complete) {
+      status =
+        mhgu::core::ui_message(UiMessage::ResourceScanComplete, locale);
+    } else if (scan.status == ResourceScanStatus::InvalidInput) {
+      status =
+        mhgu::core::ui_message(UiMessage::ResourceScanInvalidInput, locale);
+    } else if (scan.status == ResourceScanStatus::ReportFailed) {
+      status = mhgu::core::ui_message(
+        UiMessage::ResourceScanReportFailed, locale
+      );
+    }
+    renderer->drawString(
+      status,
+      false,
+      x + 8,
+      y + 28,
+      17,
+      renderer->a({0xF, 0xF, 0xF, 0xF})
+    );
+
+    char line[128]{};
+    if (scan.status == ResourceScanStatus::Scanning &&
+        scan.progress_total != 0) {
+      const auto progress = static_cast<unsigned>(
+        scan.progress * 100 / scan.progress_total
+      );
+      std::snprintf(line, sizeof(line), "%u%%", progress);
+      renderer->drawString(
+        line,
+        false,
+        x + 8,
+        y + 54,
+        15,
+        renderer->a({0x8, 0xB, 0xF, 0xF})
+      );
+    }
+    std::snprintf(
+      line,
+      sizeof(line),
+      "%s: %u",
+      mhgu::core::ui_message(UiMessage::QuestScanCandidates, locale),
+      scan.candidate_count
+    );
+    renderer->drawString(
+      line,
+      false,
+      x + 8,
+      y + 80,
+      15,
+      renderer->a({0xB, 0xD, 0xD, 0xF})
+    );
+    for (std::size_t index = 0; index < scan.preview_count; ++index) {
+      const auto& candidate = scan.preview[index];
+      std::snprintf(
+        line,
+        sizeof(line),
+        "heap+%llX  z=%u  p=%u",
+        static_cast<unsigned long long>(candidate.heap_offset),
+        candidate.zenny,
+        candidate.wycademy_points
+      );
+      renderer->drawString(
+        line,
+        false,
+        x + 8,
+        y + 106 + static_cast<u16>(index * 22),
+        14,
+        renderer->a({0xC, 0xC, 0xC, 0xF})
+      );
+    }
+    if (scan.status == ResourceScanStatus::Complete) {
+      renderer->drawString(
+        mhgu::core::ui_message(UiMessage::ResourceScanReport, locale),
+        false,
+        x + 8,
+        y + 226,
+        13,
+        renderer->a({0x8, 0xB, 0xB, 0xF})
+      );
+    }
+  }
+
+  Model& model_;
+  LocalizedOverlayFrame* frame_{};
+  tsl::elm::ListItem* zenny_item_{};
+  tsl::elm::ListItem* points_item_{};
+  tsl::elm::ListItem* step_item_{};
+  tsl::elm::ListItem* initial_item_{};
+  tsl::elm::ListItem* filter_item_{};
+};
+
+class AddressDiagnosticGui final : public tsl::Gui {
+public:
+  explicit AddressDiagnosticGui(Model& model)
+    : model_(model) {}
+
+  tsl::elm::Element* createUI() override {
+    const auto locale = model_.display_locale();
+    auto* frame = new LocalizedOverlayFrame(
+      mhgu::core::ui_message(UiMessage::AddressDiagnostic, locale), kVersion
+    );
+    auto* list = new tsl::elm::List(6);
+    auto* quest = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::QuestDataDiagnostic, locale)
+    );
+    quest->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0) {
+        tsl::changeTo<QuestScanGui>(model_);
+        return true;
+      }
+      return false;
+    });
+    list->addItem(quest);
+    auto* resources = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::ResourceDataDiagnostic, locale)
+    );
+    resources->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0) {
+        tsl::changeTo<ResourceScanGui>(model_);
+        return true;
+      }
+      return false;
+    });
+    list->addItem(resources);
+    frame->setContent(list);
+    return frame;
+  }
+
+  bool handleInput(
+    const u64 keys_down,
+    u64,
+    const HidTouchState&,
+    JoystickPosition,
+    JoystickPosition
+  ) override {
+    if ((keys_down & HidNpadButton_B) != 0) {
+      tsl::goBack();
+      return true;
+    }
+    return false;
+  }
+
+private:
+  Model& model_;
+};
+
 class MainGui final : public tsl::Gui {
 public:
   explicit MainGui(Model& model)
@@ -1395,17 +1704,17 @@ public:
     });
     list->addItem(battle_item_);
 
-    quest_scan_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::QuestDataDiagnostic, locale)
+    address_diagnostic_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::AddressDiagnostic, locale)
     );
-    quest_scan_item_->setClickListener([this](const u64 keys) {
+    address_diagnostic_item_->setClickListener([this](const u64 keys) {
       if ((keys & HidNpadButton_A) != 0) {
-        tsl::changeTo<QuestScanGui>(model_);
+        tsl::changeTo<AddressDiagnosticGui>(model_);
         return true;
       }
       return false;
     });
-    list->addItem(quest_scan_item_);
+    list->addItem(address_diagnostic_item_);
 
     scan_item_ =
       new tsl::elm::ListItem(mhgu::core::ui_message(UiMessage::Scan, locale));
@@ -1494,8 +1803,8 @@ private:
     transmog_item_->setText(
       mhgu::core::ui_message(UiMessage::Transmog, locale)
     );
-    quest_scan_item_->setText(
-      mhgu::core::ui_message(UiMessage::QuestDataDiagnostic, locale)
+    address_diagnostic_item_->setText(
+      mhgu::core::ui_message(UiMessage::AddressDiagnostic, locale)
     );
     scan_item_->setText(mhgu::core::ui_message(UiMessage::Scan, locale));
   }
@@ -1511,7 +1820,7 @@ private:
   tsl::elm::ListItem* carry_item_{};
   tsl::elm::ListItem* transmog_item_{};
   tsl::elm::ListItem* battle_item_{};
-  tsl::elm::ListItem* quest_scan_item_{};
+  tsl::elm::ListItem* address_diagnostic_item_{};
   tsl::elm::ListItem* scan_item_{};
 };
 

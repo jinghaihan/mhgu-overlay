@@ -69,7 +69,18 @@
     "questScanComplete": "Scan complete",
     "questScanReportFailed": "Could not save the scan report",
     "questScanCandidates": "Candidates",
-    "questScanReport": "Report: config/mhgu-overlay/quest-scan.log"
+    "questScanReport": "Report: config/mhgu-overlay/quest-scan.log",
+    "resourceDataDiagnostic": "Resource data diagnostic",
+    "diagnosticInputStep": "Input step",
+    "startInitialScan": "Start initial scan",
+    "filterCandidates": "Filter with new values",
+    "resourceScanIdle": "Enter the current in-game values",
+    "resourceScanRunning": "Scanning resource data",
+    "resourceScanComplete": "Resource scan complete",
+    "resourceScanInvalidInput": "At least one value must be nonzero",
+    "resourceScanReportFailed": "Could not save the resource report",
+    "resourceScanReport": "Report: config/mhgu-overlay/resource-scan.log",
+    "addressDiagnostic": "Address diagnostic"
   },
   "monsters": {
     "great-maccao": "Great Maccao",

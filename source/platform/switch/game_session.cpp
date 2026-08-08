@@ -13,10 +13,12 @@
 namespace mhgu::platform::switch_adapter {
 namespace {
 
-constexpr std::size_t kQuestScanBytesPerPoll = 1024 * 1024;
+constexpr std::size_t kDiagnosticScanBytesPerPoll = 1024 * 1024;
 #ifdef __SWITCH__
 constexpr const char* kQuestScanReportPath =
   "sdmc:/config/mhgu-overlay/quest-scan.log";
+constexpr const char* kResourceScanReportPath =
+  "sdmc:/config/mhgu-overlay/resource-scan.log";
 #endif
 
 }  // namespace
@@ -109,6 +111,15 @@ bool GameSession::attach() {
       profile_->name,
       kQuestScanReportPath
     );
+    resource_scanner_ = std::make_unique<ResourceScanner>(
+      memory_,
+      profile_->player_resources,
+      heap_base_,
+      heap_size_,
+      metadata.title_id,
+      profile_->name,
+      kResourceScanReportPath
+    );
     frame_rate_applied_ = false;
     applied_frame_rate_ = core::FrameRate::Fps30;
     applied_monster_damage_mode_ = core::MonsterDamageMode::Off;
@@ -133,6 +144,7 @@ void GameSession::detach(const SessionStatus status) {
   patches_.reset();
   reader_.reset();
   quest_scanner_.reset();
+  resource_scanner_.reset();
   profile_ = nullptr;
   process_id_ = 0;
   main_base_ = 0;
@@ -310,7 +322,7 @@ void GameSession::poll_quest_scan() {
   if (quest_scanner_ == nullptr || !quest_scanner_->active()) {
     return;
   }
-  quest_scanner_->advance(kQuestScanBytesPerPoll);
+  quest_scanner_->advance(kDiagnosticScanBytesPerPoll);
   view_.quest_scan = quest_scanner_->view();
 }
 
@@ -324,6 +336,40 @@ bool GameSession::request_quest_scan() {
 
 bool GameSession::quest_scan_active() const {
   return quest_scanner_ != nullptr && quest_scanner_->active();
+}
+
+void GameSession::poll_resource_scan() {
+  if (resource_scanner_ == nullptr || !resource_scanner_->active()) {
+    return;
+  }
+  resource_scanner_->advance(kDiagnosticScanBytesPerPoll);
+  view_.resource_scan = resource_scanner_->view();
+}
+
+bool GameSession::request_resource_scan(
+  const std::uint32_t zenny,
+  const std::uint32_t wycademy_points,
+  const bool filter
+) {
+  if (resource_scanner_ == nullptr) {
+    return false;
+  }
+  const auto accepted = filter
+                          ? resource_scanner_->start_filter(
+                              zenny, wycademy_points
+                            )
+                          : resource_scanner_->start_initial(
+                              zenny, wycademy_points
+                            );
+  if (!accepted) {
+    return false;
+  }
+  view_.resource_scan = resource_scanner_->view();
+  return true;
+}
+
+bool GameSession::resource_scan_active() const {
+  return resource_scanner_ != nullptr && resource_scanner_->active();
 }
 
 void GameSession::request_rescan() {

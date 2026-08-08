@@ -69,7 +69,18 @@
     "questScanComplete": "扫描完成",
     "questScanReportFailed": "扫描报告保存失败",
     "questScanCandidates": "候选数量",
-    "questScanReport": "报告：config/mhgu-overlay/quest-scan.log"
+    "questScanReport": "报告：config/mhgu-overlay/quest-scan.log",
+    "resourceDataDiagnostic": "资源数据诊断",
+    "diagnosticInputStep": "输入步长",
+    "startInitialScan": "开始首次扫描",
+    "filterCandidates": "使用新数值筛选",
+    "resourceScanIdle": "请输入游戏内当前数值",
+    "resourceScanRunning": "正在扫描资源数据",
+    "resourceScanComplete": "资源扫描完成",
+    "resourceScanInvalidInput": "至少一个数值不能为零",
+    "resourceScanReportFailed": "资源扫描报告保存失败",
+    "resourceScanReport": "报告：config/mhgu-overlay/resource-scan.log",
+    "addressDiagnostic": "地址诊断"
   },
   "monsters": {
     "great-maccao": "跳狗龙王",

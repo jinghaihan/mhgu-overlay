@@ -88,6 +88,17 @@ UI_KEYS = [
   "questScanReportFailed",
   "questScanCandidates",
   "questScanReport",
+  "resourceDataDiagnostic",
+  "diagnosticInputStep",
+  "startInitialScan",
+  "filterCandidates",
+  "resourceScanIdle",
+  "resourceScanRunning",
+  "resourceScanComplete",
+  "resourceScanInvalidInput",
+  "resourceScanReportFailed",
+  "resourceScanReport",
+  "addressDiagnostic",
 ]
 
 

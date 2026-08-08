@@ -14,6 +14,7 @@
 #include "mhgu/platform/switch/memory.hpp"
 #include "mhgu/platform/switch/monster_reader.hpp"
 #include "mhgu/platform/switch/quest_scanner.hpp"
+#include "mhgu/platform/switch/resource_scanner.hpp"
 
 namespace {
 
@@ -126,6 +127,60 @@ int main() {
     assert(scan.preview[0].start_type == 1);
     assert(scan.preview[1].address == kQuestAddress);
     assert(scan.preview[1].layout == QuestDataLayout::Resource);
+  }
+
+  {
+    constexpr std::uint64_t kResourceHeapBase = 0x1000;
+    constexpr std::uint64_t kResourceHeapSize = 0x20000;
+    constexpr std::uint64_t kFirstResource =
+      kResourceHeapBase + 64 * 1024 - 40;
+    constexpr std::uint64_t kSecondResource = kResourceHeapBase + 0x18000;
+    constexpr std::uint32_t kZenny = 123456;
+    constexpr std::uint32_t kPoints = 7890;
+    FakeMemory resource_memory(0x24000);
+    resource_memory.store(kFirstResource + 0x24, kZenny);
+    resource_memory.store(kFirstResource + 0x2C, kPoints);
+    resource_memory.store(kSecondResource + 0x24, kZenny);
+    resource_memory.store(kSecondResource + 0x2C, kPoints);
+
+    ResourceScanner scanner(
+      resource_memory,
+      PlayerResourceLayout{0x24, 0x2C, 9'999'999},
+      kResourceHeapBase,
+      kResourceHeapSize,
+      kMhguTitleId,
+      "MHGU 1.4.0",
+      ""
+    );
+    assert(scanner.start_initial(kZenny, kPoints));
+    while (scanner.active()) {
+      scanner.advance(4096);
+    }
+    auto scan = scanner.view();
+    assert(scan.status == ResourceScanStatus::Complete);
+    assert(scan.mode == ResourceScanMode::Initial);
+    assert(scan.stage_number == 1);
+    assert(scan.candidate_count == 2);
+    assert(scan.preview_count == 2);
+
+    constexpr std::uint32_t kChangedZenny = 123356;
+    resource_memory.store(kFirstResource + 0x24, kChangedZenny);
+    assert(scanner.start_filter(kChangedZenny, kPoints));
+    while (scanner.active()) {
+      scanner.advance(4096);
+    }
+    scan = scanner.view();
+    assert(scan.status == ResourceScanStatus::Complete);
+    assert(scan.mode == ResourceScanMode::Filter);
+    assert(scan.stage_number == 2);
+    assert(scan.candidate_count == 1);
+    assert(scan.preview_count == 1);
+    assert(scan.preview[0].address == kFirstResource);
+    assert(scan.preview[0].zenny == kChangedZenny);
+    assert(scan.preview[0].wycademy_points == kPoints);
+
+    assert(scanner.start_initial(0, 0));
+    assert(scanner.view().status == ResourceScanStatus::InvalidInput);
   }
 
   std::array<std::uint8_t, 0x20> build_id{};
@@ -245,6 +300,9 @@ int main() {
   assert(matched_profile->item_pouch.slot_count == 10);
   assert(matched_profile->item_pouch.minimum_quantity == 1);
   assert(matched_profile->item_pouch.maximum_quantity == 99);
+  assert(matched_profile->player_resources.zenny == 0x24);
+  assert(matched_profile->player_resources.wycademy_points == 0x2C);
+  assert(matched_profile->player_resources.maximum_value == 9999999);
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==

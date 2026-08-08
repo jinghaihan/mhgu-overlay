@@ -75,6 +75,17 @@ enum class UiMessage : std::uint8_t {
   QuestScanReportFailed,
   QuestScanCandidates,
   QuestScanReport,
+  ResourceDataDiagnostic,
+  DiagnosticInputStep,
+  StartInitialScan,
+  FilterCandidates,
+  ResourceScanIdle,
+  ResourceScanRunning,
+  ResourceScanComplete,
+  ResourceScanInvalidInput,
+  ResourceScanReportFailed,
+  ResourceScanReport,
+  AddressDiagnostic,
 };
 
 const char* ui_message(UiMessage message, Locale locale);

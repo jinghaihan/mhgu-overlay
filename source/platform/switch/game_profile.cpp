@@ -45,6 +45,12 @@ constexpr ItemPouchLayout kItemPouchLayout{
   99,
 };
 
+constexpr PlayerResourceLayout kPlayerResourceLayout{
+  0x24,
+  0x2C,
+  9'999'999,
+};
+
 constexpr MainWordPatchSet kMapAndLargeMonstersPatches{
   {{{0x0061BAD0, 0xE1A00000}, {0x0061CC94, 0xE3A00001}}},
   2,
@@ -318,6 +324,7 @@ constexpr GameProfile kProfiles[]{
     kFrameRatePatch,
     kMonsterDamagePatch,
     kItemPouchLayout,
+    kPlayerResourceLayout,
     kRuntimePatches,
     kNumericPatches,
   },

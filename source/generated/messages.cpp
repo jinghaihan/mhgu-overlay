@@ -75,6 +75,17 @@ constexpr const char* kMessages[][3] = {
   {"Could not save the scan report", "扫描报告保存失败", "スキャンレポートを保存できません"},
   {"Candidates", "候选数量", "候補数"},
   {"Report: config/mhgu-overlay/quest-scan.log", "报告：config/mhgu-overlay/quest-scan.log", "レポート: config/mhgu-overlay/quest-scan.log"},
+  {"Resource data diagnostic", "资源数据诊断", "資源データ診断"},
+  {"Input step", "输入步长", "入力ステップ"},
+  {"Start initial scan", "开始首次扫描", "初回スキャン開始"},
+  {"Filter with new values", "使用新数值筛选", "新しい値で候補を絞り込む"},
+  {"Enter the current in-game values", "请输入游戏内当前数值", "ゲーム内の現在値を入力してください"},
+  {"Scanning resource data", "正在扫描资源数据", "資源データをスキャン中"},
+  {"Resource scan complete", "资源扫描完成", "資源スキャン完了"},
+  {"At least one value must be nonzero", "至少一个数值不能为零", "少なくとも一方は0以外にしてください"},
+  {"Could not save the resource report", "资源扫描报告保存失败", "資源レポートを保存できません"},
+  {"Report: config/mhgu-overlay/resource-scan.log", "报告：config/mhgu-overlay/resource-scan.log", "レポート: config/mhgu-overlay/resource-scan.log"},
+  {"Address diagnostic", "地址诊断", "アドレス診断"},
 };
 
 }  // namespace

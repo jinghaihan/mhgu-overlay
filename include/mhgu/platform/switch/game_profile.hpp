@@ -51,6 +51,12 @@ struct ItemPouchLayout {
   std::uint8_t maximum_quantity;
 };
 
+struct PlayerResourceLayout {
+  std::uint32_t zenny;
+  std::uint32_t wycademy_points;
+  std::uint32_t maximum_value;
+};
+
 struct MainWordPatch {
   std::uint64_t offset;
   std::uint32_t value;
@@ -99,6 +105,7 @@ struct GameProfile {
   FrameRatePatch frame_rate;
   MonsterDamagePatch monster_damage;
   ItemPouchLayout item_pouch;
+  PlayerResourceLayout player_resources;
   std::array<MainWordPatchSet, core::kRuntimeFeatureCount> runtime_patches;
   std::array<NumericWordPatchSet, core::kNumericFeatureCount> numeric_patches;
 };

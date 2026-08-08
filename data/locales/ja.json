@@ -69,7 +69,18 @@
     "questScanComplete": "スキャン完了",
     "questScanReportFailed": "スキャンレポートを保存できません",
     "questScanCandidates": "候補数",
-    "questScanReport": "レポート: config/mhgu-overlay/quest-scan.log"
+    "questScanReport": "レポート: config/mhgu-overlay/quest-scan.log",
+    "resourceDataDiagnostic": "資源データ診断",
+    "diagnosticInputStep": "入力ステップ",
+    "startInitialScan": "初回スキャン開始",
+    "filterCandidates": "新しい値で候補を絞り込む",
+    "resourceScanIdle": "ゲーム内の現在値を入力してください",
+    "resourceScanRunning": "資源データをスキャン中",
+    "resourceScanComplete": "資源スキャン完了",
+    "resourceScanInvalidInput": "少なくとも一方は0以外にしてください",
+    "resourceScanReportFailed": "資源レポートを保存できません",
+    "resourceScanReport": "レポート: config/mhgu-overlay/resource-scan.log",
+    "addressDiagnostic": "アドレス診断"
   },
   "monsters": {
     "great-maccao": "ドスマッカォ",

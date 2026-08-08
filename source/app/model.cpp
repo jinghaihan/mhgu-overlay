@@ -51,6 +51,11 @@ core::Locale Model::display_locale() const {
   );
 }
 
+ResourceDiagnosticInput Model::resource_diagnostic_input() const {
+  const std::scoped_lock lock(mutex_);
+  return resource_diagnostic_input_;
+}
+
 void Model::cycle_language() {
   core::CoreSettings changed{};
   {
@@ -240,6 +245,44 @@ void Model::request_quest_scan() {
   quest_scan_requested_ = true;
 }
 
+void Model::adjust_resource_diagnostic_value(
+  const bool points, const int direction
+) {
+  constexpr std::uint32_t kMaximum = 9'999'999;
+  const std::scoped_lock lock(mutex_);
+  auto& value = points ? resource_diagnostic_input_.wycademy_points
+                       : resource_diagnostic_input_.zenny;
+  const auto delta = static_cast<std::int64_t>(
+    resource_diagnostic_input_.step
+  ) * direction;
+  value = static_cast<std::uint32_t>(std::clamp(
+    static_cast<std::int64_t>(value) + delta,
+    std::int64_t{0},
+    static_cast<std::int64_t>(kMaximum)
+  ));
+}
+
+void Model::adjust_resource_diagnostic_step(const int direction) {
+  const std::scoped_lock lock(mutex_);
+  auto& step = resource_diagnostic_input_.step;
+  if (direction < 0) {
+    step = std::max<std::uint32_t>(1, step / 10);
+  } else if (direction > 0) {
+    step = std::min<std::uint32_t>(1'000'000, step * 10);
+  }
+}
+
+void Model::request_resource_scan(const bool filter) {
+  constexpr auto kPending = std::uint64_t{1} << 63;
+  constexpr auto kFilter = std::uint64_t{1} << 48;
+  const auto input = resource_diagnostic_input();
+  const auto request =
+    kPending | (filter ? kFilter : 0) |
+    (static_cast<std::uint64_t>(input.wycademy_points) << 24) |
+    input.zenny;
+  resource_scan_request_ = request;
+}
+
 void Model::persist(const core::CoreSettings& settings) {
   store_.save(settings);
 }
@@ -248,13 +291,14 @@ void Model::worker_main() {
   using Clock = std::chrono::steady_clock;
   constexpr auto kFullPollInterval = std::chrono::milliseconds(250);
   constexpr auto kDamagePollInterval = std::chrono::milliseconds(33);
-  constexpr auto kQuestScanPollInterval = std::chrono::milliseconds(16);
+  constexpr auto kDiagnosticScanPollInterval = std::chrono::milliseconds(16);
 
   platform::switch_adapter::GameSession session;
   session.initialize();
   auto next_full_poll = Clock::now();
   auto next_damage_poll = next_full_poll;
   auto next_quest_scan_poll = next_full_poll;
+  auto next_resource_scan_poll = next_full_poll;
   while (running_) {
     const auto now = Clock::now();
     if (rescan_requested_.exchange(false)) {
@@ -272,7 +316,29 @@ void Model::worker_main() {
     }
     if (session.quest_scan_active() && now >= next_quest_scan_poll) {
       session.poll_quest_scan();
-      next_quest_scan_poll = Clock::now() + kQuestScanPollInterval;
+      next_quest_scan_poll = Clock::now() + kDiagnosticScanPollInterval;
+    }
+    constexpr auto kResourceValueMask = (std::uint64_t{1} << 24) - 1;
+    constexpr auto kResourceFilter = std::uint64_t{1} << 48;
+    const auto resource_scan_request = resource_scan_request_.load();
+    if (resource_scan_request != 0 && session.request_resource_scan(
+                                        static_cast<std::uint32_t>(
+                                          resource_scan_request &
+                                          kResourceValueMask
+                                        ),
+                                        static_cast<std::uint32_t>(
+                                          resource_scan_request >> 24 &
+                                          kResourceValueMask
+                                        ),
+                                        (resource_scan_request &
+                                         kResourceFilter) != 0
+                                      )) {
+      resource_scan_request_ = 0;
+      next_resource_scan_poll = now;
+    }
+    if (session.resource_scan_active() && now >= next_resource_scan_poll) {
+      session.poll_resource_scan();
+      next_resource_scan_poll = Clock::now() + kDiagnosticScanPollInterval;
     }
     const auto damage_now = Clock::now();
     if (current_settings.damage_display_enabled &&
@@ -307,6 +373,9 @@ void Model::worker_main() {
     }
     if (session.quest_scan_active()) {
       next_wake = std::min(next_wake, next_quest_scan_poll);
+    }
+    if (session.resource_scan_active()) {
+      next_wake = std::min(next_wake, next_resource_scan_poll);
     }
     std::this_thread::sleep_until(next_wake);
   }
