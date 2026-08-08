@@ -1017,59 +1017,18 @@ private:
   Model& model_;
 };
 
-class BattleGui final : public tsl::Gui {
-public:
-  explicit BattleGui(Model& model)
-    : model_(model) {}
-
-  tsl::elm::Element* createUI() override {
-    const auto locale = model_.display_locale();
-    auto* frame = new LocalizedOverlayFrame(
-      mhgu::core::ui_message(UiMessage::BattleFunctions, locale), kVersion
-    );
-    auto* list = new tsl::elm::List(6);
-    list->addItem(submenu_item<HunterGui>(model_, UiMessage::Hunter));
-    list->addItem(submenu_item<CombatParametersGui>(
-      model_, UiMessage::CombatParameters
-    ));
-    list->addItem(submenu_item<ResourcesGui>(model_, UiMessage::Resources));
-    list->addItem(submenu_item<PalicoGui>(model_, UiMessage::Palico));
-    frame->setContent(list);
-    return frame;
-  }
-
-  bool handleInput(
-    const u64 keys_down,
-    u64,
-    const HidTouchState&,
-    JoystickPosition,
-    JoystickPosition
-  ) override {
-    if ((keys_down & HidNpadButton_B) != 0) {
-      tsl::goBack();
-      return true;
+template <typename Gui>
+tsl::elm::ListItem* submenu_item(Model& model, const UiMessage label) {
+  auto* item = new tsl::elm::ListItem(text(model, label));
+  item->setClickListener([model_ptr = &model](const u64 keys) {
+    if ((keys & HidNpadButton_A) == 0) {
+      return false;
     }
-    return false;
-  }
-
-private:
-  template <typename Gui>
-  static tsl::elm::ListItem* submenu_item(
-    Model& model, const UiMessage label
-  ) {
-    auto* item = new tsl::elm::ListItem(text(model, label));
-    item->setClickListener([model_ptr = &model](const u64 keys) {
-      if ((keys & HidNpadButton_A) == 0) {
-        return false;
-      }
-      tsl::changeTo<Gui>(*model_ptr);
-      return true;
-    });
-    return item;
-  }
-
-  Model& model_;
-};
+    tsl::changeTo<Gui>(*model_ptr);
+    return true;
+  });
+  return item;
+}
 
 class TransmogGui final : public tsl::Gui {
 public:
@@ -1262,17 +1221,21 @@ public:
     });
     list->addItem(transmog_item_);
 
-    battle_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::BattleFunctions, locale)
+    hunter_item_ = submenu_item<HunterGui>(model_, UiMessage::Hunter);
+    list->addItem(hunter_item_);
+
+    combat_parameters_item_ = submenu_item<CombatParametersGui>(
+      model_, UiMessage::CombatParameters
     );
-    battle_item_->setClickListener([this](const u64 keys) {
-      if ((keys & HidNpadButton_A) != 0) {
-        tsl::changeTo<BattleGui>(model_);
-        return true;
-      }
-      return false;
-    });
-    list->addItem(battle_item_);
+    list->addItem(combat_parameters_item_);
+
+    resources_item_ = submenu_item<ResourcesGui>(
+      model_, UiMessage::Resources
+    );
+    list->addItem(resources_item_);
+
+    palico_item_ = submenu_item<PalicoGui>(model_, UiMessage::Palico);
+    list->addItem(palico_item_);
 
     scan_item_ =
       new tsl::elm::ListItem(mhgu::core::ui_message(UiMessage::Scan, locale));
@@ -1355,9 +1318,14 @@ private:
       UiMessage::CarryItemsIntoPouch,
       RuntimeFeature::CarryItemsIntoPouch
     );
-    battle_item_->setText(
-      mhgu::core::ui_message(UiMessage::BattleFunctions, locale)
+    hunter_item_->setText(mhgu::core::ui_message(UiMessage::Hunter, locale));
+    combat_parameters_item_->setText(
+      mhgu::core::ui_message(UiMessage::CombatParameters, locale)
     );
+    resources_item_->setText(
+      mhgu::core::ui_message(UiMessage::Resources, locale)
+    );
+    palico_item_->setText(mhgu::core::ui_message(UiMessage::Palico, locale));
     transmog_item_->setText(
       mhgu::core::ui_message(UiMessage::Transmog, locale)
     );
@@ -1374,7 +1342,10 @@ private:
   tsl::elm::ListItem* map_item_{};
   tsl::elm::ListItem* carry_item_{};
   tsl::elm::ListItem* transmog_item_{};
-  tsl::elm::ListItem* battle_item_{};
+  tsl::elm::ListItem* hunter_item_{};
+  tsl::elm::ListItem* combat_parameters_item_{};
+  tsl::elm::ListItem* resources_item_{};
+  tsl::elm::ListItem* palico_item_{};
   tsl::elm::ListItem* scan_item_{};
 };
 
