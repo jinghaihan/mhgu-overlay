@@ -42,6 +42,7 @@ private:
   mutable std::mutex mutex_;
   core::CoreSettings settings_{};
   platform::switch_adapter::SessionView view_{};
+  platform::switch_adapter::GameSession session_{};
   SettingsStore store_;
   std::atomic<bool> running_{false};
   std::atomic<bool> rescan_requested_{false};

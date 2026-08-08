@@ -22,6 +22,13 @@ void Model::start() {
   if (running_.exchange(true)) {
     return;
   }
+  // libtesla invokes initServices() while a service-manager session is open.
+  // Initialize Switch services synchronously here instead of racing the
+  // worker thread against the end of that session.
+  if (!session_.initialize()) {
+    running_ = false;
+    return;
+  }
   worker_ = std::thread(&Model::worker_main, this);
 }
 
@@ -245,19 +252,17 @@ void Model::worker_main() {
   constexpr auto kFullPollInterval = std::chrono::milliseconds(250);
   constexpr auto kDamagePollInterval = std::chrono::milliseconds(33);
 
-  platform::switch_adapter::GameSession session;
-  session.initialize();
   auto next_full_poll = Clock::now();
   auto next_damage_poll = next_full_poll;
   while (running_) {
     const auto now = Clock::now();
     if (rescan_requested_.exchange(false)) {
-      session.request_rescan();
+      session_.request_rescan();
       next_full_poll = now;
     }
     const auto current_settings = settings();
     if (now >= next_full_poll) {
-      session.poll(current_settings);
+      session_.poll(current_settings);
       next_full_poll = Clock::now() + kFullPollInterval;
     }
     const auto damage_now = Clock::now();
@@ -268,23 +273,23 @@ void Model::worker_main() {
           damage_now.time_since_epoch()
         ).count()
       );
-      session.poll_damage(true, now_ms);
+      session_.poll_damage(true, now_ms);
       next_damage_poll = Clock::now() + kDamagePollInterval;
     } else if (!current_settings.damage_display_enabled) {
-      session.poll_damage(false, 0);
+      session_.poll_damage(false, 0);
       next_damage_poll = now;
     }
     const auto item_pouch_write_request =
       item_pouch_write_request_.exchange(0);
     if (item_pouch_write_request != 0) {
-      session.apply_item_pouch_quantity(
+      session_.apply_item_pouch_quantity(
         static_cast<std::uint8_t>(item_pouch_write_request >> 8),
         static_cast<std::uint8_t>(item_pouch_write_request & 0xFF)
       );
     }
     {
       const std::scoped_lock lock(mutex_);
-      view_ = session.view();
+      view_ = session_.view();
     }
 
     auto next_wake = next_full_poll;
@@ -293,7 +298,7 @@ void Model::worker_main() {
     }
     std::this_thread::sleep_until(next_wake);
   }
-  session.shutdown();
+  session_.shutdown();
 }
 
 }  // namespace mhgu::app
