@@ -15,7 +15,7 @@
     "silver": "銀冠",
     "gold": "金冠",
     "scan": "再スキャン",
-    "scanning": "ゲームメモリを検索中",
+    "scanning": "モンスターデータ待機中",
     "ready": "準備完了",
     "unsupported": "未対応のゲームバージョン",
     "writeFailed": "メモリの書き込みに失敗",

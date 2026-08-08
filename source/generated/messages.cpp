@@ -20,7 +20,7 @@ constexpr const char* kMessages[][3] = {
   {"Silver crown", "大银冠", "銀冠"},
   {"Gold crown", "大金冠", "金冠"},
   {"Rescan", "重新扫描", "再スキャン"},
-  {"Scanning game memory", "正在扫描游戏内存", "ゲームメモリを検索中"},
+  {"Waiting for monster data", "等待怪物数据", "モンスターデータ待機中"},
   {"Ready", "已就绪", "準備完了"},
   {"Unsupported game version", "不支持的游戏版本", "未対応のゲームバージョン"},
   {"Memory write failed", "内存写入失败", "メモリの書き込みに失敗"},

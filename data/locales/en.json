@@ -15,7 +15,7 @@
     "silver": "Silver crown",
     "gold": "Gold crown",
     "scan": "Rescan",
-    "scanning": "Scanning game memory",
+    "scanning": "Waiting for monster data",
     "ready": "Ready",
     "unsupported": "Unsupported game version",
     "writeFailed": "Memory write failed",

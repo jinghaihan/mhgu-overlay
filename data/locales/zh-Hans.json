@@ -15,7 +15,7 @@
     "silver": "大银冠",
     "gold": "大金冠",
     "scan": "重新扫描",
-    "scanning": "正在扫描游戏内存",
+    "scanning": "等待怪物数据",
     "ready": "已就绪",
     "unsupported": "不支持的游戏版本",
     "writeFailed": "内存写入失败",

@@ -4,6 +4,7 @@
 
 #include "mhgu/core/engine.hpp"
 #include "mhgu/core/locale.hpp"
+#include "mhgu/core/messages.hpp"
 #include "mhgu/core/size.hpp"
 
 namespace mhgu::core {
@@ -77,6 +78,24 @@ int main() {
   );
   assert(
     std::strcmp(localized_name(*rathian, Locale::Japanese), "リオレイア") == 0
+  );
+  assert(
+    std::strcmp(
+      ui_message(UiMessage::Scanning, Locale::English),
+      "Waiting for monster data"
+    ) == 0
+  );
+  assert(
+    std::strcmp(
+      ui_message(UiMessage::Scanning, Locale::SimplifiedChinese),
+      "等待怪物数据"
+    ) == 0
+  );
+  assert(
+    std::strcmp(
+      ui_message(UiMessage::Scanning, Locale::Japanese),
+      "モンスターデータ待機中"
+    ) == 0
   );
 
   GameSnapshot snapshot{};
