@@ -268,8 +268,8 @@ void Model::persist(const core::CoreSettings& settings) {
 
 void Model::worker_main() {
   using Clock = std::chrono::steady_clock;
-  constexpr auto kFullPollInterval = std::chrono::milliseconds(250);
-  constexpr auto kDamagePollInterval = std::chrono::milliseconds(33);
+  constexpr auto kFullPollInterval = std::chrono::milliseconds(100);
+  constexpr auto kDamagePollInterval = std::chrono::milliseconds(16);
 
   auto next_full_poll = Clock::now();
   auto next_damage_poll = next_full_poll;
@@ -280,10 +280,6 @@ void Model::worker_main() {
       next_full_poll = now;
     }
     const auto current_settings = settings();
-    if (now >= next_full_poll) {
-      session_.poll(current_settings);
-      next_full_poll = Clock::now() + kFullPollInterval;
-    }
     const auto damage_now = Clock::now();
     if (current_settings.damage_display_enabled &&
         damage_now >= next_damage_poll) {
@@ -297,6 +293,10 @@ void Model::worker_main() {
     } else if (!current_settings.damage_display_enabled) {
       session_.poll_damage(false, 0);
       next_damage_poll = now;
+    }
+    if (now >= next_full_poll) {
+      session_.poll(current_settings);
+      next_full_poll = Clock::now() + kFullPollInterval;
     }
     const auto item_pouch_write_request =
       item_pouch_write_request_.exchange(0);

@@ -305,6 +305,16 @@ void GameSession::poll_damage(
       monster.max_hp,
     };
   }
+  for (std::size_t index = 0; index < snapshot.monster_count; ++index) {
+    const auto& sample = snapshot.monsters[index];
+    auto& monster = view_.output.monsters[index];
+    monster.hp = sample.hp;
+    monster.hp_percent_x10 =
+      static_cast<std::uint16_t>(std::min<std::uint64_t>(
+        1000U,
+        (static_cast<std::uint64_t>(sample.hp) * 1000U) / sample.max_hp
+      ));
+  }
   view_.damage = damage_tracker_.update(snapshot, now_ms);
 }
 

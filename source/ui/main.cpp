@@ -768,7 +768,7 @@ public:
     FullMode = false;
     alphabackground = 0;
     deactivateOriginalFooter = true;
-    TeslaFPS = model_.settings().damage_display_enabled ? 30 : 10;
+    TeslaFPS = model_.settings().damage_display_enabled ? 60 : 10;
     tsl::hlp::requestForeground(false);
   }
 
