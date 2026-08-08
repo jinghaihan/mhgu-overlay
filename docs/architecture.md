@@ -152,6 +152,13 @@ runtime-feature identifier. The application model and session track requested
 and applied features in fixed-size arrays, while all raw offsets and
 instructions remain inside the MHGU build profile.
 
+Quest operations use a separate profile layout. The adapter loads the game's
+32-bit quest-object pointer from the recognized main module, validates every
+resolved field against the process address space, and immediately reads each
+write back. Infinite time and unlimited faints are persistent requests that
+become no-ops while no quest object exists. Completing a quest is an explicit
+one-shot request from the Tesla menu and is never persisted.
+
 Candidate validation prevents a coincidental byte pattern from becoming a
 write target. A failed list validation discards the address and forces a new
 scan. Unknown location states and defeated objects are rejected. Immediately

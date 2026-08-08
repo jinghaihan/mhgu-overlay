@@ -37,7 +37,11 @@ The main menu is ordered as follows:
 | **Map & monster icons** | Automatically displays the map and marks large-monster locations. |
 | **Carry to pouch** | Allows carried objects such as eggs to be placed in the item pouch. |
 | **Equipment transmog** | Opens the weapon and armor appearance submenu. |
-| **Battle functions** | Opens the grouped hunter, combat-parameter, resource, and Palico tools. |
+| **Hunter** | Opens hunter status and gauge tools. |
+| **Combat parameters** | Opens monster damage, attack, defense, and movement tools. |
+| **Quest** | Opens infinite-time, unlimited-faint, and complete-current-quest tools. |
+| **Resources** | Opens item, Zenny, Wycademy Point, and pouch-slot tools. |
+| **Palico** | Opens Palico health and affinity tools. |
 | **Rescan** | Discards the cached monster-list pointer and scans for it again. |
 
 ### Equipment transmog
@@ -49,9 +53,7 @@ The main menu is ordered as follows:
 
 Both transmog options are one-way code patches for the current game process.
 
-### Battle functions
-
-#### Hunter
+### Hunter
 
 | Menu item | What it does |
 | --- | --- |
@@ -69,7 +71,7 @@ Both transmog options are one-way code patches for the current game process.
 | **Affinity** | Sets hunter affinity from 0% to 100%. |
 | **Bowgun auto reload** | Enables automatic Bowgun reload. |
 
-#### Combat parameters
+### Combat parameters
 
 | Menu item | What it does |
 | --- | --- |
@@ -78,7 +80,15 @@ Both transmog options are one-way code patches for the current game process.
 | **Defense** | Sets the defense multiplier from x1 to x10. |
 | **Move speed** | Sets movement speed from x1.0 to x5.0. |
 
-#### Resources
+### Quest
+
+| Menu item | What it does |
+| --- | --- |
+| **Infinite time** | Repeatedly restores the active quest timer while enabled. |
+| **Unlimited faints** | Clears both active-quest faint counters while enabled. |
+| **Complete quest** | Performs one verified write that completes the current quest. It is not persisted. |
+
+### Resources
 
 | Menu item | What it does |
 | --- | --- |
@@ -89,7 +99,7 @@ Both transmog options are one-way code patches for the current game process.
 | **Quantity** | Selects a quantity from 1 to 99. |
 | **Apply quantity** | Performs one bounded, verified byte write to the selected slot. It does not repeat the write automatically. |
 
-#### Palico
+### Palico
 
 | Menu item | What it does |
 | --- | --- |

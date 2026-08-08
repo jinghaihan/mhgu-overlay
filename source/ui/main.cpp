@@ -17,6 +17,7 @@
 namespace {
 
 using mhgu::app::Model;
+using mhgu::app::QuestCompletionStatus;
 using mhgu::core::Locale;
 using mhgu::core::LocaleMode;
 using mhgu::core::MonsterDamageMode;
@@ -1017,6 +1018,131 @@ private:
   Model& model_;
 };
 
+class QuestGui final : public tsl::Gui {
+public:
+  explicit QuestGui(Model& model)
+    : model_(model) {}
+
+  tsl::elm::Element* createUI() override {
+    const auto locale = model_.display_locale();
+    frame_ = new LocalizedOverlayFrame(
+      mhgu::core::ui_message(UiMessage::Quest, locale), kVersion
+    );
+    auto* list = new tsl::elm::List(6);
+
+    infinite_time_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::InfiniteQuestTime, locale)
+    );
+    infinite_time_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) == 0) {
+        return false;
+      }
+      model_.toggle_infinite_quest_time();
+      refresh_items();
+      return true;
+    });
+    list->addItem(infinite_time_item_);
+
+    unlimited_faints_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::UnlimitedFaints, locale)
+    );
+    unlimited_faints_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) == 0) {
+        return false;
+      }
+      model_.toggle_unlimited_faints();
+      refresh_items();
+      return true;
+    });
+    list->addItem(unlimited_faints_item_);
+
+    complete_quest_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::CompleteQuest, locale)
+    );
+    complete_quest_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) == 0) {
+        return false;
+      }
+      model_.request_complete_quest();
+      refresh_items();
+      return true;
+    });
+    list->addItem(complete_quest_item_);
+
+    refresh_items();
+    frame_->setContent(list);
+    return frame_;
+  }
+
+  void update() override {
+    refresh_items();
+  }
+
+  bool handleInput(
+    const u64 keys_down,
+    u64,
+    const HidTouchState&,
+    JoystickPosition,
+    JoystickPosition
+  ) override {
+    if ((keys_down & HidNpadButton_B) != 0) {
+      tsl::goBack();
+      return true;
+    }
+    return false;
+  }
+
+private:
+  const char* completion_value(const Locale locale) const {
+    switch (model_.quest_completion_status()) {
+      case QuestCompletionStatus::Pending:
+        return "...";
+      case QuestCompletionStatus::Completed:
+        return mhgu::core::ui_message(UiMessage::Completed, locale);
+      case QuestCompletionStatus::NoActiveQuest:
+        return mhgu::core::ui_message(UiMessage::NoActiveQuest, locale);
+      case QuestCompletionStatus::Failed:
+        return mhgu::core::ui_message(UiMessage::Failed, locale);
+      default:
+        return mhgu::core::ui_message(UiMessage::Execute, locale);
+    }
+  }
+
+  void refresh_items() {
+    if (frame_ == nullptr || infinite_time_item_ == nullptr ||
+        unlimited_faints_item_ == nullptr || complete_quest_item_ == nullptr) {
+      return;
+    }
+    const auto locale = model_.display_locale();
+    const auto settings = model_.settings();
+    frame_->setTitle(mhgu::core::ui_message(UiMessage::Quest, locale));
+    infinite_time_item_->setText(
+      mhgu::core::ui_message(UiMessage::InfiniteQuestTime, locale)
+    );
+    infinite_time_item_->setValue(mhgu::core::ui_message(
+      settings.infinite_quest_time ? UiMessage::On : UiMessage::Off,
+      locale
+    ));
+    unlimited_faints_item_->setText(
+      mhgu::core::ui_message(UiMessage::UnlimitedFaints, locale)
+    );
+    unlimited_faints_item_->setValue(mhgu::core::ui_message(
+      settings.unlimited_faints ? UiMessage::On : UiMessage::Off,
+      locale
+    ));
+    complete_quest_item_->setText(
+      mhgu::core::ui_message(UiMessage::CompleteQuest, locale)
+    );
+    complete_quest_item_->setValue(completion_value(locale));
+  }
+
+  Model& model_;
+  LocalizedOverlayFrame* frame_{};
+  tsl::elm::ListItem* infinite_time_item_{};
+  tsl::elm::ListItem* unlimited_faints_item_{};
+  tsl::elm::ListItem* complete_quest_item_{};
+};
+
 template <typename Gui>
 tsl::elm::ListItem* submenu_item(Model& model, const UiMessage label) {
   auto* item = new tsl::elm::ListItem(text(model, label));
@@ -1229,6 +1355,9 @@ public:
     );
     list->addItem(combat_parameters_item_);
 
+    quest_item_ = submenu_item<QuestGui>(model_, UiMessage::Quest);
+    list->addItem(quest_item_);
+
     resources_item_ = submenu_item<ResourcesGui>(
       model_, UiMessage::Resources
     );
@@ -1322,6 +1451,7 @@ private:
     combat_parameters_item_->setText(
       mhgu::core::ui_message(UiMessage::CombatParameters, locale)
     );
+    quest_item_->setText(mhgu::core::ui_message(UiMessage::Quest, locale));
     resources_item_->setText(
       mhgu::core::ui_message(UiMessage::Resources, locale)
     );
@@ -1344,6 +1474,7 @@ private:
   tsl::elm::ListItem* transmog_item_{};
   tsl::elm::ListItem* hunter_item_{};
   tsl::elm::ListItem* combat_parameters_item_{};
+  tsl::elm::ListItem* quest_item_{};
   tsl::elm::ListItem* resources_item_{};
   tsl::elm::ListItem* palico_item_{};
   tsl::elm::ListItem* scan_item_{};
