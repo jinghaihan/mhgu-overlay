@@ -30,7 +30,6 @@ constexpr const char* kMessages[][3] = {
   {"60 FPS", "60 FPS", "60 FPS"},
   {"Map & monster icons", "地图与怪物标记", "マップ・大型位置"},
   {"Carry to pouch", "搬运品进道具袋", "運搬品をポーチへ"},
-  {"Battle functions", "战斗功能", "戦闘機能"},
   {"Hunter", "猎人", "ハンター"},
   {"Invincible", "无敌", "無敵"},
   {"No health loss", "体力不减", "体力減少なし"},
