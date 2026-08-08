@@ -20,6 +20,11 @@ bool GameSession::initialize() {
   if (R_FAILED(dmntchtInitialize())) {
     return false;
   }
+  // Locale detection runs on the worker thread after libtesla closes its
+  // temporary service-manager session. Keep these optional service sessions
+  // alive so nested initialization in detect_game_locale() remains valid.
+  ns_initialized_ = R_SUCCEEDED(nsInitialize());
+  set_initialized_ = R_SUCCEEDED(setInitialize());
 #endif
   initialized_ = true;
   return true;
@@ -31,6 +36,14 @@ void GameSession::shutdown() {
   }
   detach(SessionStatus::NoGame);
 #ifdef __SWITCH__
+  if (set_initialized_) {
+    setExit();
+    set_initialized_ = false;
+  }
+  if (ns_initialized_) {
+    nsExit();
+    ns_initialized_ = false;
+  }
   dmntchtExit();
 #endif
   initialized_ = false;
