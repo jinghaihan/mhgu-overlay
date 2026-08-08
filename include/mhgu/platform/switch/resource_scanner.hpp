@@ -31,7 +31,7 @@ struct ResourceAddressCandidate {
   std::uint32_t wycademy_points{};
 };
 
-constexpr std::size_t kResourceScanPreviewCapacity = 6;
+constexpr std::size_t kResourceScanPreviewCapacity = 5;
 
 struct ResourceScanView {
   ResourceScanStatus status{ResourceScanStatus::Idle};
