@@ -67,9 +67,9 @@ int main() {
   assert(
     !defaults.numeric_features[movement_speed_multiplier_index].enabled
   );
-  assert(defaults.numeric_features[zenny_index].value == 7777777);
+  assert(defaults.numeric_features[zenny_index].value == 9999999);
   assert(!defaults.numeric_features[zenny_index].enabled);
-  assert(defaults.numeric_features[wycademy_points_index].value == 7777777);
+  assert(defaults.numeric_features[wycademy_points_index].value == 9999999);
   assert(!defaults.numeric_features[wycademy_points_index].enabled);
 
   core::CoreSettings expected{};
@@ -182,7 +182,21 @@ int main() {
 
   numeric = std::fopen(kPath, "w");
   assert(numeric != nullptr);
+  std::fprintf(numeric, "zenny=invalid\n");
+  assert(std::fclose(numeric) == 0);
+  assert(store.load().numeric_features[zenny_index].value == 9999999);
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
   std::fprintf(numeric, "wycademy_points=10000000\n");
+  assert(std::fclose(numeric) == 0);
+  assert(
+    store.load().numeric_features[wycademy_points_index].value == 9999999
+  );
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(numeric, "wycademy_points=invalid\n");
   assert(std::fclose(numeric) == 0);
   assert(
     store.load().numeric_features[wycademy_points_index].value == 9999999

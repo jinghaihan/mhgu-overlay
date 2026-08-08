@@ -190,8 +190,8 @@ struct CoreSettings {
     {2, false},
     {2, false},
     {20, false},
-    {7777777, false},
-    {7777777, false},
+    {numeric_feature_range(NumericFeature::Zenny).maximum, false},
+    {numeric_feature_range(NumericFeature::WycademyPoints).maximum, false},
   }};
 };
 

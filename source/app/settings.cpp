@@ -123,7 +123,7 @@ std::uint32_t parse_zenny(const char* value) {
   char* end{};
   const auto parsed = std::strtoll(value, &end, 10);
   if (end == value || *end != '\0') {
-    return 7777777;
+    return core::numeric_feature_range(core::NumericFeature::Zenny).maximum;
   }
   if (parsed < 0) {
     return 0;
@@ -138,7 +138,9 @@ std::uint32_t parse_wycademy_points(const char* value) {
   char* end{};
   const auto parsed = std::strtoll(value, &end, 10);
   if (end == value || *end != '\0') {
-    return 7777777;
+    return core::numeric_feature_range(
+      core::NumericFeature::WycademyPoints
+    ).maximum;
   }
   if (parsed < 0) {
     return 0;
