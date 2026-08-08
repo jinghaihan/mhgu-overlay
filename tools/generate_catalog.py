@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import unicodedata
 from pathlib import Path
 
 
@@ -82,9 +83,85 @@ UI_KEYS = [
   "damageDisplay",
 ]
 
+TESLA_MENU_TEXT_KEYS = {
+  "language",
+  "automatic",
+  "sizePreset",
+  "off",
+  "on",
+  "mini",
+  "silver",
+  "gold",
+  "scan",
+  "frameRate",
+  "fps30",
+  "fps60",
+  "mapAndLargeMonsters",
+  "carryItemsIntoPouch",
+  "battleFunctions",
+  "hunter",
+  "invincible",
+  "healthNoDecrease",
+  "staminaNoDecrease",
+  "sharpnessNoDecrease",
+  "unlockHunterArtSlots",
+  "unlimitedHunterArts",
+  "valorGaugeNoDecrease",
+  "alchemyGaugeFull",
+  "spStatusNoExpire",
+  "bowgunAutoReload",
+  "consumableItemsNoDecrease",
+  "transmog",
+  "weaponTransmog",
+  "armorTransmog",
+  "palico",
+  "palicoHealthNoDecrease",
+  "palicoAffinity",
+  "hunterAffinity",
+  "spLevel",
+  "longSwordSpiritGauge",
+  "combatParameters",
+  "monsterDamageMode",
+  "instantKill",
+  "leaveOneHp",
+  "attackMultiplier",
+  "defenseMultiplier",
+  "movementSpeedMultiplier",
+  "resources",
+  "zenny",
+  "wycademyPoints",
+  "itemPouchSlot",
+  "itemPouchQuantity",
+  "applyItemPouchQuantity",
+  "monsterInfoOverlay",
+  "damageDisplay",
+}
+TESLA_MENU_TEXT_MAX_CELLS = 20
+
 
 def cpp_string(value: str) -> str:
   return json.dumps(value, ensure_ascii=False)
+
+
+def display_cells(value: str) -> int:
+  return sum(
+    2 if unicodedata.east_asian_width(character) in {"F", "W"} else 1
+    for character in value
+  )
+
+
+def validate_tesla_menu_text(locale_name: str, locale: dict) -> None:
+  overlong = {
+    key: display_cells(locale["ui"][key])
+    for key in TESLA_MENU_TEXT_KEYS
+    if display_cells(locale["ui"][key]) > TESLA_MENU_TEXT_MAX_CELLS
+  }
+  if overlong:
+    details = ", ".join(f"{key}={width}" for key, width in sorted(overlong.items()))
+    raise ValueError(
+      f"{locale_name} Tesla menu text exceeds "
+      f"{TESLA_MENU_TEXT_MAX_CELLS} display cells: {details}"
+    )
 
 
 def load_inputs() -> tuple[dict, dict[str, dict], dict]:
@@ -104,6 +181,7 @@ def load_inputs() -> tuple[dict, dict[str, dict], dict]:
     missing_ui = [key for key in UI_KEYS if key not in locale["ui"]]
     if missing_ui:
       raise ValueError(f"{name} is missing UI keys: {missing_ui}")
+    validate_tesla_menu_text(name, locale)
 
   expected_ranges = {
     monster["key"] for monster in catalog["monsters"] if monster["variableSize"]
