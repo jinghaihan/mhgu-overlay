@@ -13,6 +13,7 @@
 #include "mhgu/platform/switch/language.hpp"
 #include "mhgu/platform/switch/memory.hpp"
 #include "mhgu/platform/switch/monster_reader.hpp"
+#include "mhgu/platform/switch/quest_scanner.hpp"
 
 namespace {
 
@@ -66,6 +67,66 @@ private:
 int main() {
   using namespace mhgu;
   using namespace platform::switch_adapter;
+
+  {
+    constexpr std::uint64_t kQuestHeapBase = 0x1000;
+    constexpr std::uint64_t kQuestHeapSize = 0x20000;
+    constexpr std::uint64_t kQuestAddress =
+      kQuestHeapBase + 64 * 1024 - 12;
+    constexpr std::uint64_t kRuntimeQuestAddress = kQuestHeapBase + 0x18000;
+    FakeMemory quest_memory(0x24000);
+    std::array<std::uint8_t, 0x18> quest{};
+    const std::uint32_t magic = 0x434B0000;
+    const std::uint32_t count = 1;
+    const std::int32_t index = 0;
+    const std::int32_t quest_id = 10757;
+    std::memcpy(quest.data() + 0x00, &magic, sizeof(magic));
+    std::memcpy(quest.data() + 0x04, &count, sizeof(count));
+    std::memcpy(quest.data() + 0x08, &index, sizeof(index));
+    std::memcpy(quest.data() + 0x0C, &quest_id, sizeof(quest_id));
+    quest[0x10] = 1;
+    quest[0x11] = 10;
+    quest[0x12] = 7;
+    quest[0x13] = 3;
+    quest[0x14] = 14;
+    quest[0x15] = 1;
+    quest[0x16] = 35;
+    quest[0x17] = 3;
+    assert(quest_memory.write(kQuestAddress, quest.data(), quest.size()));
+    assert(quest_memory.write(
+      kRuntimeQuestAddress, quest.data() + 0x08, quest.size() - 0x08
+    ));
+
+    QuestScanner scanner(
+      quest_memory,
+      kQuestHeapBase,
+      kQuestHeapSize,
+      kMhguTitleId,
+      "MHGU 1.4.0",
+      ""
+    );
+    assert(scanner.start());
+    assert(!scanner.start());
+    while (scanner.active()) {
+      scanner.advance(4096);
+    }
+    const auto& scan = scanner.view();
+    assert(scan.status == QuestScanStatus::Complete);
+    assert(scan.scan_number == 1);
+    assert(scan.scanned_bytes == kQuestHeapSize);
+    assert(scan.candidate_count == 2);
+    assert(scan.preview_count == 2);
+    assert(scan.preview[0].address == kRuntimeQuestAddress);
+    assert(scan.preview[0].layout == QuestDataLayout::Runtime);
+    assert(
+      scan.preview[0].heap_offset == kRuntimeQuestAddress - kQuestHeapBase
+    );
+    assert(scan.preview[0].quest_id == quest_id);
+    assert(scan.preview[0].map == 14);
+    assert(scan.preview[0].start_type == 1);
+    assert(scan.preview[1].address == kQuestAddress);
+    assert(scan.preview[1].layout == QuestDataLayout::Resource);
+  }
 
   std::array<std::uint8_t, 0x20> build_id{};
   std::copy(kMhgu140BuildId.begin(), kMhgu140BuildId.end(), build_id.begin());

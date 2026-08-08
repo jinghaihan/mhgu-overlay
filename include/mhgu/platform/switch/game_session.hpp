@@ -10,6 +10,7 @@
 #include "mhgu/platform/switch/game_patches.hpp"
 #include "mhgu/platform/switch/game_profile.hpp"
 #include "mhgu/platform/switch/monster_reader.hpp"
+#include "mhgu/platform/switch/quest_scanner.hpp"
 
 namespace mhgu::platform::switch_adapter {
 
@@ -31,6 +32,7 @@ struct SessionView {
   const char* profile_name{};
   std::uint64_t title_id{};
   std::uint64_t pointer_list{};
+  QuestScanView quest_scan{};
 };
 
 class GameSession {
@@ -39,7 +41,10 @@ public:
   void shutdown();
   void poll(const core::CoreSettings& settings);
   void poll_damage(bool enabled, std::uint64_t now_ms);
+  void poll_quest_scan();
   void request_rescan();
+  bool request_quest_scan();
+  bool quest_scan_active() const;
   bool apply_item_pouch_quantity(std::uint8_t slot, std::uint8_t quantity);
 
   const SessionView& view() const;
@@ -57,6 +62,7 @@ private:
   const GameProfile* profile_{};
   std::unique_ptr<GamePatches> patches_{};
   std::unique_ptr<MonsterReader> reader_{};
+  std::unique_ptr<QuestScanner> quest_scanner_{};
   core::Engine engine_{};
   core::DamageTracker damage_tracker_{};
   SessionView view_{};

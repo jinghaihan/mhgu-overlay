@@ -80,6 +80,14 @@ UI_KEYS = [
   "applyItemPouchQuantity",
   "monsterInfoOverlay",
   "damageDisplay",
+  "questDataDiagnostic",
+  "startQuestScan",
+  "questScanIdle",
+  "questScanRunning",
+  "questScanComplete",
+  "questScanReportFailed",
+  "questScanCandidates",
+  "questScanReport",
 ]
 
 

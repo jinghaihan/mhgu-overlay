@@ -61,7 +61,15 @@
     "itemPouchQuantity": "Quantity",
     "applyItemPouchQuantity": "Apply item quantity",
     "monsterInfoOverlay": "Monster info overlay",
-    "damageDisplay": "Damage display"
+    "damageDisplay": "Damage display",
+    "questDataDiagnostic": "Quest data diagnostic",
+    "startQuestScan": "Start read-only scan",
+    "questScanIdle": "Accept the specified quest, then start a scan",
+    "questScanRunning": "Scanning quest data",
+    "questScanComplete": "Scan complete",
+    "questScanReportFailed": "Could not save the scan report",
+    "questScanCandidates": "Candidates",
+    "questScanReport": "Report: config/mhgu-overlay/quest-scan.log"
   },
   "monsters": {
     "great-maccao": "Great Maccao",

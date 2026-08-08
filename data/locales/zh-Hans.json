@@ -61,7 +61,15 @@
     "itemPouchQuantity": "数量",
     "applyItemPouchQuantity": "应用道具数量",
     "monsterInfoOverlay": "怪物信息 Overlay",
-    "damageDisplay": "伤害显示"
+    "damageDisplay": "伤害显示",
+    "questDataDiagnostic": "任务数据诊断",
+    "startQuestScan": "开始只读扫描",
+    "questScanIdle": "接取指定任务后开始扫描",
+    "questScanRunning": "正在扫描任务数据",
+    "questScanComplete": "扫描完成",
+    "questScanReportFailed": "扫描报告保存失败",
+    "questScanCandidates": "候选数量",
+    "questScanReport": "报告：config/mhgu-overlay/quest-scan.log"
   },
   "monsters": {
     "great-maccao": "跳狗龙王",

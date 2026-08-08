@@ -67,6 +67,14 @@ enum class UiMessage : std::uint8_t {
   ApplyItemPouchQuantity,
   MonsterInfoOverlay,
   DamageDisplay,
+  QuestDataDiagnostic,
+  StartQuestScan,
+  QuestScanIdle,
+  QuestScanRunning,
+  QuestScanComplete,
+  QuestScanReportFailed,
+  QuestScanCandidates,
+  QuestScanReport,
 };
 
 const char* ui_message(UiMessage message, Locale locale);

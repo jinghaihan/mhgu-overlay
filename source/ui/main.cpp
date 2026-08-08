@@ -25,6 +25,8 @@ using mhgu::core::RuntimeFeature;
 using mhgu::core::SizePreset;
 using mhgu::core::UiMessage;
 using mhgu::platform::switch_adapter::SessionStatus;
+using mhgu::platform::switch_adapter::QuestScanStatus;
+using mhgu::platform::switch_adapter::QuestDataLayout;
 
 #ifndef MHGU_OVERLAY_VERSION
 #define MHGU_OVERLAY_VERSION "development"
@@ -1059,6 +1061,184 @@ private:
   tsl::elm::ListItem* armor_item_{};
 };
 
+class QuestScanGui final : public tsl::Gui {
+public:
+  explicit QuestScanGui(Model& model)
+    : model_(model) {}
+
+  tsl::elm::Element* createUI() override {
+    const auto locale = model_.display_locale();
+    frame_ = new LocalizedOverlayFrame(
+      mhgu::core::ui_message(UiMessage::QuestDataDiagnostic, locale), kVersion
+    );
+    auto* list = new tsl::elm::List(6);
+    start_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::StartQuestScan, locale)
+    );
+    start_item_->setClickListener([this](const u64 keys) {
+      const auto scan = model_.session_view().quest_scan;
+      if ((keys & HidNpadButton_A) == 0 ||
+          scan.status == QuestScanStatus::Scanning) {
+        return false;
+      }
+      model_.request_quest_scan();
+      return true;
+    });
+    list->addItem(start_item_);
+    list->addItem(
+      new tsl::elm::CustomDrawer([this](
+                                   tsl::gfx::Renderer* renderer,
+                                   const u16 x,
+                                   const u16 y,
+                                   const u16,
+                                   const u16
+                                 ) { draw_status(renderer, x, y); }),
+      300
+    );
+    frame_->setContent(list);
+    return frame_;
+  }
+
+  void update() override {
+    const auto locale = model_.display_locale();
+    frame_->setTitle(
+      mhgu::core::ui_message(UiMessage::QuestDataDiagnostic, locale)
+    );
+    start_item_->setText(
+      mhgu::core::ui_message(UiMessage::StartQuestScan, locale)
+    );
+    const auto scan = model_.session_view().quest_scan;
+    char value[32]{};
+    if (scan.status == QuestScanStatus::Scanning && scan.total_bytes != 0) {
+      const auto progress = static_cast<unsigned>(
+        scan.scanned_bytes * 100 / scan.total_bytes
+      );
+      std::snprintf(value, sizeof(value), "%u%%", progress);
+      start_item_->setValue(value);
+    } else if (scan.scan_number != 0) {
+      std::snprintf(value, sizeof(value), "#%u", scan.scan_number);
+      start_item_->setValue(value);
+    } else {
+      start_item_->setValue("");
+    }
+  }
+
+  bool handleInput(
+    const u64 keys_down,
+    u64,
+    const HidTouchState&,
+    JoystickPosition,
+    JoystickPosition
+  ) override {
+    if ((keys_down & HidNpadButton_B) != 0) {
+      tsl::goBack();
+      return true;
+    }
+    return false;
+  }
+
+private:
+  void draw_status(
+    tsl::gfx::Renderer* renderer, const u16 x, const u16 y
+  ) const {
+    const auto scan = model_.session_view().quest_scan;
+    const auto locale = model_.display_locale();
+    auto* status = mhgu::core::ui_message(UiMessage::QuestScanIdle, locale);
+    if (scan.status == QuestScanStatus::Scanning) {
+      status = mhgu::core::ui_message(UiMessage::QuestScanRunning, locale);
+    } else if (scan.status == QuestScanStatus::Complete) {
+      status = mhgu::core::ui_message(UiMessage::QuestScanComplete, locale);
+    } else if (scan.status == QuestScanStatus::ReportFailed) {
+      status =
+        mhgu::core::ui_message(UiMessage::QuestScanReportFailed, locale);
+    }
+    renderer->drawString(
+      status,
+      false,
+      x + 8,
+      y + 28,
+      18,
+      renderer->a({0xF, 0xF, 0xF, 0xF})
+    );
+
+    char line[128]{};
+    if (scan.status == QuestScanStatus::Scanning && scan.total_bytes != 0) {
+      const auto progress = static_cast<unsigned>(
+        scan.scanned_bytes * 100 / scan.total_bytes
+      );
+      std::snprintf(
+        line,
+        sizeof(line),
+        "%u%%  %llu / %llu MiB",
+        progress,
+        static_cast<unsigned long long>(scan.scanned_bytes / (1024 * 1024)),
+        static_cast<unsigned long long>(scan.total_bytes / (1024 * 1024))
+      );
+      renderer->drawString(
+        line,
+        false,
+        x + 8,
+        y + 56,
+        15,
+        renderer->a({0x8, 0xB, 0xF, 0xF})
+      );
+    }
+
+    std::snprintf(
+      line,
+      sizeof(line),
+      "%s: %u",
+      mhgu::core::ui_message(UiMessage::QuestScanCandidates, locale),
+      scan.candidate_count
+    );
+    renderer->drawString(
+      line,
+      false,
+      x + 8,
+      y + 84,
+      15,
+      renderer->a({0xB, 0xD, 0xD, 0xF})
+    );
+
+    for (std::size_t index = 0; index < scan.preview_count; ++index) {
+      const auto& candidate = scan.preview[index];
+      std::snprintf(
+        line,
+        sizeof(line),
+        "#%d %s  +%llX  map=%u  start=%u",
+        candidate.quest_id,
+        candidate.layout == QuestDataLayout::Runtime ? "runtime" : "resource",
+        static_cast<unsigned long long>(candidate.heap_offset),
+        candidate.map,
+        candidate.start_type
+      );
+      renderer->drawString(
+        line,
+        false,
+        x + 8,
+        y + 112 + static_cast<u16>(index * 24),
+        14,
+        renderer->a({0xC, 0xC, 0xC, 0xF})
+      );
+    }
+
+    if (scan.status == QuestScanStatus::Complete) {
+      renderer->drawString(
+        mhgu::core::ui_message(UiMessage::QuestScanReport, locale),
+        false,
+        x + 8,
+        y + 270,
+        13,
+        renderer->a({0x8, 0xB, 0xB, 0xF})
+      );
+    }
+  }
+
+  Model& model_;
+  LocalizedOverlayFrame* frame_{};
+  tsl::elm::ListItem* start_item_{};
+};
+
 class MainGui final : public tsl::Gui {
 public:
   explicit MainGui(Model& model)
@@ -1215,6 +1395,18 @@ public:
     });
     list->addItem(battle_item_);
 
+    quest_scan_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::QuestDataDiagnostic, locale)
+    );
+    quest_scan_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0) {
+        tsl::changeTo<QuestScanGui>(model_);
+        return true;
+      }
+      return false;
+    });
+    list->addItem(quest_scan_item_);
+
     scan_item_ =
       new tsl::elm::ListItem(mhgu::core::ui_message(UiMessage::Scan, locale));
     scan_item_->setClickListener([this](const u64 keys) {
@@ -1302,6 +1494,9 @@ private:
     transmog_item_->setText(
       mhgu::core::ui_message(UiMessage::Transmog, locale)
     );
+    quest_scan_item_->setText(
+      mhgu::core::ui_message(UiMessage::QuestDataDiagnostic, locale)
+    );
     scan_item_->setText(mhgu::core::ui_message(UiMessage::Scan, locale));
   }
 
@@ -1316,6 +1511,7 @@ private:
   tsl::elm::ListItem* carry_item_{};
   tsl::elm::ListItem* transmog_item_{};
   tsl::elm::ListItem* battle_item_{};
+  tsl::elm::ListItem* quest_scan_item_{};
   tsl::elm::ListItem* scan_item_{};
 };
 

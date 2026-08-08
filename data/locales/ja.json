@@ -61,7 +61,15 @@
     "itemPouchQuantity": "個数",
     "applyItemPouchQuantity": "アイテム個数を適用",
     "monsterInfoOverlay": "モンスター情報オーバーレイ",
-    "damageDisplay": "ダメージ表示"
+    "damageDisplay": "ダメージ表示",
+    "questDataDiagnostic": "クエストデータ診断",
+    "startQuestScan": "読み取り専用スキャン開始",
+    "questScanIdle": "指定クエストを受注してスキャンしてください",
+    "questScanRunning": "クエストデータをスキャン中",
+    "questScanComplete": "スキャン完了",
+    "questScanReportFailed": "スキャンレポートを保存できません",
+    "questScanCandidates": "候補数",
+    "questScanReport": "レポート: config/mhgu-overlay/quest-scan.log"
   },
   "monsters": {
     "great-maccao": "ドスマッカォ",

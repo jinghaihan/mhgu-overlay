@@ -11,6 +11,15 @@
 #include "mhgu/platform/switch/language.hpp"
 
 namespace mhgu::platform::switch_adapter {
+namespace {
+
+constexpr std::size_t kQuestScanBytesPerPoll = 1024 * 1024;
+#ifdef __SWITCH__
+constexpr const char* kQuestScanReportPath =
+  "sdmc:/config/mhgu-overlay/quest-scan.log";
+#endif
+
+}  // namespace
 
 bool GameSession::initialize() {
   if (initialized_) {
@@ -92,6 +101,14 @@ bool GameSession::attach() {
     reader_ = std::make_unique<MonsterReader>(
       memory_, *profile_, heap_base_, heap_size_
     );
+    quest_scanner_ = std::make_unique<QuestScanner>(
+      memory_,
+      heap_base_,
+      heap_size_,
+      metadata.title_id,
+      profile_->name,
+      kQuestScanReportPath
+    );
     frame_rate_applied_ = false;
     applied_frame_rate_ = core::FrameRate::Fps30;
     applied_monster_damage_mode_ = core::MonsterDamageMode::Off;
@@ -115,6 +132,7 @@ bool GameSession::attach() {
 void GameSession::detach(const SessionStatus status) {
   patches_.reset();
   reader_.reset();
+  quest_scanner_.reset();
   profile_ = nullptr;
   process_id_ = 0;
   main_base_ = 0;
@@ -286,6 +304,26 @@ void GameSession::poll_damage(
     };
   }
   view_.damage = damage_tracker_.update(snapshot, now_ms);
+}
+
+void GameSession::poll_quest_scan() {
+  if (quest_scanner_ == nullptr || !quest_scanner_->active()) {
+    return;
+  }
+  quest_scanner_->advance(kQuestScanBytesPerPoll);
+  view_.quest_scan = quest_scanner_->view();
+}
+
+bool GameSession::request_quest_scan() {
+  if (quest_scanner_ == nullptr || !quest_scanner_->start()) {
+    return false;
+  }
+  view_.quest_scan = quest_scanner_->view();
+  return true;
+}
+
+bool GameSession::quest_scan_active() const {
+  return quest_scanner_ != nullptr && quest_scanner_->active();
 }
 
 void GameSession::request_rescan() {

@@ -34,6 +34,7 @@ public:
   void request_item_pouch_quantity_write();
   void cycle_size_preset();
   void request_rescan();
+  void request_quest_scan();
 
 private:
   void worker_main();
@@ -45,6 +46,7 @@ private:
   SettingsStore store_;
   std::atomic<bool> running_{false};
   std::atomic<bool> rescan_requested_{false};
+  std::atomic<bool> quest_scan_requested_{false};
   std::atomic<std::uint16_t> item_pouch_write_request_{};
   std::thread worker_;
 };

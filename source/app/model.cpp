@@ -236,6 +236,10 @@ void Model::request_rescan() {
   rescan_requested_ = true;
 }
 
+void Model::request_quest_scan() {
+  quest_scan_requested_ = true;
+}
+
 void Model::persist(const core::CoreSettings& settings) {
   store_.save(settings);
 }
@@ -244,11 +248,13 @@ void Model::worker_main() {
   using Clock = std::chrono::steady_clock;
   constexpr auto kFullPollInterval = std::chrono::milliseconds(250);
   constexpr auto kDamagePollInterval = std::chrono::milliseconds(33);
+  constexpr auto kQuestScanPollInterval = std::chrono::milliseconds(16);
 
   platform::switch_adapter::GameSession session;
   session.initialize();
   auto next_full_poll = Clock::now();
   auto next_damage_poll = next_full_poll;
+  auto next_quest_scan_poll = next_full_poll;
   while (running_) {
     const auto now = Clock::now();
     if (rescan_requested_.exchange(false)) {
@@ -259,6 +265,14 @@ void Model::worker_main() {
     if (now >= next_full_poll) {
       session.poll(current_settings);
       next_full_poll = Clock::now() + kFullPollInterval;
+    }
+    if (quest_scan_requested_.load() && session.request_quest_scan()) {
+      quest_scan_requested_ = false;
+      next_quest_scan_poll = now;
+    }
+    if (session.quest_scan_active() && now >= next_quest_scan_poll) {
+      session.poll_quest_scan();
+      next_quest_scan_poll = Clock::now() + kQuestScanPollInterval;
     }
     const auto damage_now = Clock::now();
     if (current_settings.damage_display_enabled &&
@@ -290,6 +304,9 @@ void Model::worker_main() {
     auto next_wake = next_full_poll;
     if (current_settings.damage_display_enabled) {
       next_wake = std::min(next_wake, next_damage_poll);
+    }
+    if (session.quest_scan_active()) {
+      next_wake = std::min(next_wake, next_quest_scan_poll);
     }
     std::this_thread::sleep_until(next_wake);
   }

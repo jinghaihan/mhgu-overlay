@@ -67,6 +67,14 @@ constexpr const char* kMessages[][3] = {
   {"Apply item quantity", "应用道具数量", "アイテム個数を適用"},
   {"Monster info overlay", "怪物信息 Overlay", "モンスター情報オーバーレイ"},
   {"Damage display", "伤害显示", "ダメージ表示"},
+  {"Quest data diagnostic", "任务数据诊断", "クエストデータ診断"},
+  {"Start read-only scan", "开始只读扫描", "読み取り専用スキャン開始"},
+  {"Accept the specified quest, then start a scan", "接取指定任务后开始扫描", "指定クエストを受注してスキャンしてください"},
+  {"Scanning quest data", "正在扫描任务数据", "クエストデータをスキャン中"},
+  {"Scan complete", "扫描完成", "スキャン完了"},
+  {"Could not save the scan report", "扫描报告保存失败", "スキャンレポートを保存できません"},
+  {"Candidates", "候选数量", "候補数"},
+  {"Report: config/mhgu-overlay/quest-scan.log", "报告：config/mhgu-overlay/quest-scan.log", "レポート: config/mhgu-overlay/quest-scan.log"},
 };
 
 }  // namespace
