@@ -7,7 +7,7 @@ namespace mhgu::core {
 namespace {
 
 constexpr const char* kMessages[][3] = {
-  {"MHGU Overlay", "MHGU 怪物信息", "MHGU モンスター情報"},
+  {"MHGU Overlay", "MHGU Overlay", "MHGU Overlay"},
   {"MHGU 1.4.0 is not running", "未检测到 MHGU 1.4.0", "MHGU 1.4.0 が起動していません"},
   {"No large monsters", "未发现大型怪物", "大型モンスターがいません"},
   {"Size", "体型", "サイズ"},

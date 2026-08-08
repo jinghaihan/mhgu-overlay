@@ -2,7 +2,7 @@
   "$schema": "../schema/locale.schema.json",
   "locale": "zh-Hans",
   "ui": {
-    "title": "MHGU 怪物信息",
+    "title": "MHGU Overlay",
     "notRunning": "未检测到 MHGU 1.4.0",
     "noMonsters": "未发现大型怪物",
     "size": "体型",
