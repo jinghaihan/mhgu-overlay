@@ -334,18 +334,18 @@ void Model::worker_main() {
       session_.poll(current_settings);
       next_full_poll = Clock::now() + kFullPollInterval;
     }
-    if (quest_scan_requested_.load() && session.request_quest_scan()) {
+    if (quest_scan_requested_.load() && session_.request_quest_scan()) {
       quest_scan_requested_ = false;
       next_quest_scan_poll = now;
     }
-    if (session.quest_scan_active() && now >= next_quest_scan_poll) {
-      session.poll_quest_scan();
+    if (session_.quest_scan_active() && now >= next_quest_scan_poll) {
+      session_.poll_quest_scan();
       next_quest_scan_poll = Clock::now() + kDiagnosticScanPollInterval;
     }
     constexpr auto kResourceValueMask = (std::uint64_t{1} << 24) - 1;
     constexpr auto kResourceFilter = std::uint64_t{1} << 48;
     const auto resource_scan_request = resource_scan_request_.load();
-    if (resource_scan_request != 0 && session.request_resource_scan(
+    if (resource_scan_request != 0 && session_.request_resource_scan(
                                         static_cast<std::uint32_t>(
                                           resource_scan_request &
                                           kResourceValueMask
@@ -360,8 +360,8 @@ void Model::worker_main() {
       resource_scan_request_ = 0;
       next_resource_scan_poll = now;
     }
-    if (session.resource_scan_active() && now >= next_resource_scan_poll) {
-      session.poll_resource_scan();
+    if (session_.resource_scan_active() && now >= next_resource_scan_poll) {
+      session_.poll_resource_scan();
       next_resource_scan_poll = Clock::now() + kDiagnosticScanPollInterval;
     }
     const auto damage_now = Clock::now();
@@ -395,10 +395,10 @@ void Model::worker_main() {
     if (current_settings.damage_display_enabled) {
       next_wake = std::min(next_wake, next_damage_poll);
     }
-    if (session.quest_scan_active()) {
+    if (session_.quest_scan_active()) {
       next_wake = std::min(next_wake, next_quest_scan_poll);
     }
-    if (session.resource_scan_active()) {
+    if (session_.resource_scan_active()) {
       next_wake = std::min(next_wake, next_resource_scan_poll);
     }
     std::this_thread::sleep_until(next_wake);
