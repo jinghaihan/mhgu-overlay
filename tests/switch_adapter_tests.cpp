@@ -672,12 +672,7 @@ int main() {
   constexpr std::uint32_t kMonster = 0x4000;
   FakeMemory memory(0x20000);
   memory.store(
-    kMainBase + kFrameRatePointer,
-    static_cast<std::uint32_t>(kFrameRateTargetBase)
-  );
-  memory.store(
-    kMainBase + kFrameRatePointer + sizeof(std::uint32_t),
-    std::uint32_t{0xDEADBEEF}
+    kMainBase + kFrameRatePointer, kFrameRateTargetBase
   );
   memory.store(
     kFrameRateTargetBase + kFrameRateTargetOffset,
@@ -922,13 +917,12 @@ int main() {
   assert(!invalid_source.set_frame_rate(core::FrameRate::Fps60));
   assert(memory.write_count() == patch_writes);
 
-  memory.store(kMainBase + kFrameRatePointer, std::uint32_t{0x1FFF0});
+  memory.store(kMainBase + kFrameRatePointer, std::uint64_t{0x1FFF0});
   patch_writes = memory.write_count();
   assert(!patches.set_frame_rate(core::FrameRate::Fps60));
   assert(memory.write_count() == patch_writes);
   memory.store(
-    kMainBase + kFrameRatePointer,
-    static_cast<std::uint32_t>(kFrameRateTargetBase)
+    kMainBase + kFrameRatePointer, kFrameRateTargetBase
   );
 
   patch_writes = memory.write_count();
