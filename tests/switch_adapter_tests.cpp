@@ -2107,12 +2107,70 @@ int main() {
   assert(small_first.monster_count == 1);
   assert(small_first.monsters[0].handle == kMonster);
 
+  for (std::size_t index = 0; index < core::kMaxMonsters; ++index) {
+    const auto pointer =
+      index + 1 == core::kMaxMonsters ? kMonster : kSmallMonster;
+    memory.store(
+      kList + profile.pointer_list.pointers + index * sizeof(std::uint32_t),
+      pointer
+    );
+  }
+  const auto full_list = static_cast<std::uint8_t>(core::kMaxMonsters);
+  memory.store(kList + profile.pointer_list.count, full_list);
+  core::GameSnapshot crowded_with_small_monsters{};
+  assert(reader.read_snapshot(
+    kList, core::Locale::English, crowded_with_small_monsters
+  ));
+  assert(crowded_with_small_monsters.monster_count == 1);
+  assert(crowded_with_small_monsters.monsters[0].handle == kMonster);
+
   const std::uint32_t no_pointer = 0;
-  const std::uint8_t no_monsters = 0;
   memory.store(kList + profile.pointer_list.pointers, no_pointer);
+  assert(!reader.validate_pointer_list(kList));
+
+  core::GameSnapshot missing_small_slot{};
+  assert(reader.read_snapshot(
+    kList, core::Locale::English, missing_small_slot
+  ));
+  assert(missing_small_slot.monster_count == 1);
+  assert(missing_small_slot.monsters[0].handle == kMonster);
+
+  const std::uint8_t one_monster = 1;
+  memory.store(kList + profile.pointer_list.pointers, kSmallMonster);
+  memory.store(kList + profile.pointer_list.count, one_monster);
+  assert(!reader.validate_pointer_list(kList));
+
+  core::GameSnapshot count_changed_before_slots{};
+  assert(reader.read_snapshot(
+    kList, core::Locale::English, count_changed_before_slots
+  ));
+  assert(count_changed_before_slots.monster_count == 1);
+  assert(count_changed_before_slots.monsters[0].handle == kMonster);
+
+  request.handle = kMonster;
+  request.target_percent = rathian->mini_percent;
+  assert(reader.apply_size(kList, request, verified));
+  assert(verified == rathian->mini_percent);
+
+  memory.store(kList + profile.pointer_list.pointers, kMonster);
   memory.store(
-    kList + profile.pointer_list.pointers + sizeof(std::uint32_t), no_pointer
+    kList + profile.pointer_list.pointers + sizeof(std::uint32_t), kMonster
   );
+  memory.store(kList + profile.pointer_list.count, two);
+  core::GameSnapshot duplicate_pointer{};
+  assert(reader.read_snapshot(
+    kList, core::Locale::English, duplicate_pointer
+  ));
+  assert(duplicate_pointer.monster_count == 1);
+  assert(duplicate_pointer.monsters[0].handle == kMonster);
+
+  const std::uint8_t no_monsters = 0;
+  for (std::size_t index = 0; index < core::kMaxMonsters; ++index) {
+    memory.store(
+      kList + profile.pointer_list.pointers + index * sizeof(std::uint32_t),
+      no_pointer
+    );
+  }
   memory.store(kList + profile.pointer_list.count, no_monsters);
   assert(!reader.validate_pointer_list(kList));
 

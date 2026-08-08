@@ -52,9 +52,13 @@ public:
   );
 
 private:
-  bool read_pointer_list(
+  bool read_strict_pointer_list(
     std::uint64_t address,
     bool allow_empty,
+    std::array<std::uint8_t, 0x41>& bytes
+  );
+  bool read_runtime_pointer_list(
+    std::uint64_t address,
     std::array<std::uint8_t, 0x41>& bytes
   );
   bool plausible_monster(std::uint64_t address);

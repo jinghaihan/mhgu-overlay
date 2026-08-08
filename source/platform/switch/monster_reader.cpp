@@ -150,7 +150,7 @@ std::uint64_t MonsterReader::find_pointer_list() {
   return 0;
 }
 
-bool MonsterReader::read_pointer_list(
+bool MonsterReader::read_strict_pointer_list(
   const std::uint64_t address,
   const bool allow_empty,
   std::array<std::uint8_t, 0x41>& bytes
@@ -188,6 +188,30 @@ bool MonsterReader::read_pointer_list(
   return true;
 }
 
+bool MonsterReader::read_runtime_pointer_list(
+  const std::uint64_t address,
+  std::array<std::uint8_t, 0x41>& bytes
+) {
+  bytes = {};
+  if (profile_.pointer_list.byte_size > bytes.size() ||
+      !contains_heap_range(address, profile_.pointer_list.byte_size) ||
+      !memory_.read(address, bytes.data(), profile_.pointer_list.byte_size)) {
+    return false;
+  }
+
+  const auto& layout = profile_.pointer_list;
+  if (bytes[layout.marker] != 1 || bytes[layout.marker + 1] != 1) {
+    return false;
+  }
+  for (std::uint32_t offset = layout.padding; offset < layout.pointers;
+       ++offset) {
+    if (bytes[offset] > 1) {
+      return false;
+    }
+  }
+  return bytes[layout.count] <= kPointerCapacity;
+}
+
 bool MonsterReader::plausible_monster(const std::uint64_t address) {
   std::uint8_t location{};
   std::uint8_t secondary{};
@@ -223,7 +247,7 @@ bool MonsterReader::plausible_monster(const std::uint64_t address) {
 
 bool MonsterReader::validate_pointer_list(const std::uint64_t address) {
   std::array<std::uint8_t, 0x41> bytes{};
-  if (!read_pointer_list(address, false, bytes)) {
+  if (!read_strict_pointer_list(address, false, bytes)) {
     return false;
   }
 
@@ -268,13 +292,11 @@ bool MonsterReader::pointer_list_contains(
 
   std::array<std::uint8_t, 0x41> bytes{};
   const auto& layout = profile_.pointer_list;
-  if (!read_pointer_list(pointer_list_address, false, bytes)) {
+  if (!read_runtime_pointer_list(pointer_list_address, bytes)) {
     return false;
   }
 
-  const auto count =
-    std::min<std::size_t>(bytes[layout.count], kPointerCapacity);
-  for (std::size_t index = 0; index < count; ++index) {
+  for (std::size_t index = 0; index < kPointerCapacity; ++index) {
     const auto pointer =
       read_u32(bytes.data() + layout.pointers + index * sizeof(std::uint32_t));
     if (pointer == handle) {
@@ -336,17 +358,22 @@ bool MonsterReader::read_snapshot(
 
   std::array<std::uint8_t, 0x41> bytes{};
   const auto& layout = profile_.pointer_list;
-  if (!read_pointer_list(pointer_list_address, true, bytes)) {
+  if (!read_runtime_pointer_list(pointer_list_address, bytes)) {
     return false;
   }
 
-  const auto count =
-    std::min<std::size_t>(bytes[layout.count], kPointerCapacity);
-  for (std::size_t index = 0; index < count; ++index) {
+  for (std::size_t index = 0; index < kPointerCapacity; ++index) {
     const auto pointer =
       read_u32(bytes.data() + layout.pointers + index * sizeof(std::uint32_t));
+    const auto duplicate = std::any_of(
+      snapshot.monsters.begin(),
+      snapshot.monsters.begin() + snapshot.monster_count,
+      [pointer](const core::MonsterSnapshot& monster) {
+        return monster.handle == pointer;
+      }
+    );
     core::MonsterSnapshot monster{};
-    if (pointer != 0 && read_monster(pointer, monster)) {
+    if (pointer != 0 && !duplicate && read_monster(pointer, monster)) {
       snapshot.monsters[snapshot.monster_count++] = monster;
     }
   }
