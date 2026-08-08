@@ -139,15 +139,20 @@ bool GamePatches::set_frame_rate(const core::FrameRate frame_rate) {
   std::uint64_t pointer_address{};
   if (!checked_add(main_base_, patch.pointer_from_main, pointer_address) ||
       !contains(
-        main_base_, main_size_, pointer_address, sizeof(std::uint64_t)
+        main_base_, main_size_, pointer_address, sizeof(std::uint32_t)
       )) {
     return false;
   }
 
-  std::uint64_t target_base{};
-  if (!memory_.read(pointer_address, &target_base, sizeof(target_base))) {
+  // MHGU is an AArch32 process. The value stored in its main module is a
+  // 32-bit game address even though dmnt itself accepts 64-bit addresses.
+  std::uint32_t target_pointer{};
+  if (!memory_.read(
+        pointer_address, &target_pointer, sizeof(target_pointer)
+      )) {
     return false;
   }
+  const auto target_base = static_cast<std::uint64_t>(target_pointer);
 
   std::uint64_t target_address{};
   if (!checked_add(target_base, patch.target_from_pointer, target_address) ||
