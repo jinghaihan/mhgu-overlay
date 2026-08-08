@@ -371,32 +371,6 @@ const char* status_value(const SessionStatus status, const Locale locale) {
   }
 }
 
-tsl::elm::CustomDrawer* section_header(
-  Model& model, const UiMessage message
-) {
-  return new tsl::elm::CustomDrawer(
-    [model_ptr = &model, message](
-      tsl::gfx::Renderer* renderer,
-      const u16 x,
-      const u16 y,
-      const u16,
-      const u16
-    ) {
-      renderer->drawRect(
-        x + 8, y + 13, 3, 19, renderer->a({0x3, 0xB, 0xA, 0xF})
-      );
-      renderer->drawString(
-        text(*model_ptr, message),
-        false,
-        x + 19,
-        y + 31,
-        17,
-        renderer->a({0xA, 0xD, 0xD, 0xF})
-      );
-    }
-  );
-}
-
 tsl::gfx::Color crown_color(const mhgu::core::Crown crown) {
   switch (crown) {
     case mhgu::core::Crown::Mini:
@@ -832,146 +806,65 @@ private:
   Model& model_;
 };
 
-class BattleGui final : public tsl::Gui {
+class HunterGui final : public tsl::Gui {
 public:
-  explicit BattleGui(Model& model)
+  explicit HunterGui(Model& model)
     : model_(model) {}
 
   tsl::elm::Element* createUI() override {
     const auto locale = model_.display_locale();
     auto* frame = new LocalizedOverlayFrame(
-      mhgu::core::ui_message(UiMessage::BattleFunctions, locale), kVersion
+      mhgu::core::ui_message(UiMessage::Hunter, locale), kVersion
     );
     auto* list = new tsl::elm::List(6);
-    list->addItem(section_header(model_, UiMessage::Hunter), 44);
-
-    invincible_item_ = runtime_feature_item(
+    list->addItem(runtime_feature_item(
       model_, UiMessage::Invincible, RuntimeFeature::Invincible
-    );
-    list->addItem(invincible_item_);
-
-    health_item_ = runtime_feature_item(
+    ));
+    list->addItem(runtime_feature_item(
       model_, UiMessage::HealthNoDecrease, RuntimeFeature::HealthNoDecrease
-    );
-    list->addItem(health_item_);
-
-    stamina_item_ = runtime_feature_item(
+    ));
+    list->addItem(runtime_feature_item(
       model_, UiMessage::StaminaNoDecrease, RuntimeFeature::StaminaNoDecrease
-    );
-    list->addItem(stamina_item_);
-
-    sharpness_item_ = runtime_feature_item(
+    ));
+    list->addItem(runtime_feature_item(
       model_,
       UiMessage::SharpnessNoDecrease,
       RuntimeFeature::SharpnessNoDecrease
-    );
-    list->addItem(sharpness_item_);
-
-    hunter_art_slots_item_ = runtime_feature_item(
+    ));
+    list->addItem(runtime_feature_item(
       model_,
       UiMessage::UnlockHunterArtSlots,
       RuntimeFeature::UnlockHunterArtSlots
-    );
-    list->addItem(hunter_art_slots_item_);
-
-    hunter_arts_item_ = runtime_feature_item(
+    ));
+    list->addItem(runtime_feature_item(
       model_,
       UiMessage::UnlimitedHunterArts,
       RuntimeFeature::UnlimitedHunterArts
-    );
-    list->addItem(hunter_arts_item_);
-
-    valor_item_ = runtime_feature_item(
+    ));
+    list->addItem(runtime_feature_item(
       model_, UiMessage::ValorGaugeNoDecrease,
       RuntimeFeature::ValorGaugeNoDecrease
-    );
-    list->addItem(valor_item_);
-
-    alchemy_item_ = runtime_feature_item(
+    ));
+    list->addItem(runtime_feature_item(
       model_, UiMessage::AlchemyGaugeFull, RuntimeFeature::AlchemyGaugeFull
-    );
-    list->addItem(alchemy_item_);
-
-    long_sword_spirit_item_ = numeric_feature_item(
+    ));
+    list->addItem(numeric_feature_item(
       model_,
       UiMessage::LongSwordSpiritGauge,
       NumericFeature::LongSwordSpiritGauge
-    );
-    list->addItem(long_sword_spirit_item_);
-
-    sp_level_item_ = numeric_feature_item(
+    ));
+    list->addItem(numeric_feature_item(
       model_, UiMessage::SpLevel, NumericFeature::SpLevel
-    );
-    list->addItem(sp_level_item_);
-
-    sp_status_item_ = runtime_feature_item(
+    ));
+    list->addItem(runtime_feature_item(
       model_, UiMessage::SpStatusNoExpire, RuntimeFeature::SpStatusNoExpire
-    );
-    list->addItem(sp_status_item_);
-
-    hunter_affinity_item_ = numeric_feature_item(
+    ));
+    list->addItem(numeric_feature_item(
       model_, UiMessage::HunterAffinity, NumericFeature::HunterAffinity
-    );
-    list->addItem(hunter_affinity_item_);
-
-    bowgun_item_ = runtime_feature_item(
+    ));
+    list->addItem(runtime_feature_item(
       model_, UiMessage::BowgunAutoReload, RuntimeFeature::BowgunAutoReload
-    );
-    list->addItem(bowgun_item_);
-
-    consumable_item_ = runtime_feature_item(
-      model_,
-      UiMessage::ConsumableItemsNoDecrease,
-      RuntimeFeature::ConsumableItemsNoDecrease
-    );
-    list->addItem(consumable_item_);
-
-    list->addItem(section_header(model_, UiMessage::CombatParameters), 44);
-    monster_damage_mode_item_ = monster_damage_mode_item(model_);
-    list->addItem(monster_damage_mode_item_);
-    attack_multiplier_item_ = numeric_feature_item(
-      model_, UiMessage::AttackMultiplier, NumericFeature::AttackMultiplier
-    );
-    list->addItem(attack_multiplier_item_);
-    defense_multiplier_item_ = numeric_feature_item(
-      model_, UiMessage::DefenseMultiplier, NumericFeature::DefenseMultiplier
-    );
-    list->addItem(defense_multiplier_item_);
-    movement_speed_multiplier_item_ = numeric_feature_item(
-      model_,
-      UiMessage::MovementSpeedMultiplier,
-      NumericFeature::MovementSpeedMultiplier
-    );
-    list->addItem(movement_speed_multiplier_item_);
-
-    list->addItem(section_header(model_, UiMessage::Resources), 44);
-    zenny_item_ = numeric_feature_item(
-      model_, UiMessage::Zenny, NumericFeature::Zenny
-    );
-    list->addItem(zenny_item_);
-    wycademy_points_item_ = numeric_feature_item(
-      model_, UiMessage::WycademyPoints, NumericFeature::WycademyPoints
-    );
-    list->addItem(wycademy_points_item_);
-    item_pouch_slot_item_ = item_pouch_slot_item(model_);
-    list->addItem(item_pouch_slot_item_);
-    item_pouch_quantity_item_ = item_pouch_quantity_item(model_);
-    list->addItem(item_pouch_quantity_item_);
-    apply_item_pouch_quantity_item_ = apply_item_pouch_quantity_item(model_);
-    list->addItem(apply_item_pouch_quantity_item_);
-
-    list->addItem(section_header(model_, UiMessage::Palico), 44);
-    palico_health_item_ = runtime_feature_item(
-      model_,
-      UiMessage::PalicoHealthNoDecrease,
-      RuntimeFeature::PalicoHealthNoDecrease
-    );
-    list->addItem(palico_health_item_);
-    palico_affinity_item_ = numeric_feature_item(
-      model_, UiMessage::PalicoAffinity, NumericFeature::PalicoAffinity
-    );
-    list->addItem(palico_affinity_item_);
-
+    ));
     frame->setContent(list);
     return frame;
   }
@@ -992,32 +885,153 @@ public:
 
 private:
   Model& model_;
-  tsl::elm::ListItem* invincible_item_{};
-  tsl::elm::ListItem* health_item_{};
-  tsl::elm::ListItem* stamina_item_{};
-  tsl::elm::ListItem* sharpness_item_{};
-  tsl::elm::ListItem* hunter_art_slots_item_{};
-  tsl::elm::ListItem* hunter_arts_item_{};
-  tsl::elm::ListItem* valor_item_{};
-  tsl::elm::ListItem* alchemy_item_{};
-  tsl::elm::ListItem* long_sword_spirit_item_{};
-  tsl::elm::ListItem* sp_level_item_{};
-  tsl::elm::ListItem* sp_status_item_{};
-  tsl::elm::ListItem* hunter_affinity_item_{};
-  tsl::elm::ListItem* bowgun_item_{};
-  tsl::elm::ListItem* consumable_item_{};
-  tsl::elm::ListItem* monster_damage_mode_item_{};
-  tsl::elm::ListItem* attack_multiplier_item_{};
-  tsl::elm::ListItem* defense_multiplier_item_{};
-  tsl::elm::ListItem* movement_speed_multiplier_item_{};
-  tsl::elm::ListItem* zenny_item_{};
-  tsl::elm::ListItem* wycademy_points_item_{};
-  tsl::elm::ListItem* item_pouch_slot_item_{};
-  tsl::elm::ListItem* item_pouch_quantity_item_{};
-  tsl::elm::ListItem* apply_item_pouch_quantity_item_{};
-  tsl::elm::ListItem* palico_health_item_{};
-  tsl::elm::ListItem* palico_affinity_item_{};
 };
+
+class CombatParametersGui final : public tsl::Gui {
+public:
+  explicit CombatParametersGui(Model& model)
+    : model_(model) {}
+
+  tsl::elm::Element* createUI() override {
+    const auto locale = model_.display_locale();
+    auto* frame = new LocalizedOverlayFrame(
+      mhgu::core::ui_message(UiMessage::CombatParameters, locale), kVersion
+    );
+    auto* list = new tsl::elm::List(6);
+    list->addItem(monster_damage_mode_item(model_));
+    list->addItem(numeric_feature_item(
+      model_, UiMessage::AttackMultiplier, NumericFeature::AttackMultiplier
+    ));
+    list->addItem(numeric_feature_item(
+      model_, UiMessage::DefenseMultiplier, NumericFeature::DefenseMultiplier
+    ));
+    list->addItem(numeric_feature_item(
+      model_,
+      UiMessage::MovementSpeedMultiplier,
+      NumericFeature::MovementSpeedMultiplier
+    ));
+    frame->setContent(list);
+    return frame;
+  }
+
+  bool handleInput(
+    const u64 keys_down,
+    u64,
+    const HidTouchState&,
+    JoystickPosition,
+    JoystickPosition
+  ) override {
+    if ((keys_down & HidNpadButton_B) != 0) {
+      tsl::goBack();
+      return true;
+    }
+    return false;
+  }
+
+private:
+  Model& model_;
+};
+
+class ResourcesGui final : public tsl::Gui {
+public:
+  explicit ResourcesGui(Model& model)
+    : model_(model) {}
+
+  tsl::elm::Element* createUI() override {
+    const auto locale = model_.display_locale();
+    auto* frame = new LocalizedOverlayFrame(
+      mhgu::core::ui_message(UiMessage::Resources, locale), kVersion
+    );
+    auto* list = new tsl::elm::List(6);
+    list->addItem(numeric_feature_item(
+      model_, UiMessage::Zenny, NumericFeature::Zenny
+    ));
+    list->addItem(numeric_feature_item(
+      model_, UiMessage::WycademyPoints, NumericFeature::WycademyPoints
+    ));
+    list->addItem(runtime_feature_item(
+      model_,
+      UiMessage::ConsumableItemsNoDecrease,
+      RuntimeFeature::ConsumableItemsNoDecrease
+    ));
+    list->addItem(item_pouch_slot_item(model_));
+    list->addItem(item_pouch_quantity_item(model_));
+    list->addItem(apply_item_pouch_quantity_item(model_));
+    frame->setContent(list);
+    return frame;
+  }
+
+  bool handleInput(
+    const u64 keys_down,
+    u64,
+    const HidTouchState&,
+    JoystickPosition,
+    JoystickPosition
+  ) override {
+    if ((keys_down & HidNpadButton_B) != 0) {
+      tsl::goBack();
+      return true;
+    }
+    return false;
+  }
+
+private:
+  Model& model_;
+};
+
+class PalicoGui final : public tsl::Gui {
+public:
+  explicit PalicoGui(Model& model)
+    : model_(model) {}
+
+  tsl::elm::Element* createUI() override {
+    const auto locale = model_.display_locale();
+    auto* frame = new LocalizedOverlayFrame(
+      mhgu::core::ui_message(UiMessage::Palico, locale), kVersion
+    );
+    auto* list = new tsl::elm::List(6);
+    list->addItem(runtime_feature_item(
+      model_,
+      UiMessage::PalicoHealthNoDecrease,
+      RuntimeFeature::PalicoHealthNoDecrease
+    ));
+    list->addItem(numeric_feature_item(
+      model_, UiMessage::PalicoAffinity, NumericFeature::PalicoAffinity
+    ));
+    frame->setContent(list);
+    return frame;
+  }
+
+  bool handleInput(
+    const u64 keys_down,
+    u64,
+    const HidTouchState&,
+    JoystickPosition,
+    JoystickPosition
+  ) override {
+    if ((keys_down & HidNpadButton_B) != 0) {
+      tsl::goBack();
+      return true;
+    }
+    return false;
+  }
+
+private:
+  Model& model_;
+};
+
+template <typename Gui>
+tsl::elm::ListItem* submenu_item(Model& model, const UiMessage label) {
+  auto* item = new tsl::elm::ListItem(text(model, label));
+  item->setClickListener([model_ptr = &model](const u64 keys) {
+    if ((keys & HidNpadButton_A) == 0) {
+      return false;
+    }
+    tsl::changeTo<Gui>(*model_ptr);
+    return true;
+  });
+  return item;
+}
 
 class TransmogGui final : public tsl::Gui {
 public:
@@ -1561,20 +1575,6 @@ public:
     );
     auto* list = new tsl::elm::List(6);
 
-    language_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::Language, locale)
-    );
-    language_item_->setValue(language_value(model_));
-    language_item_->setClickListener([this](const u64 keys) {
-      if ((keys & HidNpadButton_A) != 0) {
-        model_.cycle_language();
-        refresh_labels();
-        return true;
-      }
-      return false;
-    });
-    list->addItem(language_item_);
-
     list->addItem(
       new tsl::elm::CustomDrawer([this](
                                    tsl::gfx::Renderer* renderer,
@@ -1586,7 +1586,11 @@ public:
         const auto view = model_.session_view();
         const auto locale_now = model_.display_locale();
         renderer->drawString(
-          status_value(view.status, locale_now),
+          status_value(
+            view.patch_write_failed ? SessionStatus::WriteFailed
+                                    : view.status,
+            locale_now
+          ),
           false,
           x + 8,
           y + 30,
@@ -1606,6 +1610,20 @@ public:
       }),
       70
     );
+
+    language_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::Language, locale)
+    );
+    language_item_->setValue(language_value(model_));
+    language_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0) {
+        model_.cycle_language();
+        refresh_labels();
+        return true;
+      }
+      return false;
+    });
+    list->addItem(language_item_);
 
     hud_item_ = new tsl::elm::ListItem(
       mhgu::core::ui_message(UiMessage::MonsterInfoOverlay, locale)
@@ -1692,17 +1710,21 @@ public:
     });
     list->addItem(transmog_item_);
 
-    battle_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::BattleFunctions, locale)
+    hunter_item_ = submenu_item<HunterGui>(model_, UiMessage::Hunter);
+    list->addItem(hunter_item_);
+
+    combat_parameters_item_ = submenu_item<CombatParametersGui>(
+      model_, UiMessage::CombatParameters
     );
-    battle_item_->setClickListener([this](const u64 keys) {
-      if ((keys & HidNpadButton_A) != 0) {
-        tsl::changeTo<BattleGui>(model_);
-        return true;
-      }
-      return false;
-    });
-    list->addItem(battle_item_);
+    list->addItem(combat_parameters_item_);
+
+    resources_item_ = submenu_item<ResourcesGui>(
+      model_, UiMessage::Resources
+    );
+    list->addItem(resources_item_);
+
+    palico_item_ = submenu_item<PalicoGui>(model_, UiMessage::Palico);
+    list->addItem(palico_item_);
 
     address_diagnostic_item_ = new tsl::elm::ListItem(
       mhgu::core::ui_message(UiMessage::AddressDiagnostic, locale)
@@ -1797,9 +1819,14 @@ private:
       UiMessage::CarryItemsIntoPouch,
       RuntimeFeature::CarryItemsIntoPouch
     );
-    battle_item_->setText(
-      mhgu::core::ui_message(UiMessage::BattleFunctions, locale)
+    hunter_item_->setText(mhgu::core::ui_message(UiMessage::Hunter, locale));
+    combat_parameters_item_->setText(
+      mhgu::core::ui_message(UiMessage::CombatParameters, locale)
     );
+    resources_item_->setText(
+      mhgu::core::ui_message(UiMessage::Resources, locale)
+    );
+    palico_item_->setText(mhgu::core::ui_message(UiMessage::Palico, locale));
     transmog_item_->setText(
       mhgu::core::ui_message(UiMessage::Transmog, locale)
     );
@@ -1819,8 +1846,11 @@ private:
   tsl::elm::ListItem* map_item_{};
   tsl::elm::ListItem* carry_item_{};
   tsl::elm::ListItem* transmog_item_{};
-  tsl::elm::ListItem* battle_item_{};
   tsl::elm::ListItem* address_diagnostic_item_{};
+  tsl::elm::ListItem* hunter_item_{};
+  tsl::elm::ListItem* combat_parameters_item_{};
+  tsl::elm::ListItem* resources_item_{};
+  tsl::elm::ListItem* palico_item_{};
   tsl::elm::ListItem* scan_item_{};
 };
 

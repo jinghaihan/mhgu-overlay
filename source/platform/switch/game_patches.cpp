@@ -144,6 +144,8 @@ bool GamePatches::set_frame_rate(const core::FrameRate frame_rate) {
     return false;
   }
 
+  // This mirrors Atmosphere's `58000000` code type: load an eight-byte value
+  // from Main + pointer_from_main before applying the `78000000` offset.
   std::uint64_t target_base{};
   if (!memory_.read(pointer_address, &target_base, sizeof(target_base))) {
     return false;

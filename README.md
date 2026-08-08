@@ -30,12 +30,12 @@ The main menu is ordered as follows:
 | --- | --- |
 | **Language** | Uses automatic game-language detection or selects English, Simplified Chinese, or Japanese manually. |
 | **Status** | Shows whether MHGU 1.4.0 is detected, scanning, ready, unsupported, or unable to read or write memory. |
-| **Monster info overlay** | Opens the low-profile hunting HUD. Each active large monster gets a lower-left card with its name, health bar, current and maximum health, health percentage, size multiplier, calculated size, crown class, and Hyper status. |
+| **Monster HUD** | Opens the low-profile hunting HUD. Each active large monster gets a lower-left card with its name, health bar, current and maximum health, health percentage, size multiplier, calculated size, crown class, and Hyper status. |
 | **Damage display** | Shows animated damage values near the upper center of the hunting HUD when a large monster's health decreases. |
 | **Frame rate** | Switches the game's frame-rate target between 30 FPS and 60 FPS. This setting can be changed in either direction. |
 | **Size lock** | Selects **Off**, **Mini crown**, **Silver crown**, or **Gold crown**. The chosen per-monster crown threshold is applied when a valid monster object appears; **Off** is the default. |
-| **Map & large monster locations** | Automatically displays the map and marks large-monster locations. |
-| **Carry items into pouch** | Allows carried objects such as eggs to be placed in the item pouch. |
+| **Map & monster icons** | Automatically displays the map and marks large-monster locations. |
+| **Carry to pouch** | Allows carried objects such as eggs to be placed in the item pouch. |
 | **Equipment transmog** | Opens the weapon and armor appearance submenu. |
 | **Battle functions** | Opens the grouped hunter, combat-parameter, resource, and Palico tools. |
 | **Address diagnostic** | Opens the research-only quest-data and player-resource address scanners. |
@@ -57,45 +57,45 @@ Both transmog options are one-way code patches for the current game process.
 | Menu item | What it does |
 | --- | --- |
 | **Invincible** | Enables the hunter invincibility patch. |
-| **Health does not decrease** | Prevents hunter health from decreasing. |
-| **Stamina does not decrease** | Prevents hunter stamina from decreasing. |
-| **Sharpness does not decrease** | Prevents weapon sharpness from decreasing. |
-| **Unlock Hunter Art slots** | Unlocks all three Hunter Art slots. |
-| **Unlimited Hunter Arts** | Allows Hunter Arts to be used without consuming their gauge. |
-| **Valor gauge does not decrease** | Prevents the Valor gauge from decreasing. |
-| **Fill Alchemy gauge** | Keeps the Alchemy gauge filled. |
-| **Long Sword Spirit Gauge** | Sets the gauge from 0% to 100%. |
+| **No health loss** | Prevents hunter health from decreasing. |
+| **No stamina loss** | Prevents hunter stamina from decreasing. |
+| **No sharpness loss** | Prevents weapon sharpness from decreasing. |
+| **Unlock Art slots** | Unlocks all three Hunter Art slots. |
+| **Unlimited Arts** | Allows Hunter Arts to be used without consuming their gauge. |
+| **No Valor drain** | Prevents the Valor gauge from decreasing. |
+| **Full Alchemy gauge** | Keeps the Alchemy gauge filled. |
+| **Long Sword gauge** | Sets the gauge from 0% to 100%. |
 | **SP level** | Sets SP level from 1 to 4. |
-| **SP status does not expire** | Prevents SP status from expiring. |
-| **Hunter affinity** | Sets hunter affinity from 0% to 100%. |
+| **No SP expiry** | Prevents SP status from expiring. |
+| **Affinity** | Sets hunter affinity from 0% to 100%. |
 | **Bowgun auto reload** | Enables automatic Bowgun reload. |
-| **Consumable items do not decrease** | Prevents consumable-item counts from decreasing. |
 
 #### Combat parameters
 
 | Menu item | What it does |
 | --- | --- |
-| **Monster damage mode** | Selects **Off**, **Instant kill**, or **Leave monster at 1 HP**. The two active modes are mutually exclusive and can replace one another immediately. |
-| **Attack multiplier** | Sets the attack multiplier from x1 to x10. |
-| **Defense multiplier** | Sets the defense multiplier from x1 to x10. |
-| **Movement speed multiplier** | Sets movement speed from x1.0 to x5.0. |
+| **Damage mode** | Selects **Off**, **Instant kill**, or **Leave at 1 HP**. The two active modes are mutually exclusive and can replace one another immediately. |
+| **Attack** | Sets the attack multiplier from x1 to x10. |
+| **Defense** | Sets the defense multiplier from x1 to x10. |
+| **Move speed** | Sets movement speed from x1.0 to x5.0. |
 
 #### Resources
 
 | Menu item | What it does |
 | --- | --- |
-| **Zenny** | Sets a selected value from 0 to 9,999,999. |
-| **Wycademy Points** | Sets a selected value from 0 to 9,999,999. |
+| **Infinite items** | Prevents consumable-item counts from decreasing. |
+| **Zenny** | Sets a selected value from 0 to 9,999,999; defaults to the maximum. |
+| **Wycademy pts.** | Sets a selected value from 0 to 9,999,999; defaults to the maximum. |
 | **Item pouch slot** | Selects one of the first 10 item-pouch slots. |
 | **Quantity** | Selects a quantity from 1 to 99. |
-| **Apply item quantity** | Performs one bounded, verified byte write to the selected slot. It does not repeat the write automatically. |
+| **Apply quantity** | Performs one bounded, verified byte write to the selected slot. It does not repeat the write automatically. |
 
 #### Palico
 
 | Menu item | What it does |
 | --- | --- |
-| **Palico health does not decrease** | Prevents Palico health from decreasing. |
-| **Palico affinity** | Sets Palico affinity from 0% to 100%. |
+| **No Palico HP loss** | Prevents Palico health from decreasing. |
+| **Affinity** | Sets Palico affinity from 0% to 100%. |
 
 ## Address diagnostics
 
@@ -200,10 +200,10 @@ address is verified against independent changes.
   0.1/0.5; Zenny and Wycademy Points use 10,000/1,000,000; item-pouch slot and
   quantity use 1/5 and 1/10 respectively. SP level, attack, and defense change
   by one with either control.
-- **Monster info overlay** returns input to the game. Hold `L3 + R3` to return
+- **Monster HUD** returns input to the game. Hold `L3 + R3` to return
   to settings, and press `B` on a settings page to go back or close the
   overlay.
-- Language, monster info overlay, damage display, frame rate, size lock,
+- Language, Monster HUD, damage display, frame rate, size lock,
   selected numeric values, and the two item-pouch inputs are saved to
   `sdmc:/config/mhgu-overlay/settings.ini`.
 - Runtime patch enabled states and monster damage mode are not saved. Numeric

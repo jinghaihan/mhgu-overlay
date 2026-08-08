@@ -31,6 +31,11 @@ bool GameSession::initialize() {
   if (R_FAILED(dmntchtInitialize())) {
     return false;
   }
+  // Locale detection runs on the worker thread after libtesla closes its
+  // temporary service-manager session. Keep these optional service sessions
+  // alive so nested initialization in detect_game_locale() remains valid.
+  ns_initialized_ = R_SUCCEEDED(nsInitialize());
+  set_initialized_ = R_SUCCEEDED(setInitialize());
 #endif
   initialized_ = true;
   return true;
@@ -42,6 +47,14 @@ void GameSession::shutdown() {
   }
   detach(SessionStatus::NoGame);
 #ifdef __SWITCH__
+  if (set_initialized_) {
+    setExit();
+    set_initialized_ = false;
+  }
+  if (ns_initialized_) {
+    nsExit();
+    ns_initialized_ = false;
+  }
   dmntchtExit();
 #endif
   initialized_ = false;
@@ -245,17 +258,14 @@ void GameSession::poll(const core::CoreSettings& settings) {
     sync_monster_damage_mode(settings.monster_damage_mode);
   const auto runtime_features_ok = sync_runtime_features(settings);
   const auto numeric_features_ok = sync_numeric_features(settings);
-  const auto runtime_patches_ok =
-    frame_rate_ok && monster_damage_mode_ok && runtime_features_ok &&
-    numeric_features_ok;
+  view_.patch_write_failed =
+    !frame_rate_ok || !monster_damage_mode_ok || !runtime_features_ok ||
+    !numeric_features_ok;
 
   if (view_.pointer_list == 0) {
     view_.status = SessionStatus::Searching;
     view_.pointer_list = reader_->find_pointer_list();
     if (view_.pointer_list == 0) {
-      if (!runtime_patches_ok) {
-        view_.status = SessionStatus::WriteFailed;
-      }
       return;
     }
   }
@@ -272,8 +282,7 @@ void GameSession::poll(const core::CoreSettings& settings) {
   }
 
   view_.output = engine_.update(snapshot, settings);
-  view_.status = runtime_patches_ok ? SessionStatus::Ready
-                                    : SessionStatus::WriteFailed;
+  view_.status = SessionStatus::Ready;
   for (std::size_t index = 0; index < view_.output.write_count; ++index) {
     std::uint16_t verified{};
     if (!reader_->apply_size(
@@ -387,7 +396,7 @@ bool GameSession::apply_item_pouch_quantity(
 ) {
   if (patches_ == nullptr ||
       !patches_->set_item_pouch_quantity(slot, quantity)) {
-    view_.status = SessionStatus::WriteFailed;
+    view_.patch_write_failed = true;
     return false;
   }
   return true;

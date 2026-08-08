@@ -26,6 +26,7 @@ enum class SessionStatus : std::uint8_t {
 
 struct SessionView {
   SessionStatus status{SessionStatus::NoGame};
+  bool patch_write_failed{};
   core::GameId game{core::GameId::Unknown};
   core::Locale detected_locale{core::Locale::English};
   core::CoreOutput output{};
@@ -67,6 +68,10 @@ private:
   bool sync_numeric_features(const core::CoreSettings& settings);
 
   bool initialized_{};
+#ifdef __SWITCH__
+  bool ns_initialized_{};
+  bool set_initialized_{};
+#endif
   DmntMemoryAccess memory_{};
   const GameProfile* profile_{};
   std::unique_ptr<GamePatches> patches_{};

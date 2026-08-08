@@ -30,7 +30,6 @@ enum class UiMessage : std::uint8_t {
   Fps60,
   MapAndLargeMonsters,
   CarryItemsIntoPouch,
-  BattleFunctions,
   Hunter,
   Invincible,
   HealthNoDecrease,

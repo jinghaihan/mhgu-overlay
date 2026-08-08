@@ -22,6 +22,13 @@ void Model::start() {
   if (running_.exchange(true)) {
     return;
   }
+  // libtesla invokes initServices() while a service-manager session is open.
+  // Initialize Switch services synchronously here instead of racing the
+  // worker thread against the end of that session.
+  if (!session_.initialize()) {
+    running_ = false;
+    return;
+  }
   worker_ = std::thread(&Model::worker_main, this);
 }
 
@@ -103,40 +110,52 @@ void Model::toggle_damage_display() {
 }
 
 void Model::cycle_monster_damage_mode(const int direction) {
-  const std::scoped_lock lock(mutex_);
-  if (direction < 0) {
-    switch (settings_.monster_damage_mode) {
-      case core::MonsterDamageMode::Off:
-        settings_.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
-        break;
-      case core::MonsterDamageMode::InstantKill:
-        settings_.monster_damage_mode = core::MonsterDamageMode::Off;
-        break;
-      default:
-        settings_.monster_damage_mode = core::MonsterDamageMode::InstantKill;
-        break;
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    if (direction < 0) {
+      switch (settings_.monster_damage_mode) {
+        case core::MonsterDamageMode::Off:
+          settings_.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
+          break;
+        case core::MonsterDamageMode::InstantKill:
+          settings_.monster_damage_mode = core::MonsterDamageMode::Off;
+          break;
+        default:
+          settings_.monster_damage_mode = core::MonsterDamageMode::InstantKill;
+          break;
+      }
+    } else {
+      switch (settings_.monster_damage_mode) {
+        case core::MonsterDamageMode::Off:
+          settings_.monster_damage_mode = core::MonsterDamageMode::InstantKill;
+          break;
+        case core::MonsterDamageMode::InstantKill:
+          settings_.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
+          break;
+        default:
+          settings_.monster_damage_mode = core::MonsterDamageMode::Off;
+          break;
+      }
     }
-    return;
+    changed = settings_;
   }
-  switch (settings_.monster_damage_mode) {
-    case core::MonsterDamageMode::Off:
-      settings_.monster_damage_mode = core::MonsterDamageMode::InstantKill;
-      break;
-    case core::MonsterDamageMode::InstantKill:
-      settings_.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
-      break;
-    default:
-      settings_.monster_damage_mode = core::MonsterDamageMode::Off;
-      break;
-  }
+  persist(changed);
 }
 
 void Model::enable_runtime_feature(const core::RuntimeFeature feature) {
-  const std::scoped_lock lock(mutex_);
-  const auto index = core::runtime_feature_index(feature);
-  if (index < settings_.runtime_features.size()) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    const auto index = core::runtime_feature_index(feature);
+    if (index >= settings_.runtime_features.size() ||
+        settings_.runtime_features[index]) {
+      return;
+    }
     settings_.runtime_features[index] = true;
+    changed = settings_;
   }
+  persist(changed);
 }
 
 void Model::adjust_numeric_feature(
@@ -166,11 +185,18 @@ void Model::adjust_numeric_feature(
 }
 
 void Model::enable_numeric_feature(const core::NumericFeature feature) {
-  const std::scoped_lock lock(mutex_);
-  const auto index = core::numeric_feature_index(feature);
-  if (index < settings_.numeric_features.size()) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    const auto index = core::numeric_feature_index(feature);
+    if (index >= settings_.numeric_features.size() ||
+        settings_.numeric_features[index].enabled) {
+      return;
+    }
     settings_.numeric_features[index].enabled = true;
+    changed = settings_;
   }
+  persist(changed);
 }
 
 void Model::adjust_item_pouch_slot(const int delta) {
@@ -293,8 +319,6 @@ void Model::worker_main() {
   constexpr auto kDamagePollInterval = std::chrono::milliseconds(33);
   constexpr auto kDiagnosticScanPollInterval = std::chrono::milliseconds(16);
 
-  platform::switch_adapter::GameSession session;
-  session.initialize();
   auto next_full_poll = Clock::now();
   auto next_damage_poll = next_full_poll;
   auto next_quest_scan_poll = next_full_poll;
@@ -302,12 +326,12 @@ void Model::worker_main() {
   while (running_) {
     const auto now = Clock::now();
     if (rescan_requested_.exchange(false)) {
-      session.request_rescan();
+      session_.request_rescan();
       next_full_poll = now;
     }
     const auto current_settings = settings();
     if (now >= next_full_poll) {
-      session.poll(current_settings);
+      session_.poll(current_settings);
       next_full_poll = Clock::now() + kFullPollInterval;
     }
     if (quest_scan_requested_.load() && session.request_quest_scan()) {
@@ -348,23 +372,23 @@ void Model::worker_main() {
           damage_now.time_since_epoch()
         ).count()
       );
-      session.poll_damage(true, now_ms);
+      session_.poll_damage(true, now_ms);
       next_damage_poll = Clock::now() + kDamagePollInterval;
     } else if (!current_settings.damage_display_enabled) {
-      session.poll_damage(false, 0);
+      session_.poll_damage(false, 0);
       next_damage_poll = now;
     }
     const auto item_pouch_write_request =
       item_pouch_write_request_.exchange(0);
     if (item_pouch_write_request != 0) {
-      session.apply_item_pouch_quantity(
+      session_.apply_item_pouch_quantity(
         static_cast<std::uint8_t>(item_pouch_write_request >> 8),
         static_cast<std::uint8_t>(item_pouch_write_request & 0xFF)
       );
     }
     {
       const std::scoped_lock lock(mutex_);
-      view_ = session.view();
+      view_ = session_.view();
     }
 
     auto next_wake = next_full_poll;
@@ -379,7 +403,7 @@ void Model::worker_main() {
     }
     std::this_thread::sleep_until(next_wake);
   }
-  session.shutdown();
+  session_.shutdown();
 }
 
 }  // namespace mhgu::app

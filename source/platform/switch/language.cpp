@@ -33,6 +33,23 @@ core::Locale detect_game_locale(const std::uint64_t title_id) {
   }
 
 #ifdef __SWITCH__
+  // Translation mods can leave the application's NACP language metadata set
+  // to English. Prefer the console language so Auto follows the language the
+  // player is most likely using, then fall back to the application metadata.
+  u64 language_code{};
+  SetLanguage language{};
+  if (R_SUCCEEDED(setInitialize())) {
+    const auto language_result = setGetSystemLanguage(&language_code);
+    const auto mapping_result =
+      R_SUCCEEDED(language_result)
+        ? setMakeLanguage(language_code, &language)
+        : MAKERESULT(Module_Libnx, LibnxError_BadInput);
+    setExit();
+    if (R_SUCCEEDED(mapping_result)) {
+      return locale_from_switch_language(static_cast<std::int32_t>(language));
+    }
+  }
+
   if (R_SUCCEEDED(nsInitialize())) {
     auto control = std::make_unique<NsApplicationControlData>();
     u64 actual_size{};
@@ -59,20 +76,6 @@ core::Locale detect_game_locale(const std::uint64_t title_id) {
       return core::Locale::English;
     }
     nsExit();
-  }
-
-  u64 language_code{};
-  SetLanguage language{};
-  if (R_SUCCEEDED(setInitialize())) {
-    const auto language_result = setGetSystemLanguage(&language_code);
-    const auto mapping_result =
-      R_SUCCEEDED(language_result)
-        ? setMakeLanguage(language_code, &language)
-        : MAKERESULT(Module_Libnx, LibnxError_BadInput);
-    setExit();
-    if (R_SUCCEEDED(mapping_result)) {
-      return locale_from_switch_language(static_cast<std::int32_t>(language));
-    }
   }
 #endif
 

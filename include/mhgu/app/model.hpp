@@ -54,6 +54,7 @@ private:
   core::CoreSettings settings_{};
   platform::switch_adapter::SessionView view_{};
   ResourceDiagnosticInput resource_diagnostic_input_{};
+  platform::switch_adapter::GameSession session_{};
   SettingsStore store_;
   std::atomic<bool> running_{false};
   std::atomic<bool> rescan_requested_{false};
