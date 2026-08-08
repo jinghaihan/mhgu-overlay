@@ -72,10 +72,14 @@
 ## Git and releases
 
 - Use Conventional Commits, for example:
-  - `feat(core): add quest lifecycle state`
-  - `fix(switch): validate the game build id`
+  - `feat(session): add quest lifecycle state`
+  - `fix(memory): validate the game build id`
   - `docs: clarify hardware verification`
   - `ci: publish tagged releases`
+- Do not use `switch` or `ns` as a commit scope while Nintendo Switch is the
+  only implemented platform. Prefer a specific responsibility such as
+  `memory`, `hud`, `settings`, `data`, or `session`, and omit the scope when it
+  would not add useful information.
 - Split distinct concerns into separate commits and push completed commits to
   `origin`.
 - Preserve unrelated user changes and never rewrite shared history unless the
