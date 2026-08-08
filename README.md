@@ -38,6 +38,7 @@ The main menu is ordered as follows:
 | **Carry items into pouch** | Allows carried objects such as eggs to be placed in the item pouch. |
 | **Equipment transmog** | Opens the weapon and armor appearance submenu. |
 | **Battle functions** | Opens the grouped hunter, combat-parameter, resource, and Palico tools. |
+| **Address diagnostic** | Opens the research-only quest-data and player-resource address scanners. |
 | **Rescan** | Discards the cached monster-list pointer and scans for it again. |
 
 ### Equipment transmog
@@ -95,6 +96,85 @@ Both transmog options are one-way code patches for the current game process.
 | --- | --- |
 | **Palico health does not decrease** | Prevents Palico health from decreasing. |
 | **Palico affinity** | Sets Palico affinity from 0% to 100%. |
+
+## Address diagnostics
+
+Address diagnostics are available in builds from the
+[`codex/address-research`](https://github.com/jinghaihan/mhgu-overlay/actions?query=branch%3Acodex%2Faddress-research)
+branch. Download the `mhgu-overlay` artifact from its latest successful build.
+These are read-only scanners used to locate stable runtime data before a
+normal overlay feature is implemented. Open
+**Address diagnostic** from the main menu, then choose **Quest data
+diagnostic** or **Resource data diagnostic**.
+
+Keep MHGU running throughout each complete test sequence. Closing or
+restarting the game changes the Heap base and makes results from different
+sessions unsuitable for direct comparison.
+
+### Quest data diagnostic
+
+Disable the fixed-starting-area LayeredFS mod and restart MHGU before this
+test. The scanner looks for both serialized quest resources and the live
+runtime quest structure; the report labels them `resource` and `runtime`.
+
+1. Do not accept a quest. Open **Quest data diagnostic**, select **Start
+   read-only scan**, and wait for **Scan complete**.
+2. Accept one quest from the table below. Wait 3–5 seconds without departing,
+   then run another scan.
+3. Cancel that quest, accept a different quest on another map, wait 3–5
+   seconds, and scan again.
+4. Send `sdmc:/config/mhgu-overlay/quest-scan.log`. All scans from the current
+   overlay session are appended to this file.
+
+You do not need to depart, complete, or abandon a quest in the field. The
+recommended first pair is **Coal Hearted** followed by **Kushala Daora
+Strikes**. If either is unavailable, use any two unlocked quests from
+different maps in this table.
+
+| Quest list | Simplified Chinese title | English title | ID | Map |
+| --- | --- | --- | ---: | --- |
+| Hub 6★ | 燃石炭，尽管挖吧 | Coal Hearted | 10631 | Volcano |
+| Hub 7★ | 冰点下的统治者 | The Frozen Dictator | 10756 | Arctic Ridge (Night) |
+| Hub 7★ | 飘然而下的钢龙 | Kushala Daora Strikes | 10757 | Frozen Seaway |
+| Hub 7★ | 古代霞龙 | The Elder Dragon of Mist | 10758 | Verdant Hills |
+| Hub 7★ | 寂静深处 | Beyond the Silence | 10759 | Marshlands |
+| Hub 7★ | 炼狱主人、愤怒的炎帝 | Emperor of Flame | 10760 | Volcano |
+| Hub 7★ | 呼啸的灾祸之火 | The Fires of Devastation | 10761 | Volcanic Hollow |
+| Hub G4 | 贯穿天际的凶星 | Sky Render | 11401 | Ruined Pinnacle |
+| Hub G4 | 暴雪呼唤者 | Blizzard Blower | 11412 | Arctic Ridge (Night) |
+| Hub G4 | 灾祸比钢铁更加坚硬 | Steel Yourself | 11413 | Jungle |
+| Hub G4 | 出现于虚无之物 | Out of Thin Air | 11414 | Ruined Pinnacle |
+| Hub G4 | 消失于虚无之物 | Into Thin Air | 11415 | Verdant Hills |
+| Hub G4 | 财宝在爆炎之中 | Explosion Marks the Spot | 11416 | Volcano |
+| Hub G4 | 散落在沙漠上的爆炎尘 | Sandblasting | 11417 | Desert |
+| Hub G4 | 超级音速弓 | Supersonic | 11458 | Jungle |
+| Hub G4 | 天彗龙流 猎人道场 | Hunter Dojo: Valstrax-ryu | 11459 | Desert |
+| Hub G4 | 因天彗龙失去理智 | Scales of Justice | 11460 | Arctic Ridge (Night) |
+
+### Resource data diagnostic
+
+This scanner searches for the player structure containing Zenny at `+0x24`
+and Wycademy Points at `+0x2C`. Restart MHGU first and do not enable the normal
+Zenny or Wycademy Points modifiers during the test.
+
+1. Read the exact current Zenny and Wycademy Points values in the game.
+2. In **Resource data diagnostic**, use Left/Right on **Input step** to choose
+   `1`, `10`, `100`, and so on. Use Left/Right on either value to change it by
+   one step, or `L`/`R` to change it by ten steps.
+3. Enter both exact values and select **Start initial scan**. At least one of
+   the two values must be nonzero.
+4. Buy or sell a low-value item so that Zenny changes. Confirm the new amount
+   in the game, enter it in the diagnostic menu, and select **Filter with new
+   values**.
+5. Use an in-game exchange with a clearly displayed price so that Wycademy
+   Points change. Enter the new point total and filter again.
+6. Send `sdmc:/config/mhgu-overlay/resource-scan.log`. The initial scan and
+   every filter stage are appended to the same report.
+
+Only the initial resource scan traverses the full Heap. Later filter actions
+re-read the saved candidates and normally complete much faster. Even if the
+first scan returns one candidate, perform both value-change filters so the
+address is verified against independent changes.
 
 ## Requirements
 
