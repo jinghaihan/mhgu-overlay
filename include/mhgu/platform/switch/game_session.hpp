@@ -24,6 +24,7 @@ enum class SessionStatus : std::uint8_t {
 
 struct SessionView {
   SessionStatus status{SessionStatus::NoGame};
+  bool patch_write_failed{};
   core::GameId game{core::GameId::Unknown};
   core::Locale detected_locale{core::Locale::English};
   core::CoreOutput output{};

@@ -1096,7 +1096,11 @@ public:
         const auto view = model_.session_view();
         const auto locale_now = model_.display_locale();
         renderer->drawString(
-          status_value(view.status, locale_now),
+          status_value(
+            view.patch_write_failed ? SessionStatus::WriteFailed
+                                    : view.status,
+            locale_now
+          ),
           false,
           x + 8,
           y + 30,
