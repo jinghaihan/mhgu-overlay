@@ -1127,20 +1127,6 @@ public:
     );
     auto* list = new tsl::elm::List(6);
 
-    language_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::Language, locale)
-    );
-    language_item_->setValue(language_value(model_));
-    language_item_->setClickListener([this](const u64 keys) {
-      if ((keys & HidNpadButton_A) != 0) {
-        model_.cycle_language();
-        refresh_labels();
-        return true;
-      }
-      return false;
-    });
-    list->addItem(language_item_);
-
     list->addItem(
       new tsl::elm::CustomDrawer([this](
                                    tsl::gfx::Renderer* renderer,
@@ -1176,6 +1162,20 @@ public:
       }),
       70
     );
+
+    language_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::Language, locale)
+    );
+    language_item_->setValue(language_value(model_));
+    language_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0) {
+        model_.cycle_language();
+        refresh_labels();
+        return true;
+      }
+      return false;
+    });
+    list->addItem(language_item_);
 
     hud_item_ = new tsl::elm::ListItem(
       mhgu::core::ui_message(UiMessage::MonsterInfoOverlay, locale)
