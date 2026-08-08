@@ -9,6 +9,12 @@
 
 namespace mhgu::platform::switch_adapter {
 
+enum class QuestOperationResult : std::uint8_t {
+  Success,
+  NoActiveQuest,
+  Failed,
+};
+
 class GamePatches {
 public:
   GamePatches(
@@ -25,6 +31,10 @@ public:
   bool set_frame_rate(core::FrameRate frame_rate);
   bool set_monster_damage_mode(core::MonsterDamageMode mode);
   bool set_item_pouch_quantity(std::uint8_t slot, std::uint8_t quantity);
+  QuestOperationResult maintain_quest(
+    bool infinite_time, bool unlimited_faints
+  );
+  QuestOperationResult complete_quest();
   bool enable_runtime_feature(core::RuntimeFeature feature);
   bool set_numeric_feature(core::NumericFeature feature, std::uint32_t value);
 
@@ -34,6 +44,14 @@ private:
   ) const;
   bool apply_main_word_patch(
     const MainWordPatch& patch, std::uint64_t address
+  );
+  QuestOperationResult quest_base(std::uint64_t& base);
+  bool quest_address(
+    std::uint64_t base, std::uint64_t offset, std::size_t size,
+    std::uint64_t& address
+  ) const;
+  bool apply_value(
+    std::uint64_t address, const void* value, std::size_t size
   );
   bool contains(
     std::uint64_t region_base,

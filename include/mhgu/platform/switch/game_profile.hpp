@@ -51,6 +51,16 @@ struct ItemPouchLayout {
   std::uint8_t maximum_quantity;
 };
 
+struct QuestLayout {
+  std::uint64_t pointer_from_main;
+  std::uint64_t time_from_quest;
+  std::uint32_t time_value;
+  std::uint64_t faint_count_from_quest;
+  std::uint64_t secondary_faint_count_from_quest;
+  std::uint64_t completion_state_from_quest;
+  std::uint8_t completion_value;
+};
+
 struct MainWordPatch {
   std::uint64_t offset;
   std::uint32_t value;
@@ -99,6 +109,7 @@ struct GameProfile {
   FrameRatePatch frame_rate;
   MonsterDamagePatch monster_damage;
   ItemPouchLayout item_pouch;
+  QuestLayout quest;
   std::array<MainWordPatchSet, core::kRuntimeFeatureCount> runtime_patches;
   std::array<NumericWordPatchSet, core::kNumericFeatureCount> numeric_patches;
 };

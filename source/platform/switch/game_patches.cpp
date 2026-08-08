@@ -134,6 +134,66 @@ bool GamePatches::apply_main_word_patch(
          verified == patch.value;
 }
 
+QuestOperationResult GamePatches::quest_base(std::uint64_t& base) {
+  std::uint64_t pointer_address{};
+  if (!checked_add(
+        main_base_, profile_.quest.pointer_from_main, pointer_address
+      ) ||
+      !contains(
+        main_base_, main_size_, pointer_address, sizeof(std::uint32_t)
+      )) {
+    return QuestOperationResult::Failed;
+  }
+
+  std::uint32_t pointer{};
+  if (!memory_.read(pointer_address, &pointer, sizeof(pointer))) {
+    return QuestOperationResult::Failed;
+  }
+  if (pointer == 0) {
+    return QuestOperationResult::NoActiveQuest;
+  }
+  base = pointer;
+  return contains(address_space_base_, address_space_size_, base, 1)
+           ? QuestOperationResult::Success
+           : QuestOperationResult::Failed;
+}
+
+bool GamePatches::quest_address(
+  const std::uint64_t base,
+  const std::uint64_t offset,
+  const std::size_t size,
+  std::uint64_t& address
+) const {
+  return checked_add(base, offset, address) &&
+         contains(address_space_base_, address_space_size_, address, size);
+}
+
+bool GamePatches::apply_value(
+  const std::uint64_t address,
+  const void* value,
+  const std::size_t size
+) {
+  if (size == 0 || size > sizeof(std::uint32_t) ||
+      !contains(address_space_base_, address_space_size_, address, size)) {
+    return false;
+  }
+
+  std::array<std::uint8_t, sizeof(std::uint32_t)> current{};
+  if (!memory_.read(address, current.data(), size)) {
+    return false;
+  }
+  if (std::memcmp(current.data(), value, size) == 0) {
+    return true;
+  }
+  if (!memory_.write(address, value, size)) {
+    return false;
+  }
+
+  std::array<std::uint8_t, sizeof(std::uint32_t)> verified{};
+  return memory_.read(address, verified.data(), size) &&
+         std::memcmp(verified.data(), value, size) == 0;
+}
+
 bool GamePatches::set_frame_rate(const core::FrameRate frame_rate) {
   const auto& patch = profile_.frame_rate;
   std::uint64_t pointer_address{};
@@ -238,6 +298,91 @@ bool GamePatches::set_item_pouch_quantity(
   std::uint8_t verified{};
   return memory_.read(address, &verified, sizeof(verified)) &&
          verified == quantity;
+}
+
+QuestOperationResult GamePatches::maintain_quest(
+  const bool infinite_time, const bool unlimited_faints
+) {
+  if (!infinite_time && !unlimited_faints) {
+    return QuestOperationResult::Success;
+  }
+
+  std::uint64_t base{};
+  const auto base_result = quest_base(base);
+  if (base_result != QuestOperationResult::Success) {
+    return base_result;
+  }
+
+  std::uint64_t time_address{};
+  std::uint64_t faint_count_address{};
+  std::uint64_t secondary_faint_count_address{};
+  if ((infinite_time &&
+       !quest_address(
+         base,
+         profile_.quest.time_from_quest,
+         sizeof(profile_.quest.time_value),
+         time_address
+       )) ||
+      (unlimited_faints &&
+       (!quest_address(
+          base,
+          profile_.quest.faint_count_from_quest,
+          sizeof(std::uint32_t),
+          faint_count_address
+        ) ||
+        !quest_address(
+          base,
+          profile_.quest.secondary_faint_count_from_quest,
+          sizeof(std::uint16_t),
+          secondary_faint_count_address
+        )))) {
+    return QuestOperationResult::Failed;
+  }
+
+  if (infinite_time &&
+      !apply_value(
+        time_address,
+        &profile_.quest.time_value,
+        sizeof(profile_.quest.time_value)
+      )) {
+    return QuestOperationResult::Failed;
+  }
+  constexpr std::uint32_t kZero32{};
+  constexpr std::uint16_t kZero16{};
+  if (unlimited_faints &&
+      (!apply_value(
+         faint_count_address, &kZero32, sizeof(kZero32)
+       ) ||
+       !apply_value(
+         secondary_faint_count_address, &kZero16, sizeof(kZero16)
+       ))) {
+    return QuestOperationResult::Failed;
+  }
+  return QuestOperationResult::Success;
+}
+
+QuestOperationResult GamePatches::complete_quest() {
+  std::uint64_t base{};
+  const auto base_result = quest_base(base);
+  if (base_result != QuestOperationResult::Success) {
+    return base_result;
+  }
+
+  std::uint64_t address{};
+  if (!quest_address(
+        base,
+        profile_.quest.completion_state_from_quest,
+        sizeof(profile_.quest.completion_value),
+        address
+      ) ||
+      !apply_value(
+        address,
+        &profile_.quest.completion_value,
+        sizeof(profile_.quest.completion_value)
+      )) {
+    return QuestOperationResult::Failed;
+  }
+  return QuestOperationResult::Success;
 }
 
 bool GamePatches::enable_runtime_feature(

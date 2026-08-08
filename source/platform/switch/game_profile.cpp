@@ -45,6 +45,17 @@ constexpr ItemPouchLayout kItemPouchLayout{
   99,
 };
 
+constexpr QuestLayout kQuestLayout{
+  0x0188AD90,
+  0x001C,
+  0x44610000,
+  0x00C4,
+  // Atmosphere's second 78000000 offset is cumulative: C4 + 15A6.
+  0x166A,
+  0x00EC,
+  0x29,
+};
+
 constexpr MainWordPatchSet kMapAndLargeMonstersPatches{
   {{{0x0061BAD0, 0xE1A00000}, {0x0061CC94, 0xE3A00001}}},
   2,
@@ -318,6 +329,7 @@ constexpr GameProfile kProfiles[]{
     kFrameRatePatch,
     kMonsterDamagePatch,
     kItemPouchLayout,
+    kQuestLayout,
     kRuntimePatches,
     kNumericPatches,
   },

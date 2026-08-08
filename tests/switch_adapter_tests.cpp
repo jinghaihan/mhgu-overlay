@@ -177,6 +177,15 @@ int main() {
   assert(
     matched_profile->monster_damage.leave_one_hp_value == 0xE2860001
   );
+  assert(matched_profile->quest.pointer_from_main == 0x0188AD90);
+  assert(matched_profile->quest.time_from_quest == 0x001C);
+  assert(matched_profile->quest.time_value == 0x44610000);
+  assert(matched_profile->quest.faint_count_from_quest == 0x00C4);
+  assert(
+    matched_profile->quest.secondary_faint_count_from_quest == 0x166A
+  );
+  assert(matched_profile->quest.completion_state_from_quest == 0x00EC);
+  assert(matched_profile->quest.completion_value == 0x29);
   assert(
     matched_profile->item_pouch.first_quantity_from_heap == 0x10D6920C
   );
@@ -667,9 +676,15 @@ int main() {
   }
   profile.monster_damage.offset = 0x230;
   profile.item_pouch.first_quantity_from_heap = 0x100;
+  profile.quest.pointer_from_main = 0x90;
+  profile.quest.time_from_quest = 0x10;
+  profile.quest.faint_count_from_quest = 0x20;
+  profile.quest.secondary_faint_count_from_quest = 0x30;
+  profile.quest.completion_state_from_quest = 0x40;
 
   constexpr std::uint64_t kList = 0x200;
   constexpr std::uint32_t kMonster = 0x4000;
+  constexpr std::uint32_t kQuest = 0x14000;
   FakeMemory memory(0x20000);
   memory.store(
     kMainBase + kFrameRatePointer, kFrameRateTargetBase
@@ -677,6 +692,22 @@ int main() {
   memory.store(
     kFrameRateTargetBase + kFrameRateTargetOffset,
     profile.frame_rate.fps30_value
+  );
+  memory.store(
+    kMainBase + profile.quest.pointer_from_main, kQuest
+  );
+  memory.store(
+    kQuest + profile.quest.time_from_quest, std::uint32_t{0}
+  );
+  memory.store(
+    kQuest + profile.quest.faint_count_from_quest, std::uint32_t{3}
+  );
+  memory.store(
+    kQuest + profile.quest.secondary_faint_count_from_quest,
+    std::uint16_t{3}
+  );
+  memory.store(
+    kQuest + profile.quest.completion_state_from_quest, std::uint8_t{0}
   );
   constexpr std::uint32_t kOriginalShowMapInstruction = 0x0A000001;
   constexpr std::uint32_t kOriginalMarkInstruction = 0xE3A00000;
@@ -1015,6 +1046,93 @@ int main() {
   );
   assert(!invalid_item_pouch.set_item_pouch_quantity(1, 50));
   assert(memory.write_count() == patch_writes);
+
+  patch_writes = memory.write_count();
+  assert(
+    patches.maintain_quest(false, false) == QuestOperationResult::Success
+  );
+  assert(memory.write_count() == patch_writes);
+  assert(
+    patches.maintain_quest(true, false) == QuestOperationResult::Success
+  );
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint32_t>(
+      kQuest + profile.quest.time_from_quest
+    ) == profile.quest.time_value
+  );
+  patch_writes = memory.write_count();
+  assert(
+    patches.maintain_quest(true, false) == QuestOperationResult::Success
+  );
+  assert(memory.write_count() == patch_writes);
+
+  assert(
+    patches.maintain_quest(false, true) == QuestOperationResult::Success
+  );
+  assert(memory.write_count() == patch_writes + 2);
+  assert(
+    memory.load<std::uint32_t>(
+      kQuest + profile.quest.faint_count_from_quest
+    ) == 0
+  );
+  assert(
+    memory.load<std::uint16_t>(
+      kQuest + profile.quest.secondary_faint_count_from_quest
+    ) == 0
+  );
+
+  patch_writes = memory.write_count();
+  assert(patches.complete_quest() == QuestOperationResult::Success);
+  assert(memory.write_count() == patch_writes + 1);
+  assert(
+    memory.load<std::uint8_t>(
+      kQuest + profile.quest.completion_state_from_quest
+    ) == profile.quest.completion_value
+  );
+
+  memory.store(
+    kMainBase + profile.quest.pointer_from_main, std::uint32_t{0}
+  );
+  patch_writes = memory.write_count();
+  assert(
+    patches.maintain_quest(true, true) ==
+    QuestOperationResult::NoActiveQuest
+  );
+  assert(
+    patches.complete_quest() == QuestOperationResult::NoActiveQuest
+  );
+  assert(memory.write_count() == patch_writes);
+
+  memory.store(
+    kMainBase + profile.quest.pointer_from_main, std::uint32_t{0x1FFF0}
+  );
+  patch_writes = memory.write_count();
+  assert(
+    patches.maintain_quest(false, true) == QuestOperationResult::Failed
+  );
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_quest_profile = profile;
+  invalid_quest_profile.quest.pointer_from_main = 0x1000;
+  GamePatches invalid_quest(
+    memory,
+    invalid_quest_profile,
+    kMainBase,
+    0x1000,
+    0,
+    0x20000
+  );
+  assert(
+    invalid_quest.maintain_quest(true, true) ==
+    QuestOperationResult::Failed
+  );
+  assert(invalid_quest.complete_quest() == QuestOperationResult::Failed);
+  assert(memory.write_count() == patch_writes);
+
+  memory.store(
+    kMainBase + profile.quest.pointer_from_main, kQuest
+  );
 
   patch_writes = memory.write_count();
   assert(patches.enable_runtime_feature(
