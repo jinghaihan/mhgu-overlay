@@ -916,13 +916,6 @@ public:
     );
     list->addItem(bowgun_item_);
 
-    consumable_item_ = runtime_feature_item(
-      model_,
-      UiMessage::ConsumableItemsNoDecrease,
-      RuntimeFeature::ConsumableItemsNoDecrease
-    );
-    list->addItem(consumable_item_);
-
     list->addItem(section_header(model_, UiMessage::CombatParameters), 44);
     monster_damage_mode_item_ = monster_damage_mode_item(model_);
     list->addItem(monster_damage_mode_item_);
@@ -942,6 +935,12 @@ public:
     list->addItem(movement_speed_multiplier_item_);
 
     list->addItem(section_header(model_, UiMessage::Resources), 44);
+    consumable_item_ = runtime_feature_item(
+      model_,
+      UiMessage::ConsumableItemsNoDecrease,
+      RuntimeFeature::ConsumableItemsNoDecrease
+    );
+    list->addItem(consumable_item_);
     zenny_item_ = numeric_feature_item(
       model_, UiMessage::Zenny, NumericFeature::Zenny
     );
