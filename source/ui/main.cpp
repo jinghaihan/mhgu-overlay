@@ -940,16 +940,16 @@ public:
       mhgu::core::ui_message(UiMessage::Resources, locale), kVersion
     );
     auto* list = new tsl::elm::List(6);
-    list->addItem(runtime_feature_item(
-      model_,
-      UiMessage::ConsumableItemsNoDecrease,
-      RuntimeFeature::ConsumableItemsNoDecrease
-    ));
     list->addItem(numeric_feature_item(
       model_, UiMessage::Zenny, NumericFeature::Zenny
     ));
     list->addItem(numeric_feature_item(
       model_, UiMessage::WycademyPoints, NumericFeature::WycademyPoints
+    ));
+    list->addItem(runtime_feature_item(
+      model_,
+      UiMessage::ConsumableItemsNoDecrease,
+      RuntimeFeature::ConsumableItemsNoDecrease
     ));
     list->addItem(item_pouch_slot_item(model_));
     list->addItem(item_pouch_quantity_item(model_));
