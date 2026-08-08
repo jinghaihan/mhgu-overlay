@@ -42,6 +42,7 @@ public:
   void poll_damage(bool enabled, std::uint64_t now_ms);
   void request_rescan();
   bool apply_item_pouch_quantity(std::uint8_t slot, std::uint8_t quantity);
+  QuestOperationResult complete_quest();
 
   const SessionView& view() const;
 
@@ -52,6 +53,9 @@ private:
   bool sync_monster_damage_mode(core::MonsterDamageMode mode);
   bool sync_runtime_features(const core::CoreSettings& settings);
   bool sync_numeric_features(const core::CoreSettings& settings);
+  QuestOperationResult sync_quest_features(
+    const core::CoreSettings& settings
+  );
 
   bool initialized_{};
 #ifdef __SWITCH__

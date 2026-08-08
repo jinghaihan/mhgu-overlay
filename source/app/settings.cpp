@@ -292,6 +292,10 @@ core::CoreSettings SettingsStore::load() const {
       settings.frame_rate = parse_frame_rate(value);
     } else if (std::strcmp(key, "damage_display") == 0) {
       settings.damage_display_enabled = parse_enabled(value);
+    } else if (std::strcmp(key, "infinite_quest_time") == 0) {
+      settings.infinite_quest_time = parse_enabled(value);
+    } else if (std::strcmp(key, "unlimited_faints") == 0) {
+      settings.unlimited_faints = parse_enabled(value);
     } else if (std::strcmp(key, "monster_damage_mode") == 0) {
       settings.monster_damage_mode = parse_monster_damage_mode(value);
     } else if (std::strcmp(key, "hunter_affinity") == 0) {
@@ -380,6 +384,16 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
     file,
     "damage_display=%u\n",
     settings.damage_display_enabled ? 1U : 0U
+  );
+  std::fprintf(
+    file,
+    "infinite_quest_time=%u\n",
+    settings.infinite_quest_time ? 1U : 0U
+  );
+  std::fprintf(
+    file,
+    "unlimited_faints=%u\n",
+    settings.unlimited_faints ? 1U : 0U
   );
   std::fprintf(
     file,

@@ -19,6 +19,8 @@ int main() {
   assert(defaults.size_preset == core::SizePreset::Off);
   assert(defaults.frame_rate == core::FrameRate::Fps30);
   assert(!defaults.damage_display_enabled);
+  assert(!defaults.infinite_quest_time);
+  assert(!defaults.unlimited_faints);
   assert(defaults.monster_damage_mode == core::MonsterDamageMode::Off);
   assert(defaults.item_pouch_slot == 1);
   assert(defaults.item_pouch_quantity == 99);
@@ -80,6 +82,8 @@ int main() {
   expected.size_preset = core::SizePreset::Gold;
   expected.frame_rate = core::FrameRate::Fps60;
   expected.damage_display_enabled = true;
+  expected.infinite_quest_time = true;
+  expected.unlimited_faints = true;
   expected.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
   expected.item_pouch_slot = 7;
   expected.item_pouch_quantity = 42;
@@ -100,6 +104,8 @@ int main() {
   assert(restored.size_preset == expected.size_preset);
   assert(restored.frame_rate == expected.frame_rate);
   assert(restored.damage_display_enabled);
+  assert(restored.infinite_quest_time);
+  assert(restored.unlimited_faints);
   assert(
     restored.monster_damage_mode == core::MonsterDamageMode::LeaveOneHp
   );
@@ -134,6 +140,8 @@ int main() {
   auto updated = expected;
   updated.locale_mode = core::LocaleMode::Japanese;
   updated.monster_damage_mode = core::MonsterDamageMode::InstantKill;
+  updated.infinite_quest_time = false;
+  updated.unlimited_faints = false;
   updated.runtime_features.fill(false);
   for (auto& feature : updated.numeric_features) {
     feature.enabled = false;
@@ -144,6 +152,8 @@ int main() {
   assert(
     reloaded.monster_damage_mode == core::MonsterDamageMode::InstantKill
   );
+  assert(!reloaded.infinite_quest_time);
+  assert(!reloaded.unlimited_faints);
   for (const auto enabled : reloaded.runtime_features) {
     assert(!enabled);
   }

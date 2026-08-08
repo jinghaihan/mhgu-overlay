@@ -222,6 +222,17 @@ bool GameSession::sync_numeric_features(
   return success;
 }
 
+QuestOperationResult GameSession::sync_quest_features(
+  const core::CoreSettings& settings
+) {
+  if (patches_ == nullptr) {
+    return QuestOperationResult::Failed;
+  }
+  return patches_->maintain_quest(
+    settings.infinite_quest_time, settings.unlimited_faints
+  );
+}
+
 void GameSession::poll(const core::CoreSettings& settings) {
   if (!initialized_ && !initialize()) {
     detach(SessionStatus::NoGame);
@@ -235,9 +246,11 @@ void GameSession::poll(const core::CoreSettings& settings) {
     sync_monster_damage_mode(settings.monster_damage_mode);
   const auto runtime_features_ok = sync_runtime_features(settings);
   const auto numeric_features_ok = sync_numeric_features(settings);
+  const auto quest_features_result = sync_quest_features(settings);
   view_.patch_write_failed =
     !frame_rate_ok || !monster_damage_mode_ok || !runtime_features_ok ||
-    !numeric_features_ok;
+    !numeric_features_ok ||
+    quest_features_result == QuestOperationResult::Failed;
 
   if (view_.pointer_list == 0) {
     view_.status = SessionStatus::Searching;
@@ -327,6 +340,13 @@ void GameSession::request_rescan() {
   if (profile_ != nullptr) {
     view_.status = SessionStatus::Searching;
   }
+}
+
+QuestOperationResult GameSession::complete_quest() {
+  if (patches_ == nullptr) {
+    return QuestOperationResult::NoActiveQuest;
+  }
+  return patches_->complete_quest();
 }
 
 bool GameSession::apply_item_pouch_quantity(

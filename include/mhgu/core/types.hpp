@@ -178,6 +178,8 @@ struct CoreSettings {
   SizePreset size_preset{SizePreset::Off};
   FrameRate frame_rate{FrameRate::Fps30};
   bool damage_display_enabled{};
+  bool infinite_quest_time{};
+  bool unlimited_faints{};
   MonsterDamageMode monster_damage_mode{MonsterDamageMode::Off};
   std::uint8_t item_pouch_slot{1};
   std::uint8_t item_pouch_quantity{99};

@@ -51,6 +51,11 @@ platform::switch_adapter::SessionView Model::session_view() const {
   return view_;
 }
 
+QuestCompletionStatus Model::quest_completion_status() const {
+  const std::scoped_lock lock(mutex_);
+  return quest_completion_status_;
+}
+
 core::Locale Model::display_locale() const {
   const std::scoped_lock lock(mutex_);
   return core::resolve_locale(
@@ -102,6 +107,34 @@ void Model::toggle_damage_display() {
     changed = settings_;
   }
   persist(changed);
+}
+
+void Model::toggle_infinite_quest_time() {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    settings_.infinite_quest_time = !settings_.infinite_quest_time;
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::toggle_unlimited_faints() {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    settings_.unlimited_faints = !settings_.unlimited_faints;
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::request_complete_quest() {
+  {
+    const std::scoped_lock lock(mutex_);
+    quest_completion_status_ = QuestCompletionStatus::Pending;
+  }
+  complete_quest_requested_ = true;
 }
 
 void Model::cycle_monster_damage_mode(const int direction) {
@@ -305,6 +338,21 @@ void Model::worker_main() {
         static_cast<std::uint8_t>(item_pouch_write_request >> 8),
         static_cast<std::uint8_t>(item_pouch_write_request & 0xFF)
       );
+    }
+    if (complete_quest_requested_.exchange(false)) {
+      const auto result = session_.complete_quest();
+      const std::scoped_lock lock(mutex_);
+      switch (result) {
+        case platform::switch_adapter::QuestOperationResult::Success:
+          quest_completion_status_ = QuestCompletionStatus::Completed;
+          break;
+        case platform::switch_adapter::QuestOperationResult::NoActiveQuest:
+          quest_completion_status_ = QuestCompletionStatus::NoActiveQuest;
+          break;
+        default:
+          quest_completion_status_ = QuestCompletionStatus::Failed;
+          break;
+      }
     }
     {
       const std::scoped_lock lock(mutex_);
