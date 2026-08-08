@@ -105,40 +105,52 @@ void Model::toggle_damage_display() {
 }
 
 void Model::cycle_monster_damage_mode(const int direction) {
-  const std::scoped_lock lock(mutex_);
-  if (direction < 0) {
-    switch (settings_.monster_damage_mode) {
-      case core::MonsterDamageMode::Off:
-        settings_.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
-        break;
-      case core::MonsterDamageMode::InstantKill:
-        settings_.monster_damage_mode = core::MonsterDamageMode::Off;
-        break;
-      default:
-        settings_.monster_damage_mode = core::MonsterDamageMode::InstantKill;
-        break;
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    if (direction < 0) {
+      switch (settings_.monster_damage_mode) {
+        case core::MonsterDamageMode::Off:
+          settings_.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
+          break;
+        case core::MonsterDamageMode::InstantKill:
+          settings_.monster_damage_mode = core::MonsterDamageMode::Off;
+          break;
+        default:
+          settings_.monster_damage_mode = core::MonsterDamageMode::InstantKill;
+          break;
+      }
+    } else {
+      switch (settings_.monster_damage_mode) {
+        case core::MonsterDamageMode::Off:
+          settings_.monster_damage_mode = core::MonsterDamageMode::InstantKill;
+          break;
+        case core::MonsterDamageMode::InstantKill:
+          settings_.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
+          break;
+        default:
+          settings_.monster_damage_mode = core::MonsterDamageMode::Off;
+          break;
+      }
     }
-    return;
+    changed = settings_;
   }
-  switch (settings_.monster_damage_mode) {
-    case core::MonsterDamageMode::Off:
-      settings_.monster_damage_mode = core::MonsterDamageMode::InstantKill;
-      break;
-    case core::MonsterDamageMode::InstantKill:
-      settings_.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
-      break;
-    default:
-      settings_.monster_damage_mode = core::MonsterDamageMode::Off;
-      break;
-  }
+  persist(changed);
 }
 
 void Model::enable_runtime_feature(const core::RuntimeFeature feature) {
-  const std::scoped_lock lock(mutex_);
-  const auto index = core::runtime_feature_index(feature);
-  if (index < settings_.runtime_features.size()) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    const auto index = core::runtime_feature_index(feature);
+    if (index >= settings_.runtime_features.size() ||
+        settings_.runtime_features[index]) {
+      return;
+    }
     settings_.runtime_features[index] = true;
+    changed = settings_;
   }
+  persist(changed);
 }
 
 void Model::adjust_numeric_feature(
@@ -168,11 +180,18 @@ void Model::adjust_numeric_feature(
 }
 
 void Model::enable_numeric_feature(const core::NumericFeature feature) {
-  const std::scoped_lock lock(mutex_);
-  const auto index = core::numeric_feature_index(feature);
-  if (index < settings_.numeric_features.size()) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    const auto index = core::numeric_feature_index(feature);
+    if (index >= settings_.numeric_features.size() ||
+        settings_.numeric_features[index].enabled) {
+      return;
+    }
     settings_.numeric_features[index].enabled = true;
+    changed = settings_;
   }
+  persist(changed);
 }
 
 void Model::adjust_item_pouch_slot(const int delta) {

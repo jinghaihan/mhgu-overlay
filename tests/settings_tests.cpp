@@ -8,7 +8,10 @@ int main() {
   using namespace mhgu;
 
   constexpr const char* kPath = "/tmp/mhgu-overlay-settings-tests.ini";
+  constexpr const char* kBackupPath =
+    "/tmp/mhgu-overlay-settings-tests.ini.bak";
   std::remove(kPath);
+  std::remove(kBackupPath);
 
   app::SettingsStore store(kPath);
   const auto defaults = store.load();
@@ -97,34 +100,56 @@ int main() {
   assert(restored.size_preset == expected.size_preset);
   assert(restored.frame_rate == expected.frame_rate);
   assert(restored.damage_display_enabled);
-  assert(restored.monster_damage_mode == core::MonsterDamageMode::Off);
+  assert(
+    restored.monster_damage_mode == core::MonsterDamageMode::LeaveOneHp
+  );
   assert(restored.item_pouch_slot == 7);
   assert(restored.item_pouch_quantity == 42);
   for (const auto enabled : restored.runtime_features) {
-    assert(!enabled);
+    assert(enabled);
   }
   assert(restored.numeric_features[affinity_index].value == 73);
-  assert(!restored.numeric_features[affinity_index].enabled);
+  assert(restored.numeric_features[affinity_index].enabled);
   assert(restored.numeric_features[palico_affinity_index].value == 61);
-  assert(!restored.numeric_features[palico_affinity_index].enabled);
+  assert(restored.numeric_features[palico_affinity_index].enabled);
   assert(restored.numeric_features[sp_level_index].value == 3);
-  assert(!restored.numeric_features[sp_level_index].enabled);
+  assert(restored.numeric_features[sp_level_index].enabled);
   assert(restored.numeric_features[long_sword_spirit_index].value == 77);
-  assert(!restored.numeric_features[long_sword_spirit_index].enabled);
+  assert(restored.numeric_features[long_sword_spirit_index].enabled);
   assert(restored.numeric_features[attack_multiplier_index].value == 5);
-  assert(!restored.numeric_features[attack_multiplier_index].enabled);
+  assert(restored.numeric_features[attack_multiplier_index].enabled);
   assert(restored.numeric_features[defense_multiplier_index].value == 5);
-  assert(!restored.numeric_features[defense_multiplier_index].enabled);
+  assert(restored.numeric_features[defense_multiplier_index].enabled);
   assert(
     restored.numeric_features[movement_speed_multiplier_index].value == 25
   );
   assert(
-    !restored.numeric_features[movement_speed_multiplier_index].enabled
+    restored.numeric_features[movement_speed_multiplier_index].enabled
   );
   assert(restored.numeric_features[zenny_index].value == 1234567);
-  assert(!restored.numeric_features[zenny_index].enabled);
+  assert(restored.numeric_features[zenny_index].enabled);
   assert(restored.numeric_features[wycademy_points_index].value == 2345678);
-  assert(!restored.numeric_features[wycademy_points_index].enabled);
+  assert(restored.numeric_features[wycademy_points_index].enabled);
+
+  auto updated = expected;
+  updated.locale_mode = core::LocaleMode::Japanese;
+  updated.monster_damage_mode = core::MonsterDamageMode::InstantKill;
+  updated.runtime_features.fill(false);
+  for (auto& feature : updated.numeric_features) {
+    feature.enabled = false;
+  }
+  assert(store.save(updated));
+  const auto reloaded = store.load();
+  assert(reloaded.locale_mode == core::LocaleMode::Japanese);
+  assert(
+    reloaded.monster_damage_mode == core::MonsterDamageMode::InstantKill
+  );
+  for (const auto enabled : reloaded.runtime_features) {
+    assert(!enabled);
+  }
+  for (const auto& feature : reloaded.numeric_features) {
+    assert(!feature.enabled);
+  }
 
   auto* numeric = std::fopen(kPath, "w");
   assert(numeric != nullptr);
@@ -234,5 +259,11 @@ int main() {
   assert(store.load().size_preset == core::SizePreset::Silver);
 
   std::remove(kPath);
+  auto* backup = std::fopen(kBackupPath, "w");
+  assert(backup != nullptr);
+  std::fprintf(backup, "language=ja\n");
+  assert(std::fclose(backup) == 0);
+  assert(store.load().locale_mode == core::LocaleMode::Japanese);
+  std::remove(kBackupPath);
   std::cout << "settings tests passed\n";
 }

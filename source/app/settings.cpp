@@ -1,6 +1,8 @@
 #include "mhgu/app/settings.hpp"
 
 #include <algorithm>
+#include <array>
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -12,6 +14,39 @@
 
 namespace mhgu::app {
 namespace {
+
+constexpr std::array<const char*, core::kRuntimeFeatureCount>
+  kRuntimeFeatureKeys{{
+    "map_and_large_monsters",
+    "carry_items_into_pouch",
+    "invincible",
+    "health_no_decrease",
+    "stamina_no_decrease",
+    "sharpness_no_decrease",
+    "unlock_hunter_art_slots",
+    "unlimited_hunter_arts",
+    "valor_gauge_no_decrease",
+    "alchemy_gauge_full",
+    "sp_status_no_expire",
+    "bowgun_auto_reload",
+    "consumable_items_no_decrease",
+    "weapon_transmog",
+    "armor_transmog",
+    "palico_health_no_decrease",
+  }};
+
+constexpr std::array<const char*, core::kNumericFeatureCount>
+  kNumericFeatureEnabledKeys{{
+    "hunter_affinity_enabled",
+    "palico_affinity_enabled",
+    "sp_level_enabled",
+    "long_sword_spirit_gauge_enabled",
+    "attack_multiplier_enabled",
+    "defense_multiplier_enabled",
+    "movement_speed_multiplier_enabled",
+    "zenny_enabled",
+    "wycademy_points_enabled",
+  }};
 
 core::LocaleMode parse_locale(const char* value) {
   if (std::strcmp(value, "en") == 0) {
@@ -42,6 +77,20 @@ core::SizePreset parse_preset(const char* value) {
 core::FrameRate parse_frame_rate(const char* value) {
   return std::strcmp(value, "60") == 0 ? core::FrameRate::Fps60
                                        : core::FrameRate::Fps30;
+}
+
+core::MonsterDamageMode parse_monster_damage_mode(const char* value) {
+  if (std::strcmp(value, "instant_kill") == 0) {
+    return core::MonsterDamageMode::InstantKill;
+  }
+  if (std::strcmp(value, "leave_one_hp") == 0) {
+    return core::MonsterDamageMode::LeaveOneHp;
+  }
+  return core::MonsterDamageMode::Off;
+}
+
+bool parse_enabled(const char* value) {
+  return std::strcmp(value, "1") == 0;
 }
 
 std::uint16_t parse_percentage(const char* value) {
@@ -199,6 +248,17 @@ const char* frame_rate_value(const core::FrameRate frame_rate) {
   return frame_rate == core::FrameRate::Fps60 ? "60" : "30";
 }
 
+const char* monster_damage_mode_value(const core::MonsterDamageMode mode) {
+  switch (mode) {
+    case core::MonsterDamageMode::InstantKill:
+      return "instant_kill";
+    case core::MonsterDamageMode::LeaveOneHp:
+      return "leave_one_hp";
+    default:
+      return "off";
+  }
+}
+
 }  // namespace
 
 SettingsStore::SettingsStore(std::string path)
@@ -209,6 +269,10 @@ core::CoreSettings SettingsStore::load() const {
   bool has_legacy_size_lock = false;
   bool legacy_size_lock_enabled = false;
   auto* file = std::fopen(path_.c_str(), "r");
+  if (file == nullptr) {
+    const auto backup = path_ + ".bak";
+    file = std::fopen(backup.c_str(), "r");
+  }
   if (file == nullptr) {
     return settings;
   }
@@ -227,7 +291,9 @@ core::CoreSettings SettingsStore::load() const {
     } else if (std::strcmp(key, "frame_rate") == 0) {
       settings.frame_rate = parse_frame_rate(value);
     } else if (std::strcmp(key, "damage_display") == 0) {
-      settings.damage_display_enabled = std::strcmp(value, "1") == 0;
+      settings.damage_display_enabled = parse_enabled(value);
+    } else if (std::strcmp(key, "monster_damage_mode") == 0) {
+      settings.monster_damage_mode = parse_monster_damage_mode(value);
     } else if (std::strcmp(key, "hunter_affinity") == 0) {
       settings.numeric_features[core::numeric_feature_index(
         core::NumericFeature::HunterAffinity
@@ -270,7 +336,24 @@ core::CoreSettings SettingsStore::load() const {
       settings.item_pouch_quantity = parse_item_pouch_quantity(value);
     } else if (std::strcmp(key, "size_lock") == 0) {
       has_legacy_size_lock = true;
-      legacy_size_lock_enabled = std::strcmp(value, "1") == 0;
+      legacy_size_lock_enabled = parse_enabled(value);
+    } else {
+      for (std::size_t index = 0; index < kRuntimeFeatureKeys.size(); ++index) {
+        if (std::strcmp(key, kRuntimeFeatureKeys[index]) == 0) {
+          settings.runtime_features[index] = parse_enabled(value);
+          break;
+        }
+      }
+      for (
+        std::size_t index = 0;
+        index < kNumericFeatureEnabledKeys.size();
+        ++index
+      ) {
+        if (std::strcmp(key, kNumericFeatureEnabledKeys[index]) == 0) {
+          settings.numeric_features[index].enabled = parse_enabled(value);
+          break;
+        }
+      }
     }
   }
   std::fclose(file);
@@ -298,6 +381,31 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
     "damage_display=%u\n",
     settings.damage_display_enabled ? 1U : 0U
   );
+  std::fprintf(
+    file,
+    "monster_damage_mode=%s\n",
+    monster_damage_mode_value(settings.monster_damage_mode)
+  );
+  for (std::size_t index = 0; index < kRuntimeFeatureKeys.size(); ++index) {
+    std::fprintf(
+      file,
+      "%s=%u\n",
+      kRuntimeFeatureKeys[index],
+      settings.runtime_features[index] ? 1U : 0U
+    );
+  }
+  for (
+    std::size_t index = 0;
+    index < kNumericFeatureEnabledKeys.size();
+    ++index
+  ) {
+    std::fprintf(
+      file,
+      "%s=%u\n",
+      kNumericFeatureEnabledKeys[index],
+      settings.numeric_features[index].enabled ? 1U : 0U
+    );
+  }
   std::fprintf(
     file,
     "hunter_affinity=%u\n",
@@ -376,9 +484,25 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
     std::remove(temporary.c_str());
     return false;
   }
-  if (std::rename(temporary.c_str(), path_.c_str()) != 0) {
+  const auto backup = path_ + ".bak";
+  if (std::remove(backup.c_str()) != 0 && errno != ENOENT) {
     std::remove(temporary.c_str());
     return false;
+  }
+  const auto had_previous = std::rename(path_.c_str(), backup.c_str()) == 0;
+  if (!had_previous && errno != ENOENT) {
+    std::remove(temporary.c_str());
+    return false;
+  }
+  if (std::rename(temporary.c_str(), path_.c_str()) != 0) {
+    if (had_previous) {
+      std::rename(backup.c_str(), path_.c_str());
+    }
+    std::remove(temporary.c_str());
+    return false;
+  }
+  if (had_previous) {
+    std::remove(backup.c_str());
   }
   return true;
 }
