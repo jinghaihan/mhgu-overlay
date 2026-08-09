@@ -709,6 +709,45 @@ private:
            left_b < right_a + kDamageOverlapPadding;
   }
 
+  static void draw_damage_text(
+    tsl::gfx::Renderer* renderer,
+    const char* value,
+    const s32 left,
+    const s32 baseline_y,
+    const float font_size,
+    const std::uint8_t alpha
+  ) {
+    constexpr s32 kOutlineRadius = 2;
+    constexpr std::array<std::pair<s32, s32>, 8> kOutlineOffsets{{
+      {-kOutlineRadius, -kOutlineRadius},
+      {0, -kOutlineRadius},
+      {kOutlineRadius, -kOutlineRadius},
+      {-kOutlineRadius, 0},
+      {kOutlineRadius, 0},
+      {-kOutlineRadius, kOutlineRadius},
+      {0, kOutlineRadius},
+      {kOutlineRadius, kOutlineRadius},
+    }};
+    for (const auto [offset_x, offset_y] : kOutlineOffsets) {
+      renderer->drawString(
+        value,
+        false,
+        left + offset_x,
+        baseline_y + offset_y,
+        font_size,
+        renderer->a({0x0, 0x0, 0x0, alpha})
+      );
+    }
+    renderer->drawString(
+      value,
+      false,
+      left,
+      baseline_y,
+      font_size,
+      renderer->a({0xF, 0xC, 0x3, alpha})
+    );
+  }
+
   static void draw_damage_events(
     tsl::gfx::Renderer* renderer,
     const mhgu::core::DamageOutput& damage,
@@ -796,21 +835,13 @@ private:
     for (std::size_t index = 0; index < active_count; ++index) {
       const auto& render_event = active[index];
       const auto alpha = damage_alpha(render_event.age_ms);
-      renderer->drawString(
+      draw_damage_text(
+        renderer,
         render_event.value,
-        false,
-        render_event.left + 2,
-        render_event.baseline_y + 2,
-        render_event.font_size,
-        renderer->a({0x1, 0x1, 0x1, alpha})
-      );
-      renderer->drawString(
-        render_event.value,
-        false,
         render_event.left,
         render_event.baseline_y,
         render_event.font_size,
-        renderer->a({0xF, 0xC, 0x3, alpha})
+        alpha
       );
     }
   }
