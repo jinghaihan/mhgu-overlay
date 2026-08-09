@@ -59,6 +59,8 @@ enum class HudLayout : std::uint8_t {
   BottomLeftVertical,
   TopRightVertical,
   TopCenterHorizontal,
+  CenterLeftVertical,
+  CenterRightVertical,
 };
 
 enum class RuntimeFeature : std::uint8_t {

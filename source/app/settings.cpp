@@ -86,6 +86,12 @@ core::HudLayout parse_hud_layout(const char* value) {
   if (std::strcmp(value, "top_center_horizontal") == 0) {
     return core::HudLayout::TopCenterHorizontal;
   }
+  if (std::strcmp(value, "center_left_vertical") == 0) {
+    return core::HudLayout::CenterLeftVertical;
+  }
+  if (std::strcmp(value, "center_right_vertical") == 0) {
+    return core::HudLayout::CenterRightVertical;
+  }
   return core::HudLayout::BottomLeftVertical;
 }
 
@@ -264,6 +270,10 @@ const char* hud_layout_value(const core::HudLayout layout) {
       return "top_right_vertical";
     case core::HudLayout::TopCenterHorizontal:
       return "top_center_horizontal";
+    case core::HudLayout::CenterLeftVertical:
+      return "center_left_vertical";
+    case core::HudLayout::CenterRightVertical:
+      return "center_right_vertical";
     default:
       return "bottom_left_vertical";
   }

@@ -84,7 +84,7 @@ int main() {
   expected.locale_mode = core::LocaleMode::SimplifiedChinese;
   expected.size_preset = core::SizePreset::Gold;
   expected.frame_rate = core::FrameRate::Fps60;
-  expected.hud_layout = core::HudLayout::TopCenterHorizontal;
+  expected.hud_layout = core::HudLayout::CenterRightVertical;
   expected.damage_display_enabled = true;
   expected.infinite_quest_time = true;
   expected.unlimited_faints = true;

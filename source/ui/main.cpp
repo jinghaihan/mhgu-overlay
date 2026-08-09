@@ -74,6 +74,10 @@ const char* hud_layout_value(Model& model) {
       return text(model, UiMessage::HudTopRightVertical);
     case HudLayout::TopCenterHorizontal:
       return text(model, UiMessage::HudTopCenterHorizontal);
+    case HudLayout::CenterLeftVertical:
+      return text(model, UiMessage::HudCenterLeftVertical);
+    case HudLayout::CenterRightVertical:
+      return text(model, UiMessage::HudCenterRightVertical);
     default:
       return text(model, UiMessage::HudBottomLeftVertical);
   }
@@ -515,6 +519,18 @@ private:
         kMargin + static_cast<s32>(index * step),
       };
     }
+    if (layout == HudLayout::CenterLeftVertical ||
+        layout == HudLayout::CenterRightVertical) {
+      const auto stack_height =
+        static_cast<s32>(count * kCardHeight + (count - 1) * kCardGap);
+      return {
+        layout == HudLayout::CenterRightVertical
+          ? tsl::cfg::FramebufferWidth - kMargin - kCardWidth
+          : kMargin,
+        (tsl::cfg::FramebufferHeight - stack_height) / 2 +
+          static_cast<s32>(index * step),
+      };
+    }
 
     const auto columns = std::min(kTopCenterColumns, count);
     const auto row = index / columns;
@@ -541,6 +557,16 @@ private:
         return {
           (tsl::cfg::FramebufferWidth - kCardWidth) / 2,
           kMargin,
+        };
+      case HudLayout::CenterLeftVertical:
+        return {
+          kMargin,
+          (tsl::cfg::FramebufferHeight - 66) / 2,
+        };
+      case HudLayout::CenterRightVertical:
+        return {
+          tsl::cfg::FramebufferWidth - kMargin - kCardWidth,
+          (tsl::cfg::FramebufferHeight - 66) / 2,
         };
       default:
         return {
