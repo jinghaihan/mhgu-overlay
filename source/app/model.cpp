@@ -185,16 +185,15 @@ void Model::cycle_monster_damage_mode(const int direction) {
   persist(changed);
 }
 
-void Model::enable_runtime_feature(const core::RuntimeFeature feature) {
+void Model::toggle_runtime_feature(const core::RuntimeFeature feature) {
   core::CoreSettings changed{};
   {
     const std::scoped_lock lock(mutex_);
     const auto index = core::runtime_feature_index(feature);
-    if (index >= settings_.runtime_features.size() ||
-        settings_.runtime_features[index]) {
+    if (index >= settings_.runtime_features.size()) {
       return;
     }
-    settings_.runtime_features[index] = true;
+    settings_.runtime_features[index] = !settings_.runtime_features[index];
     changed = settings_;
   }
   persist(changed);
@@ -226,16 +225,16 @@ void Model::adjust_numeric_feature(
   persist(changed);
 }
 
-void Model::enable_numeric_feature(const core::NumericFeature feature) {
+void Model::toggle_numeric_feature(const core::NumericFeature feature) {
   core::CoreSettings changed{};
   {
     const std::scoped_lock lock(mutex_);
     const auto index = core::numeric_feature_index(feature);
-    if (index >= settings_.numeric_features.size() ||
-        settings_.numeric_features[index].enabled) {
+    if (index >= settings_.numeric_features.size()) {
       return;
     }
-    settings_.numeric_features[index].enabled = true;
+    settings_.numeric_features[index].enabled =
+      !settings_.numeric_features[index].enabled;
     changed = settings_;
   }
   persist(changed);

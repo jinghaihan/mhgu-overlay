@@ -39,9 +39,9 @@ public:
   void toggle_unlimited_faints();
   void request_complete_quest();
   void cycle_monster_damage_mode(int direction);
-  void enable_runtime_feature(core::RuntimeFeature feature);
+  void toggle_runtime_feature(core::RuntimeFeature feature);
   void adjust_numeric_feature(core::NumericFeature feature, int delta);
-  void enable_numeric_feature(core::NumericFeature feature);
+  void toggle_numeric_feature(core::NumericFeature feature);
   void adjust_item_pouch_slot(int delta);
   void adjust_item_pouch_quantity(int delta);
   void request_item_pouch_quantity_write();

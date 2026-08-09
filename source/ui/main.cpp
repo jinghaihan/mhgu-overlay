@@ -138,15 +138,12 @@ tsl::elm::ListItem* runtime_feature_item(
   );
   refresh_runtime_feature_item(item, model, label, feature);
   item->setClickListener(
-    [model_ptr = &model, item, feature](const u64 keys) {
-      if ((keys & HidNpadButton_A) == 0 ||
-          runtime_feature_enabled(*model_ptr, feature)) {
+    [model_ptr = &model, item, label, feature](const u64 keys) {
+      if ((keys & HidNpadButton_A) == 0) {
         return false;
       }
-      model_ptr->enable_runtime_feature(feature);
-      item->setValue(mhgu::core::ui_message(
-        UiMessage::On, model_ptr->display_locale()
-      ));
+      model_ptr->toggle_runtime_feature(feature);
+      refresh_runtime_feature_item(item, *model_ptr, label, feature);
       return true;
     }
   );
@@ -374,7 +371,7 @@ tsl::elm::ListItem* numeric_feature_item(
       } else if ((keys & HidNpadButton_R) != 0) {
         delta = numeric_feature_large_step(feature);
       } else if ((keys & HidNpadButton_A) != 0) {
-        model_ptr->enable_numeric_feature(feature);
+        model_ptr->toggle_numeric_feature(feature);
         refresh_numeric_feature_item(
           item, *model_ptr, label, feature
         );
