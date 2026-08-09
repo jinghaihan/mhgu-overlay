@@ -123,7 +123,7 @@ Both transmog options are one-way code patches for the current game process.
 
 ## Controls and persistence
 
-- Press `A` to open a submenu, cycle a selector, enable a patch, or apply the
+- Press `A` to open a submenu, cycle a selector, toggle a patch, or apply the
   selected value.
 - Use Left/Right for small numeric adjustments and `L`/`R` for larger steps.
   Affinity and gauge percentages use steps of 1/10; movement speed uses
@@ -136,12 +136,15 @@ Both transmog options are one-way code patches for the current game process.
 - Language, Monster HUD, HUD layout, damage display, frame rate, size lock,
   selected numeric values, and the two item-pouch inputs are saved to
   `sdmc:/config/mhgu-overlay/settings.ini`.
-- Runtime patch enabled states and monster damage mode are not saved. Numeric
-  rows save the selected value, but pressing `A` is required to enable that
-  value again after reloading the overlay.
+- Runtime patch states, numeric-feature enabled states, and monster damage mode
+  are saved. Press `A` on a patch or numeric row to toggle it between **On** and
+  **Off**; an **Off** state prevents that patch from being applied on the next
+  game launch.
 - Selecting **Off** for monster damage mode stops further writes. If an active
-  damage mode or another one-way patch has already changed game code, exit the
-  overlay and restart the game to restore the original instruction.
+  damage mode or another one-way patch has already changed game code, the
+  current game process remains patched until it is restarted. Restart the game
+  to restore the original instructions; the saved **Off** state then keeps the
+  patch disabled.
 
 ## Documentation
 

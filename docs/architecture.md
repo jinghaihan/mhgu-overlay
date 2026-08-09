@@ -143,9 +143,11 @@ The map and large-monster-location selector applies two static ARM instruction
 patches from the same build profile. Both addresses are validated against the
 main NSO before either write begins; each write is then read back immediately.
 The carry-items-into-pouch and invincibility selectors each apply one
-instruction through the same validated path. These selectors are intentionally
-one-way and are not persisted. Reapplying them is idempotent, while restoring
-the original instructions is left to a game restart.
+instruction through the same validated path. These are one-way memory patches:
+the requested **On**/**Off** state is persisted, and **Off** prevents the patch
+from being applied on the next game launch. A patch already written in the
+current process is not reversed; restoring the original instructions is left to
+a game restart.
 
 One-way selectors are represented as bounded patch sets keyed by a portable
 runtime-feature identifier. The application model and session track requested
