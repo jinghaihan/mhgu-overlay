@@ -87,6 +87,10 @@ UI_KEYS = [
   "itemPouchQuantity",
   "applyItemPouchQuantity",
   "monsterInfoOverlay",
+  "hudLayout",
+  "hudBottomLeftVertical",
+  "hudTopRightVertical",
+  "hudTopCenterHorizontal",
   "damageDisplay",
 ]
 
@@ -148,6 +152,10 @@ TESLA_MENU_TEXT_KEYS = {
   "itemPouchQuantity",
   "applyItemPouchQuantity",
   "monsterInfoOverlay",
+  "hudLayout",
+  "hudBottomLeftVertical",
+  "hudTopRightVertical",
+  "hudTopCenterHorizontal",
   "damageDisplay",
 }
 TESLA_MENU_TEXT_MAX_CELLS = 20

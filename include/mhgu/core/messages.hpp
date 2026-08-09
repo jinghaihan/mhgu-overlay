@@ -73,6 +73,10 @@ enum class UiMessage : std::uint8_t {
   ItemPouchQuantity,
   ApplyItemPouchQuantity,
   MonsterInfoOverlay,
+  HudLayout,
+  HudBottomLeftVertical,
+  HudTopRightVertical,
+  HudTopCenterHorizontal,
   DamageDisplay,
 };
 

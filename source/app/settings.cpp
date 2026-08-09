@@ -79,6 +79,16 @@ core::FrameRate parse_frame_rate(const char* value) {
                                        : core::FrameRate::Fps30;
 }
 
+core::HudLayout parse_hud_layout(const char* value) {
+  if (std::strcmp(value, "top_right_vertical") == 0) {
+    return core::HudLayout::TopRightVertical;
+  }
+  if (std::strcmp(value, "top_center_horizontal") == 0) {
+    return core::HudLayout::TopCenterHorizontal;
+  }
+  return core::HudLayout::BottomLeftVertical;
+}
+
 core::MonsterDamageMode parse_monster_damage_mode(const char* value) {
   if (std::strcmp(value, "instant_kill") == 0) {
     return core::MonsterDamageMode::InstantKill;
@@ -248,6 +258,17 @@ const char* frame_rate_value(const core::FrameRate frame_rate) {
   return frame_rate == core::FrameRate::Fps60 ? "60" : "30";
 }
 
+const char* hud_layout_value(const core::HudLayout layout) {
+  switch (layout) {
+    case core::HudLayout::TopRightVertical:
+      return "top_right_vertical";
+    case core::HudLayout::TopCenterHorizontal:
+      return "top_center_horizontal";
+    default:
+      return "bottom_left_vertical";
+  }
+}
+
 const char* monster_damage_mode_value(const core::MonsterDamageMode mode) {
   switch (mode) {
     case core::MonsterDamageMode::InstantKill:
@@ -290,6 +311,8 @@ core::CoreSettings SettingsStore::load() const {
       settings.size_preset = parse_preset(value);
     } else if (std::strcmp(key, "frame_rate") == 0) {
       settings.frame_rate = parse_frame_rate(value);
+    } else if (std::strcmp(key, "hud_layout") == 0) {
+      settings.hud_layout = parse_hud_layout(value);
     } else if (std::strcmp(key, "damage_display") == 0) {
       settings.damage_display_enabled = parse_enabled(value);
     } else if (std::strcmp(key, "infinite_quest_time") == 0) {
@@ -380,6 +403,7 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
   std::fprintf(file, "language=%s\n", locale_value(settings.locale_mode));
   std::fprintf(file, "size_preset=%s\n", preset_value(settings.size_preset));
   std::fprintf(file, "frame_rate=%s\n", frame_rate_value(settings.frame_rate));
+  std::fprintf(file, "hud_layout=%s\n", hud_layout_value(settings.hud_layout));
   std::fprintf(
     file,
     "damage_display=%u\n",

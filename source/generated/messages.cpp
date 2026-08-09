@@ -73,6 +73,10 @@ constexpr const char* kMessages[][3] = {
   {"Quantity", "数量", "個数"},
   {"Apply quantity", "应用数量", "個数を適用"},
   {"Monster HUD", "怪物 HUD", "モンスターHUD"},
+  {"HUD layout", "HUD 布局", "HUDレイアウト"},
+  {"Bottom-left vertical", "左下纵向", "左下・縦"},
+  {"Top-right vertical", "右上纵向", "右上・縦"},
+  {"Top-center horiz.", "顶部居中横向", "上中央・横"},
   {"Damage display", "伤害显示", "ダメージ表示"},
 };
 

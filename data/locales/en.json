@@ -68,6 +68,10 @@
     "itemPouchQuantity": "Quantity",
     "applyItemPouchQuantity": "Apply quantity",
     "monsterInfoOverlay": "Monster HUD",
+    "hudLayout": "HUD layout",
+    "hudBottomLeftVertical": "Bottom-left vertical",
+    "hudTopRightVertical": "Top-right vertical",
+    "hudTopCenterHorizontal": "Top-center horiz.",
     "damageDisplay": "Damage display"
   },
   "monsters": {

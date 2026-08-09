@@ -18,6 +18,9 @@ int main() {
   assert(defaults.locale_mode == core::LocaleMode::Auto);
   assert(defaults.size_preset == core::SizePreset::Off);
   assert(defaults.frame_rate == core::FrameRate::Fps30);
+  assert(
+    defaults.hud_layout == core::HudLayout::BottomLeftVertical
+  );
   assert(!defaults.damage_display_enabled);
   assert(!defaults.infinite_quest_time);
   assert(!defaults.unlimited_faints);
@@ -81,6 +84,7 @@ int main() {
   expected.locale_mode = core::LocaleMode::SimplifiedChinese;
   expected.size_preset = core::SizePreset::Gold;
   expected.frame_rate = core::FrameRate::Fps60;
+  expected.hud_layout = core::HudLayout::TopCenterHorizontal;
   expected.damage_display_enabled = true;
   expected.infinite_quest_time = true;
   expected.unlimited_faints = true;
@@ -103,6 +107,7 @@ int main() {
   assert(restored.locale_mode == expected.locale_mode);
   assert(restored.size_preset == expected.size_preset);
   assert(restored.frame_rate == expected.frame_rate);
+  assert(restored.hud_layout == expected.hud_layout);
   assert(restored.damage_display_enabled);
   assert(restored.infinite_quest_time);
   assert(restored.unlimited_faints);

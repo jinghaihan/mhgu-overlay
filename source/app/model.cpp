@@ -99,6 +99,20 @@ void Model::cycle_frame_rate() {
   persist(changed);
 }
 
+void Model::cycle_hud_layout(const int direction) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    constexpr auto kLayoutCount = 3;
+    auto current = static_cast<int>(settings_.hud_layout);
+    current = (current + (direction < 0 ? -1 : 1) + kLayoutCount) %
+              kLayoutCount;
+    settings_.hud_layout = static_cast<core::HudLayout>(current);
+    changed = settings_;
+  }
+  persist(changed);
+}
+
 void Model::toggle_damage_display() {
   core::CoreSettings changed{};
   {

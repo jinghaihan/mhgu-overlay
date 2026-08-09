@@ -68,6 +68,10 @@
     "itemPouchQuantity": "個数",
     "applyItemPouchQuantity": "個数を適用",
     "monsterInfoOverlay": "モンスターHUD",
+    "hudLayout": "HUDレイアウト",
+    "hudBottomLeftVertical": "左下・縦",
+    "hudTopRightVertical": "右上・縦",
+    "hudTopCenterHorizontal": "上中央・横",
     "damageDisplay": "ダメージ表示"
   },
   "monsters": {

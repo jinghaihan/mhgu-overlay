@@ -68,6 +68,10 @@
     "itemPouchQuantity": "数量",
     "applyItemPouchQuantity": "应用数量",
     "monsterInfoOverlay": "怪物 HUD",
+    "hudLayout": "HUD 布局",
+    "hudBottomLeftVertical": "左下纵向",
+    "hudTopRightVertical": "右上纵向",
+    "hudTopCenterHorizontal": "顶部居中横向",
     "damageDisplay": "伤害显示"
   },
   "monsters": {

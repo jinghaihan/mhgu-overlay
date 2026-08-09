@@ -55,6 +55,12 @@ enum class MonsterDamageMode : std::uint8_t {
   LeaveOneHp,
 };
 
+enum class HudLayout : std::uint8_t {
+  BottomLeftVertical,
+  TopRightVertical,
+  TopCenterHorizontal,
+};
+
 enum class RuntimeFeature : std::uint8_t {
   MapAndLargeMonsters,
   CarryItemsIntoPouch,
@@ -177,6 +183,7 @@ struct CoreSettings {
   LocaleMode locale_mode{LocaleMode::Auto};
   SizePreset size_preset{SizePreset::Off};
   FrameRate frame_rate{FrameRate::Fps30};
+  HudLayout hud_layout{HudLayout::BottomLeftVertical};
   bool damage_display_enabled{};
   bool infinite_quest_time{};
   bool unlimited_faints{};
