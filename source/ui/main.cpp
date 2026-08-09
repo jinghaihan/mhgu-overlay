@@ -18,6 +18,7 @@ namespace {
 
 using mhgu::app::Model;
 using mhgu::app::QuestCompletionStatus;
+using mhgu::core::HudLayout;
 using mhgu::core::Locale;
 using mhgu::core::LocaleMode;
 using mhgu::core::MonsterDamageMode;
@@ -65,6 +66,43 @@ const char* frame_rate_value(Model& model) {
       ? UiMessage::Fps60
       : UiMessage::Fps30
   );
+}
+
+const char* hud_layout_value(Model& model) {
+  switch (model.settings().hud_layout) {
+    case HudLayout::TopRightVertical:
+      return text(model, UiMessage::HudTopRightVertical);
+    case HudLayout::TopCenterHorizontal:
+      return text(model, UiMessage::HudTopCenterHorizontal);
+    default:
+      return text(model, UiMessage::HudBottomLeftVertical);
+  }
+}
+
+void refresh_hud_layout_item(tsl::elm::ListItem* item, Model& model) {
+  item->setText(text(model, UiMessage::HudLayout));
+  item->setValue(hud_layout_value(model));
+}
+
+tsl::elm::ListItem* hud_layout_item(Model& model) {
+  auto* item = new tsl::elm::ListItem(text(model, UiMessage::HudLayout));
+  refresh_hud_layout_item(item, model);
+  item->setClickListener(
+    [model_ptr = &model, item](const u64 keys) {
+      int direction{};
+      if ((keys & HidNpadButton_Left) != 0) {
+        direction = -1;
+      } else if ((keys & (HidNpadButton_A | HidNpadButton_Right)) != 0) {
+        direction = 1;
+      } else {
+        return false;
+      }
+      model_ptr->cycle_hud_layout(direction);
+      refresh_hud_layout_item(item, *model_ptr);
+      return true;
+    }
+  );
+  return item;
 }
 
 bool runtime_feature_enabled(
@@ -410,24 +448,27 @@ public:
         view.status == SessionStatus::Ready
           ? mhgu::core::ui_message(UiMessage::NoMonsters, locale)
           : status_value(view.status, locale);
-      draw_status(renderer, locale, message);
+      draw_status(renderer, locale, message, settings.hud_layout);
     } else {
-      const auto stack_height =
-        static_cast<s32>(count * kCardHeight + (count - 1) * kCardGap);
-      const s32 first_y =
-        tsl::cfg::FramebufferHeight - kMargin - stack_height;
       for (std::size_t index = 0; index < count; ++index) {
+        const auto position = card_position(settings.hud_layout, count, index);
         draw_monster(
           renderer,
           view.output.monsters[index],
           locale,
-          kMargin,
-          first_y + static_cast<s32>(index * (kCardHeight + kCardGap))
+          position.x,
+          position.y
         );
       }
     }
     if (settings.damage_display_enabled) {
-      draw_damage_events(renderer, view.damage, monotonic_milliseconds());
+      draw_damage_events(
+        renderer,
+        view.damage,
+        monotonic_milliseconds(),
+        settings.hud_layout,
+        count
+      );
     }
   }
 
@@ -446,11 +487,71 @@ public:
   }
 
 private:
+  struct HudPosition {
+    s32 x;
+    s32 y;
+  };
+
   static constexpr s32 kCardWidth = 328;
   static constexpr s32 kCardHeight = 58;
   static constexpr s32 kCardGap = 5;
   static constexpr s32 kMargin = 12;
   static constexpr std::uint64_t kDamageFadeStartMs = 650;
+  static constexpr std::size_t kTopCenterColumns = 3;
+
+  static HudPosition card_position(
+    const HudLayout layout, const std::size_t count, const std::size_t index
+  ) {
+    const auto step = kCardHeight + kCardGap;
+    if (layout == HudLayout::BottomLeftVertical) {
+      const auto stack_height =
+        static_cast<s32>(count * kCardHeight + (count - 1) * kCardGap);
+      return {
+        kMargin,
+        tsl::cfg::FramebufferHeight - kMargin - stack_height +
+          static_cast<s32>(index * step),
+      };
+    }
+    if (layout == HudLayout::TopRightVertical) {
+      return {
+        tsl::cfg::FramebufferWidth - kMargin - kCardWidth,
+        kMargin + static_cast<s32>(index * step),
+      };
+    }
+
+    const auto columns = std::min(kTopCenterColumns, count);
+    const auto row = index / columns;
+    const auto row_start = row * columns;
+    const auto row_count = std::min(columns, count - row_start);
+    const auto column = index - row_start;
+    const auto row_width =
+      static_cast<s32>(row_count * kCardWidth + (row_count - 1) * kCardGap);
+    return {
+      (tsl::cfg::FramebufferWidth - row_width) / 2 +
+        static_cast<s32>(column * (kCardWidth + kCardGap)),
+      kMargin + static_cast<s32>(row * step),
+    };
+  }
+
+  static HudPosition status_position(const HudLayout layout) {
+    switch (layout) {
+      case HudLayout::TopRightVertical:
+        return {
+          tsl::cfg::FramebufferWidth - kMargin - kCardWidth,
+          kMargin,
+        };
+      case HudLayout::TopCenterHorizontal:
+        return {
+          (tsl::cfg::FramebufferWidth - kCardWidth) / 2,
+          kMargin,
+        };
+      default:
+        return {
+          kMargin,
+          tsl::cfg::FramebufferHeight - kMargin - 66,
+        };
+    }
+  }
 
   static u32 text_width(
     tsl::gfx::Renderer* renderer,
@@ -541,7 +642,9 @@ private:
   static void draw_damage_events(
     tsl::gfx::Renderer* renderer,
     const mhgu::core::DamageOutput& damage,
-    const std::uint64_t now_ms
+    const std::uint64_t now_ms,
+    const HudLayout layout,
+    const std::size_t monster_count
   ) {
     constexpr std::array<s32, 5> lane_offsets{0, -52, 52, -94, 94};
     constexpr std::array<s32, 5> drift_directions{0, -1, 1, -1, 1};
@@ -570,8 +673,13 @@ private:
                             static_cast<s32>(
                               drift_directions[lane] * 14.0F * progress
                             );
+      const auto damage_height_percent =
+        layout == HudLayout::TopCenterHorizontal && monster_count > 6 ? 52
+                                                                       : 28;
       const auto baseline_y =
-        static_cast<s32>(tsl::cfg::FramebufferHeight * 28 / 100) -
+        static_cast<s32>(
+          tsl::cfg::FramebufferHeight * damage_height_percent / 100
+        ) -
         static_cast<s32>(55.0F * eased);
 
       char value[16]{};
@@ -609,20 +717,25 @@ private:
   }
 
   static void draw_status(
-    tsl::gfx::Renderer* renderer, const Locale locale, const char* message
+    tsl::gfx::Renderer* renderer,
+    const Locale locale,
+    const char* message,
+    const HudLayout layout
   ) {
     constexpr s32 height = 66;
-    const s32 y = tsl::cfg::FramebufferHeight - kMargin - height;
+    const auto position = status_position(layout);
+    const s32 x = position.x;
+    const s32 y = position.y;
     renderer->drawRect(
-      kMargin, y, kCardWidth, height, renderer->a({0x1, 0x1, 0x1, 0xB})
+      x, y, kCardWidth, height, renderer->a({0x1, 0x1, 0x1, 0xB})
     );
     renderer->drawRect(
-      kMargin, y, 3, height, renderer->a({0x3, 0xB, 0xA, 0xF})
+      x, y, 3, height, renderer->a({0x3, 0xB, 0xA, 0xF})
     );
     renderer->drawString(
       mhgu::core::ui_message(UiMessage::Title, locale),
       false,
-      kMargin + 11,
+      x + 11,
       y + 23,
       17,
       renderer->a({0xF, 0xF, 0xF, 0xF})
@@ -631,7 +744,7 @@ private:
     renderer->drawString(
       fitted.c_str(),
       false,
-      kMargin + 11,
+      x + 11,
       y + 51,
       15,
       renderer->a({0xA, 0xA, 0xA, 0xF})
@@ -1274,6 +1387,9 @@ public:
     });
     list->addItem(hud_item_);
 
+    hud_layout_item_ = hud_layout_item(model_);
+    list->addItem(hud_layout_item_);
+
     damage_display_item_ = new tsl::elm::ListItem(
       mhgu::core::ui_message(UiMessage::DamageDisplay, locale)
     );
@@ -1414,6 +1530,7 @@ private:
     hud_item_->setText(
       mhgu::core::ui_message(UiMessage::MonsterInfoOverlay, locale)
     );
+    refresh_hud_layout_item(hud_layout_item_, model_);
     damage_display_item_->setText(
       mhgu::core::ui_message(UiMessage::DamageDisplay, locale)
     );
@@ -1465,6 +1582,7 @@ private:
   Model& model_;
   LocalizedOverlayFrame* frame_{};
   tsl::elm::ListItem* hud_item_{};
+  tsl::elm::ListItem* hud_layout_item_{};
   tsl::elm::ListItem* damage_display_item_{};
   tsl::elm::ListItem* language_item_{};
   tsl::elm::ListItem* frame_rate_item_{};
