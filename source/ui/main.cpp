@@ -498,7 +498,20 @@ private:
   static constexpr s32 kCardGap = 5;
   static constexpr s32 kMargin = 12;
   static constexpr std::uint64_t kDamageFadeStartMs = 650;
+  static constexpr s32 kDamageStaggerStep = 45;
+  static constexpr s32 kDamageDriftRadius = 80;
+  static constexpr s32 kDamageOverlapPadding = 10;
   static constexpr std::size_t kTopCenterColumns = 3;
+
+  struct DamageRenderEvent {
+    mhgu::core::DamageEvent event{};
+    std::uint64_t age_ms{};
+    float font_size{};
+    s32 width{};
+    s32 left{};
+    s32 baseline_y{};
+    char value[16]{};
+  };
 
   static HudPosition card_position(
     const HudLayout layout, const std::size_t count, const std::size_t index
@@ -662,6 +675,40 @@ private:
     );
   }
 
+  static s32 damage_candidate_offset(const std::size_t candidate) {
+    if (candidate == 0) {
+      return 0;
+    }
+    const auto distance = static_cast<s32>((candidate + 1) / 2) *
+                          kDamageStaggerStep;
+    return (candidate & 1U) != 0 ? -distance : distance;
+  }
+
+  static s32 damage_candidate_direction(const s32 offset) {
+    return offset < 0 ? -1 : offset > 0 ? 1 : 0;
+  }
+
+  static s32 damage_drift(
+    const DamageRenderEvent& event, const s32 direction
+  ) {
+    if (direction == 0) {
+      return 0;
+    }
+    const auto progress = static_cast<float>(event.age_ms) /
+                          mhgu::core::kDamageEventLifetimeMs;
+    return direction * static_cast<s32>(kDamageDriftRadius * progress);
+  }
+
+  static bool damage_ranges_overlap(
+    const s32 left_a,
+    const s32 right_a,
+    const s32 left_b,
+    const s32 right_b
+  ) {
+    return left_a < right_b + kDamageOverlapPadding &&
+           left_b < right_a + kDamageOverlapPadding;
+  }
+
   static void draw_damage_events(
     tsl::gfx::Renderer* renderer,
     const mhgu::core::DamageOutput& damage,
@@ -669,9 +716,9 @@ private:
     const HudLayout layout,
     const std::size_t monster_count
   ) {
-    constexpr std::array<s32, 5> lane_offsets{0, -52, 52, -94, 94};
-    constexpr std::array<s32, 5> drift_directions{0, -1, 1, -1, 1};
     constexpr float base_font_size = 38.0F;
+    std::array<DamageRenderEvent, mhgu::core::kMaxDamageEvents> active{};
+    std::size_t active_count{};
     const auto count = std::min(damage.event_count, damage.events.size());
     for (std::size_t index = 0; index < count; ++index) {
       const auto& event = damage.events[index];
@@ -683,57 +730,86 @@ private:
         continue;
       }
 
-      const auto lane = static_cast<std::size_t>(
-        (event.sequence - 1) % lane_offsets.size()
+      auto& render_event = active[active_count++];
+      render_event.event = event;
+      render_event.age_ms = age_ms;
+      render_event.font_size = base_font_size * damage_scale(age_ms);
+      std::snprintf(
+        render_event.value,
+        sizeof(render_event.value),
+        "%u",
+        static_cast<unsigned>(event.damage)
       );
+      render_event.width = static_cast<s32>(text_width(
+        renderer, render_event.value, render_event.font_size
+      ));
+
       const auto progress = static_cast<float>(age_ms) /
                             mhgu::core::kDamageEventLifetimeMs;
       const auto inverse = 1.0F - progress;
       const auto eased = 1.0F - inverse * inverse;
-      const auto font_size = base_font_size * damage_scale(age_ms);
-      const auto center_x = static_cast<s32>(tsl::cfg::FramebufferWidth / 2) +
-                            lane_offsets[lane] +
-                            static_cast<s32>(
-                              drift_directions[lane] * 14.0F * progress
-                            );
       const auto damage_height_percent =
         layout == HudLayout::TopCenterHorizontal && monster_count > 6 ? 52
                                                                        : 28;
-      const auto baseline_y =
+      render_event.baseline_y =
         static_cast<s32>(
           tsl::cfg::FramebufferHeight * damage_height_percent / 100
         ) -
         static_cast<s32>(55.0F * eased);
+    }
 
-      char value[16]{};
-      std::snprintf(
-        value,
-        sizeof(value),
-        "%u",
-        static_cast<unsigned>(event.damage)
-      );
-      const auto width =
-        static_cast<s32>(text_width(renderer, value, font_size));
-      const auto left = std::clamp<s32>(
-        center_x - width / 2,
-        0,
-        std::max<s32>(0, tsl::cfg::FramebufferWidth - width)
-      );
-      const auto alpha = damage_alpha(age_ms);
+    // Place newer events first so the newest hit remains anchored at center.
+    // Each following event takes the nearest free slot around that anchor.
+    for (std::size_t reverse = active_count; reverse > 0; --reverse) {
+      auto& render_event = active[reverse - 1];
+      const auto candidate_count = active_count * 2 + 1;
+      for (std::size_t candidate = 0;
+           candidate < candidate_count;
+           ++candidate) {
+        const auto offset = damage_candidate_offset(candidate);
+        const auto direction = damage_candidate_direction(offset);
+        const auto center_x =
+          static_cast<s32>(tsl::cfg::FramebufferWidth / 2) + offset +
+          damage_drift(render_event, direction);
+        const auto left = std::clamp<s32>(
+          center_x - render_event.width / 2,
+          0,
+          std::max<s32>(0, tsl::cfg::FramebufferWidth - render_event.width)
+        );
+        const auto right = left + render_event.width;
+        bool overlaps{};
+        for (std::size_t placed = reverse; placed < active_count; ++placed) {
+          const auto placed_left = active[placed].left;
+          const auto placed_right = placed_left + active[placed].width;
+          if (damage_ranges_overlap(left, right, placed_left, placed_right)) {
+            overlaps = true;
+            break;
+          }
+        }
+        if (!overlaps) {
+          render_event.left = left;
+          break;
+        }
+      }
+    }
+
+    for (std::size_t index = 0; index < active_count; ++index) {
+      const auto& render_event = active[index];
+      const auto alpha = damage_alpha(render_event.age_ms);
       renderer->drawString(
-        value,
+        render_event.value,
         false,
-        left + 2,
-        baseline_y + 2,
-        font_size,
+        render_event.left + 2,
+        render_event.baseline_y + 2,
+        render_event.font_size,
         renderer->a({0x1, 0x1, 0x1, alpha})
       );
       renderer->drawString(
-        value,
+        render_event.value,
         false,
-        left,
-        baseline_y,
-        font_size,
+        render_event.left,
+        render_event.baseline_y,
+        render_event.font_size,
         renderer->a({0xF, 0xC, 0x3, alpha})
       );
     }
