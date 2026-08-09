@@ -162,7 +162,10 @@ TESLA_MENU_TEXT_KEYS = {
   "hudCenterRightVertical",
   "damageDisplay",
 }
-TESLA_MENU_TEXT_MAX_CELLS = 20
+# The overlay uses the full 1280px Tesla framebuffer for the game HUD and
+# settings menu. Keep a guard against accidental runaway labels while allowing
+# complete English descriptions instead of the old narrow-menu abbreviations.
+TESLA_MENU_TEXT_MAX_CELLS = 32
 
 
 def cpp_string(value: str) -> str:
