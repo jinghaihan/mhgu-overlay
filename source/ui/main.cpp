@@ -1642,5 +1642,10 @@ private:
 }  // namespace
 
 int main(const int argc, char** argv) {
+  // libtesla defaults to a narrow 448px framebuffer for its settings UI.
+  // The hunting HUD has left/right layout presets, so render it in the full
+  // 1280px logical screen width before the overlay allocates its framebuffer.
+  framebufferWidth = 1280;
+  framebufferHeight = 720;
   return tsl::loop<MhguOverlay>(argc, argv);
 }
