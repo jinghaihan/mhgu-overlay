@@ -91,6 +91,8 @@ UI_KEYS = [
   "hudBottomLeftVertical",
   "hudTopRightVertical",
   "hudTopCenterHorizontal",
+  "hudCenterLeftVertical",
+  "hudCenterRightVertical",
   "damageDisplay",
 ]
 
@@ -156,6 +158,8 @@ TESLA_MENU_TEXT_KEYS = {
   "hudBottomLeftVertical",
   "hudTopRightVertical",
   "hudTopCenterHorizontal",
+  "hudCenterLeftVertical",
+  "hudCenterRightVertical",
   "damageDisplay",
 }
 TESLA_MENU_TEXT_MAX_CELLS = 20

@@ -30,7 +30,7 @@ The main menu is ordered as follows:
 | --- | --- |
 | **Language** | Uses automatic game-language detection or selects English, Simplified Chinese, or Japanese manually. |
 | **Status** | Shows whether MHGU 1.4.0 is detected, scanning, ready, unsupported, or unable to read or write memory. |
-| **Monster HUD** | Opens the low-profile hunting HUD. Each active large monster gets a card with its name, health bar, current and maximum health, health percentage, size multiplier, calculated size, crown class, and Hyper status. The separate **HUD layout** selector chooses lower-left vertical, upper-right vertical, or top-center horizontal placement. |
+| **Monster HUD** | Opens the low-profile hunting HUD. Each active large monster gets a card with its name, health bar, current and maximum health, health percentage, size multiplier, calculated size, crown class, and Hyper status. The separate **HUD layout** selector chooses lower-left, left-center, upper-right, right-center, or top-center placement. |
 | **Damage display** | Shows animated damage values near the upper center of the hunting HUD when a large monster's health decreases. |
 | **Frame rate** | Switches the game's frame-rate target between 30 FPS and 60 FPS. This setting can be changed in either direction. |
 | **Size lock** | Selects **Off**, **Mini crown**, **Silver crown**, or **Gold crown**. The chosen per-monster crown threshold is applied when a valid monster object appears; **Off** is the default. |

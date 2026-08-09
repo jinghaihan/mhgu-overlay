@@ -77,6 +77,8 @@ constexpr const char* kMessages[][3] = {
   {"Bottom-left vertical", "左下纵向", "左下・縦"},
   {"Top-right vertical", "右上纵向", "右上・縦"},
   {"Top-center horiz.", "顶部居中横向", "上中央・横"},
+  {"Left-center vert.", "左侧居中纵向", "左中央・縦"},
+  {"Right-center vert.", "右侧居中纵向", "右中央・縦"},
   {"Damage display", "伤害显示", "ダメージ表示"},
 };
 

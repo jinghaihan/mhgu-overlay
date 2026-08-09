@@ -72,6 +72,8 @@
     "hudBottomLeftVertical": "Bottom-left vertical",
     "hudTopRightVertical": "Top-right vertical",
     "hudTopCenterHorizontal": "Top-center horiz.",
+    "hudCenterLeftVertical": "Left-center vert.",
+    "hudCenterRightVertical": "Right-center vert.",
     "damageDisplay": "Damage display"
   },
   "monsters": {

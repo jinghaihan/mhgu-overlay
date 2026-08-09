@@ -72,6 +72,8 @@
     "hudBottomLeftVertical": "左下纵向",
     "hudTopRightVertical": "右上纵向",
     "hudTopCenterHorizontal": "顶部居中横向",
+    "hudCenterLeftVertical": "左侧居中纵向",
+    "hudCenterRightVertical": "右侧居中纵向",
     "damageDisplay": "伤害显示"
   },
   "monsters": {
