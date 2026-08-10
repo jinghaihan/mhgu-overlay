@@ -308,6 +308,10 @@ void Model::request_rescan() {
   rescan_requested_ = true;
 }
 
+void Model::set_monster_hud_active(const bool active) {
+  monster_hud_active_ = active;
+}
+
 void Model::persist(const core::CoreSettings& settings) {
   store_.save(settings);
 }
@@ -326,9 +330,10 @@ void Model::worker_main() {
       next_full_poll = now;
     }
     const auto current_settings = settings();
+    const auto damage_polling_enabled =
+      current_settings.damage_display_enabled && monster_hud_active_.load();
     const auto damage_now = Clock::now();
-    if (current_settings.damage_display_enabled &&
-        damage_now >= next_damage_poll) {
+    if (damage_polling_enabled && damage_now >= next_damage_poll) {
       const auto now_ms = static_cast<std::uint64_t>(
         std::chrono::duration_cast<std::chrono::milliseconds>(
           damage_now.time_since_epoch()
@@ -336,7 +341,7 @@ void Model::worker_main() {
       );
       session_.poll_damage(true, now_ms);
       next_damage_poll = Clock::now() + kDamagePollInterval;
-    } else if (!current_settings.damage_display_enabled) {
+    } else if (!damage_polling_enabled) {
       session_.poll_damage(false, 0);
       next_damage_poll = now;
     }
@@ -373,7 +378,7 @@ void Model::worker_main() {
     }
 
     auto next_wake = next_full_poll;
-    if (current_settings.damage_display_enabled) {
+    if (damage_polling_enabled) {
       next_wake = std::min(next_wake, next_damage_poll);
     }
     std::this_thread::sleep_until(next_wake);

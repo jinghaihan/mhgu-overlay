@@ -1382,6 +1382,7 @@ class HudGui final : public tsl::Gui {
 public:
   explicit HudGui(Model& model)
     : model_(model) {
+    model_.set_monster_hud_active(true);
     FullMode = false;
     alphabackground = 0;
     deactivateOriginalFooter = true;
@@ -1390,6 +1391,7 @@ public:
   }
 
   ~HudGui() override {
+    model_.set_monster_hud_active(false);
     FullMode = true;
     alphabackground = 0xD;
     deactivateOriginalFooter = false;

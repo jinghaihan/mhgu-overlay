@@ -47,6 +47,7 @@ public:
   void request_item_pouch_quantity_write();
   void cycle_size_preset();
   void request_rescan();
+  void set_monster_hud_active(bool active);
 
 private:
   void worker_main();
@@ -60,6 +61,7 @@ private:
   SettingsStore store_;
   std::atomic<bool> running_{false};
   std::atomic<bool> rescan_requested_{false};
+  std::atomic<bool> monster_hud_active_{false};
   std::atomic<std::uint16_t> item_pouch_write_request_{};
   std::atomic<bool> complete_quest_requested_{};
   std::thread worker_;
