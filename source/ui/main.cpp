@@ -1393,7 +1393,7 @@ public:
     FullMode = true;
     alphabackground = 0xD;
     deactivateOriginalFooter = false;
-    TeslaFPS = 60;
+    TeslaFPS = 30;
     tsl::hlp::requestForeground(true);
   }
 
@@ -2000,10 +2000,6 @@ public:
     return frame_;
   }
 
-  void update() override {
-    refresh_mode();
-  }
-
   bool handleInput(
     const u64 keys_down,
     u64,
@@ -2023,8 +2019,7 @@ private:
     FullMode = true;
     alphabackground = 0xD;
     deactivateOriginalFooter = false;
-    TeslaFPS = 60;
-    tsl::hlp::requestForeground(true);
+    TeslaFPS = 30;
   }
 
   void refresh_labels() {
