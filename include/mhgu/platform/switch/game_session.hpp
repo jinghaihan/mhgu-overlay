@@ -10,6 +10,7 @@
 #include "mhgu/platform/switch/game_patches.hpp"
 #include "mhgu/platform/switch/game_profile.hpp"
 #include "mhgu/platform/switch/monster_reader.hpp"
+#include "mhgu/platform/switch/patch_baseline.hpp"
 
 namespace mhgu::platform::switch_adapter {
 
@@ -47,7 +48,7 @@ public:
   const SessionView& view() const;
 
 private:
-  bool attach();
+  bool attach(const core::CoreSettings& settings);
   void detach(SessionStatus status);
   bool sync_frame_rate(core::FrameRate frame_rate);
   bool sync_monster_damage_mode(core::MonsterDamageMode mode);
@@ -63,6 +64,9 @@ private:
   bool set_initialized_{};
 #endif
   DmntMemoryAccess memory_{};
+  PatchBaselineStore baseline_store_{
+    "sdmc:/config/mhgu-overlay/patch-baseline.bin"
+  };
   const GameProfile* profile_{};
   std::unique_ptr<GamePatches> patches_{};
   std::unique_ptr<MonsterReader> reader_{};
@@ -82,9 +86,13 @@ private:
   core::MonsterDamageMode applied_monster_damage_mode_{
     core::MonsterDamageMode::Off
   };
+  bool monster_damage_mode_synced_{};
   std::array<bool, core::kRuntimeFeatureCount> applied_runtime_features_{};
+  std::array<bool, core::kRuntimeFeatureCount> runtime_features_synced_{};
   std::array<core::NumericFeatureSetting, core::kNumericFeatureCount>
     applied_numeric_features_{};
+  std::array<bool, core::kNumericFeatureCount> numeric_features_synced_{};
+  bool baseline_ready_{};
 };
 
 }  // namespace mhgu::platform::switch_adapter

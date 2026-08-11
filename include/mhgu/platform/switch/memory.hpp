@@ -9,6 +9,14 @@ class MemoryAccess {
 public:
   virtual ~MemoryAccess() = default;
 
+  virtual bool pause() {
+    return true;
+  }
+
+  virtual bool resume() {
+    return true;
+  }
+
   virtual bool
   read(std::uint64_t address, void* destination, std::size_t size) = 0;
 

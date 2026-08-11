@@ -6,6 +6,7 @@
 #include "mhgu/core/types.hpp"
 #include "mhgu/platform/switch/game_profile.hpp"
 #include "mhgu/platform/switch/memory.hpp"
+#include "mhgu/platform/switch/patch_baseline.hpp"
 
 namespace mhgu::platform::switch_adapter {
 
@@ -35,16 +36,38 @@ public:
     bool infinite_time, bool unlimited_faints
   );
   QuestOperationResult complete_quest();
+  bool set_runtime_feature(core::RuntimeFeature feature, bool enabled);
   bool enable_runtime_feature(core::RuntimeFeature feature);
   bool set_numeric_feature(core::NumericFeature feature, std::uint32_t value);
+  bool disable_numeric_feature(
+    core::NumericFeature feature, std::uint32_t last_value
+  );
+  bool capture_baseline(
+    const core::CoreSettings& settings, PatchBaseline& baseline
+  );
+  bool set_baseline(const PatchBaseline& baseline);
 
 private:
   bool main_word_patch_address(
     const MainWordPatch& patch, std::uint64_t& address
   ) const;
-  bool apply_main_word_patch(
-    const MainWordPatch& patch, std::uint64_t address
+  bool read_patch_words(
+    const MainWordPatch* patches,
+    std::size_t count,
+    std::array<std::uint64_t, kMaxMainWordPatchesPerFeature>& addresses,
+    std::array<std::uint32_t, kMaxMainWordPatchesPerFeature>& values
   );
+  bool write_patch_words(
+    const MainWordPatch* patches,
+    const std::array<std::uint64_t, kMaxMainWordPatchesPerFeature>& addresses,
+    const std::array<std::uint32_t, kMaxMainWordPatchesPerFeature>& previous,
+    std::size_t count
+  );
+  bool baseline_patch_set(
+    const MainWordPatch* patches,
+    std::size_t count,
+    std::array<MainWordPatch, kMaxMainWordPatchesPerFeature>& baseline
+  ) const;
   QuestOperationResult quest_base(std::uint64_t& base);
   bool quest_address(
     std::uint64_t base, std::uint64_t offset, std::size_t size,
@@ -68,6 +91,14 @@ private:
   std::uint64_t address_space_size_;
   std::uint64_t heap_base_;
   std::uint64_t heap_size_;
+  PatchBaseline baseline_{};
+  bool baseline_ready_{};
+  std::array<
+    std::array<MainWordPatch, kMaxMainWordPatchesPerFeature>,
+    core::kNumericFeatureCount
+  > active_numeric_patches_{};
+  std::array<std::size_t, core::kNumericFeatureCount>
+    active_numeric_patch_counts_{};
 };
 
 }  // namespace mhgu::platform::switch_adapter

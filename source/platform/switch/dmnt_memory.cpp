@@ -6,6 +6,22 @@
 
 namespace mhgu::platform::switch_adapter {
 
+bool DmntMemoryAccess::pause() {
+#ifdef __SWITCH__
+  return R_SUCCEEDED(dmntchtPauseCheatProcess());
+#else
+  return false;
+#endif
+}
+
+bool DmntMemoryAccess::resume() {
+#ifdef __SWITCH__
+  return R_SUCCEEDED(dmntchtResumeCheatProcess());
+#else
+  return false;
+#endif
+}
+
 bool DmntMemoryAccess::read(
   const std::uint64_t address, void* destination, const std::size_t size
 ) {

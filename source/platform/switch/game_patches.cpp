@@ -115,23 +115,182 @@ bool GamePatches::main_word_patch_address(
          contains(main_base_, main_size_, address, sizeof(std::uint32_t));
 }
 
-bool GamePatches::apply_main_word_patch(
-  const MainWordPatch& patch, const std::uint64_t address
+bool GamePatches::read_patch_words(
+  const MainWordPatch* patches,
+  const std::size_t count,
+  std::array<std::uint64_t, kMaxMainWordPatchesPerFeature>& addresses,
+  std::array<std::uint32_t, kMaxMainWordPatchesPerFeature>& values
 ) {
-  std::uint32_t current{};
-  if (!memory_.read(address, &current, sizeof(current))) {
+  if (patches == nullptr || count == 0 || count > addresses.size()) {
     return false;
   }
-  if (current == patch.value) {
+  for (std::size_t index = 0; index < count; ++index) {
+    if (!main_word_patch_address(patches[index], addresses[index]) ||
+        !memory_.read(
+          addresses[index], &values[index], sizeof(values[index])
+        )) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool GamePatches::write_patch_words(
+  const MainWordPatch* patches,
+  const std::array<std::uint64_t, kMaxMainWordPatchesPerFeature>& addresses,
+  const std::array<std::uint32_t, kMaxMainWordPatchesPerFeature>& previous,
+  const std::size_t count
+) {
+  std::size_t attempted{};
+  bool failed{};
+  for (std::size_t index = 0; index < count; ++index) {
+    if (previous[index] == patches[index].value) {
+      continue;
+    }
+    attempted = index + 1;
+    if (!memory_.write(
+          addresses[index], &patches[index].value, sizeof(patches[index].value)
+        )) {
+      failed = true;
+      break;
+    }
+    std::uint32_t verified{};
+    if (!memory_.read(addresses[index], &verified, sizeof(verified)) ||
+        verified != patches[index].value) {
+      failed = true;
+      break;
+    }
+  }
+  if (!failed) {
     return true;
   }
-  if (!memory_.write(address, &patch.value, sizeof(patch.value))) {
+  for (std::size_t index = 0; index < attempted; ++index) {
+    if (previous[index] == patches[index].value) {
+      continue;
+    }
+    memory_.write(addresses[index], &previous[index], sizeof(previous[index]));
+  }
+  return false;
+}
+
+bool GamePatches::baseline_patch_set(
+  const MainWordPatch* patches,
+  const std::size_t count,
+  std::array<MainWordPatch, kMaxMainWordPatchesPerFeature>& baseline
+) const {
+  if (!baseline_ready_ || patches == nullptr || count == 0 ||
+      count > baseline.size()) {
+    return false;
+  }
+  for (std::size_t index = 0; index < count; ++index) {
+    const auto* entry = baseline_.find(patches[index].offset);
+    if (entry == nullptr) {
+      return false;
+    }
+    baseline[index] = {entry->offset, entry->value};
+  }
+  return true;
+}
+
+bool GamePatches::set_baseline(const PatchBaseline& baseline) {
+  if (!patch_baseline_matches_profile(baseline, profile_)) {
+    return false;
+  }
+  baseline_ = baseline;
+  baseline_ready_ = true;
+  return true;
+}
+
+bool GamePatches::capture_baseline(
+  const core::CoreSettings& settings, PatchBaseline& baseline
+) {
+  std::array<std::uint64_t, kMaxPatchBaselineEntries> offsets{};
+  const auto count = collect_patch_offsets(profile_, offsets);
+  if (count == 0 || !memory_.pause()) {
     return false;
   }
 
-  std::uint32_t verified{};
-  return memory_.read(address, &verified, sizeof(verified)) &&
-         verified == patch.value;
+  auto patch_set_is_applied = [this](
+                                const MainWordPatch* patches,
+                                const std::size_t patch_count
+                              ) {
+    if (patch_count == 0 ||
+        patch_count > kMaxMainWordPatchesPerFeature) {
+      return false;
+    }
+    for (std::size_t index = 0; index < patch_count; ++index) {
+      std::uint64_t address{};
+      std::uint32_t current{};
+      if (!main_word_patch_address(patches[index], address) ||
+          !memory_.read(address, &current, sizeof(current)) ||
+          current != patches[index].value) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const MainWordPatch instant_kill{
+    profile_.monster_damage.offset,
+    profile_.monster_damage.instant_kill_value,
+  };
+  const MainWordPatch leave_one_hp{
+    profile_.monster_damage.offset,
+    profile_.monster_damage.leave_one_hp_value,
+  };
+  bool already_patched = patch_set_is_applied(&instant_kill, 1) ||
+                         patch_set_is_applied(&leave_one_hp, 1);
+  for (std::size_t index = 0;
+       !already_patched && index < profile_.runtime_patches.size();
+       ++index) {
+    const auto& patch_set = profile_.runtime_patches[index];
+    already_patched = patch_set_is_applied(
+      patch_set.patches.data(), patch_set.count
+    );
+  }
+  for (std::size_t index = 0;
+       !already_patched && index < settings.numeric_features.size();
+       ++index) {
+    const auto& patch_set = profile_.numeric_patches[index];
+    std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> encoded{};
+    bool valid = patch_set.count > 0 &&
+                 patch_set.count <= patch_set.patches.size();
+    for (std::size_t patch_index = 0;
+         valid && patch_index < patch_set.count;
+         ++patch_index) {
+      valid = encode_numeric_word_patch(
+        patch_set.patches[patch_index],
+        settings.numeric_features[index].value,
+        encoded[patch_index]
+      );
+    }
+    already_patched = valid &&
+                      patch_set_is_applied(encoded.data(), patch_set.count);
+  }
+
+  PatchBaseline captured{};
+  captured.title_id = profile_.title_id;
+  captured.build_id_prefix = profile_.build_id_prefix;
+  captured.count = count;
+  bool success = !already_patched;
+  for (std::size_t index = 0; success && index < count; ++index) {
+    const MainWordPatch target{offsets[index], 0};
+    std::uint64_t address{};
+    captured.entries[index].offset = offsets[index];
+    success = main_word_patch_address(target, address) &&
+              memory_.read(
+                address,
+                &captured.entries[index].value,
+                sizeof(captured.entries[index].value)
+              );
+  }
+  const auto resumed = memory_.resume();
+  if (!success || !resumed ||
+      !patch_baseline_matches_profile(captured, profile_)) {
+    return false;
+  }
+  baseline = captured;
+  return true;
 }
 
 QuestOperationResult GamePatches::quest_base(std::uint64_t& base) {
@@ -247,7 +406,12 @@ bool GamePatches::set_frame_rate(const core::FrameRate frame_rate) {
 bool GamePatches::set_monster_damage_mode(
   const core::MonsterDamageMode mode
 ) {
-  std::uint32_t value{};
+  std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> original{};
+  const MainWordPatch enabled_patch{profile_.monster_damage.offset, 0};
+  if (!baseline_patch_set(&enabled_patch, 1, original)) {
+    return false;
+  }
+  std::uint32_t value = original[0].value;
   switch (mode) {
     case core::MonsterDamageMode::InstantKill:
       value = profile_.monster_damage.instant_kill_value;
@@ -255,14 +419,27 @@ bool GamePatches::set_monster_damage_mode(
     case core::MonsterDamageMode::LeaveOneHp:
       value = profile_.monster_damage.leave_one_hp_value;
       break;
+    case core::MonsterDamageMode::Off:
+      break;
     default:
       return false;
   }
 
   const MainWordPatch patch{profile_.monster_damage.offset, value};
-  std::uint64_t address{};
-  return main_word_patch_address(patch, address) &&
-         apply_main_word_patch(patch, address);
+  if (!memory_.pause()) {
+    return false;
+  }
+  std::array<std::uint64_t, kMaxMainWordPatchesPerFeature> addresses{};
+  std::array<std::uint32_t, kMaxMainWordPatchesPerFeature> current{};
+  bool success = read_patch_words(&patch, 1, addresses, current) &&
+                 (current[0] == original[0].value ||
+                  current[0] == profile_.monster_damage.instant_kill_value ||
+                  current[0] == profile_.monster_damage.leave_one_hp_value) &&
+                 write_patch_words(&patch, addresses, current, 1);
+  if (!memory_.resume()) {
+    success = false;
+  }
+  return success;
 }
 
 bool GamePatches::set_item_pouch_quantity(
@@ -385,8 +562,8 @@ QuestOperationResult GamePatches::complete_quest() {
   return QuestOperationResult::Success;
 }
 
-bool GamePatches::enable_runtime_feature(
-  const core::RuntimeFeature feature
+bool GamePatches::set_runtime_feature(
+  const core::RuntimeFeature feature, const bool enabled
 ) {
   const auto feature_index = core::runtime_feature_index(feature);
   if (feature_index >= profile_.runtime_patches.size()) {
@@ -398,19 +575,37 @@ bool GamePatches::enable_runtime_feature(
   }
 
   std::array<std::uint64_t, kMaxMainWordPatchesPerFeature> addresses{};
-  for (std::size_t index = 0; index < patch_set.count; ++index) {
-    if (!main_word_patch_address(patch_set.patches[index], addresses[index])) {
-      return false;
-    }
+  std::array<std::uint32_t, kMaxMainWordPatchesPerFeature> current{};
+  std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> original{};
+  if (!baseline_patch_set(
+        patch_set.patches.data(), patch_set.count, original
+      ) ||
+      !memory_.pause()) {
+    return false;
   }
+  bool success = read_patch_words(
+    patch_set.patches.data(), patch_set.count, addresses, current
+  );
+  bool all_original = success;
+  bool all_enabled = success;
   for (std::size_t index = 0; index < patch_set.count; ++index) {
-    if (!apply_main_word_patch(
-          patch_set.patches[index], addresses[index]
-        )) {
-      return false;
-    }
+    all_original = all_original && current[index] == original[index].value;
+    all_enabled = all_enabled &&
+                  current[index] == patch_set.patches[index].value;
   }
-  return true;
+  const auto* desired = enabled ? patch_set.patches.data() : original.data();
+  success = success && (all_original || all_enabled) &&
+            write_patch_words(desired, addresses, current, patch_set.count);
+  if (!memory_.resume()) {
+    success = false;
+  }
+  return success;
+}
+
+bool GamePatches::enable_runtime_feature(
+  const core::RuntimeFeature feature
+) {
+  return set_runtime_feature(feature, true);
 }
 
 bool GamePatches::set_numeric_feature(
@@ -428,6 +623,7 @@ bool GamePatches::set_numeric_feature(
   }
 
   std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> encoded{};
+  std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> original{};
   std::array<std::uint64_t, kMaxMainWordPatchesPerFeature> addresses{};
   for (std::size_t index = 0; index < patch_set.count; ++index) {
     if (!encode_numeric_word_patch(
@@ -437,12 +633,99 @@ bool GamePatches::set_numeric_feature(
       return false;
     }
   }
+  if (!baseline_patch_set(encoded.data(), patch_set.count, original) ||
+      !memory_.pause()) {
+    return false;
+  }
+  std::array<std::uint32_t, kMaxMainWordPatchesPerFeature> current{};
+  bool success = read_patch_words(
+    encoded.data(), patch_set.count, addresses, current
+  );
+  bool all_original = success;
+  bool all_desired = success;
+  bool all_previous =
+    success && active_numeric_patch_counts_[feature_index] == patch_set.count;
   for (std::size_t index = 0; index < patch_set.count; ++index) {
-    if (!apply_main_word_patch(encoded[index], addresses[index])) {
+    all_original = all_original && current[index] == original[index].value;
+    all_desired = all_desired && current[index] == encoded[index].value;
+    all_previous = all_previous &&
+                   current[index] ==
+                     active_numeric_patches_[feature_index][index].value;
+  }
+  success = success && (all_original || all_desired || all_previous) &&
+            write_patch_words(
+              encoded.data(), addresses, current, patch_set.count
+            );
+  if (!memory_.resume()) {
+    success = false;
+  }
+  if (!success) {
+    return false;
+  }
+  active_numeric_patches_[feature_index] = encoded;
+  active_numeric_patch_counts_[feature_index] = patch_set.count;
+  return true;
+}
+
+bool GamePatches::disable_numeric_feature(
+  const core::NumericFeature feature, const std::uint32_t last_value
+) {
+  const auto feature_index = core::numeric_feature_index(feature);
+  if (feature_index >= profile_.numeric_patches.size()) {
+    return false;
+  }
+  const auto& patch_set = profile_.numeric_patches[feature_index];
+  if (patch_set.count == 0 || patch_set.count > patch_set.patches.size()) {
+    return false;
+  }
+  std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> targets{};
+  std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> last_encoded{};
+  for (std::size_t index = 0; index < patch_set.count; ++index) {
+    targets[index].offset = patch_set.patches[index].offset;
+    if (!encode_numeric_word_patch(
+          patch_set.patches[index], last_value, last_encoded[index]
+        )) {
       return false;
     }
   }
-  return true;
+  std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> original{};
+  if (!baseline_patch_set(
+        targets.data(), patch_set.count, original
+      )) {
+    return false;
+  }
+  if (!memory_.pause()) {
+    return false;
+  }
+  std::array<std::uint64_t, kMaxMainWordPatchesPerFeature> addresses{};
+  std::array<std::uint32_t, kMaxMainWordPatchesPerFeature> current{};
+  bool success = read_patch_words(
+    targets.data(), patch_set.count, addresses, current
+  );
+  bool all_original = success;
+  bool all_previous =
+    success && active_numeric_patch_counts_[feature_index] == patch_set.count;
+  bool all_last_encoded = success;
+  for (std::size_t index = 0; index < patch_set.count; ++index) {
+    all_original = all_original && current[index] == original[index].value;
+    all_previous = all_previous &&
+                   current[index] ==
+                     active_numeric_patches_[feature_index][index].value;
+    all_last_encoded = all_last_encoded &&
+                       current[index] == last_encoded[index].value;
+  }
+  success = success &&
+            (all_original || all_previous || all_last_encoded) &&
+            write_patch_words(
+              original.data(), addresses, current, patch_set.count
+            );
+  if (!memory_.resume()) {
+    success = false;
+  }
+  if (success) {
+    active_numeric_patch_counts_[feature_index] = 0;
+  }
+  return success;
 }
 
 }  // namespace mhgu::platform::switch_adapter

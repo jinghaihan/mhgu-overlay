@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <vector>
@@ -37,6 +38,13 @@ public:
     if (address > bytes_.size() || size > bytes_.size() - address) {
       return false;
     }
+    if (write_failure_enabled_) {
+      if (successful_writes_before_failure_ == 0) {
+        write_failure_enabled_ = false;
+        return false;
+      }
+      --successful_writes_before_failure_;
+    }
     std::memcpy(bytes_.data() + address, source, size);
     ++write_count_;
     return true;
@@ -56,9 +64,16 @@ public:
     return write_count_;
   }
 
+  void fail_write_after(const std::size_t successful_writes) {
+    write_failure_enabled_ = true;
+    successful_writes_before_failure_ = successful_writes;
+  }
+
 private:
   std::vector<std::uint8_t> bytes_;
   std::size_t write_count_{};
+  std::size_t successful_writes_before_failure_{};
+  bool write_failure_enabled_{};
 };
 
 }  // namespace
@@ -908,6 +923,30 @@ int main() {
     kItemPouchHeapBase,
     kItemPouchHeapSize
   );
+  core::CoreSettings clean_settings{};
+  PatchBaseline baseline{};
+  assert(patches.capture_baseline(clean_settings, baseline));
+  assert(patches.set_baseline(baseline));
+  const char* baseline_path = "/tmp/mhgu-overlay-patch-baseline-test.bin";
+  std::remove(baseline_path);
+  PatchBaselineStore baseline_store{baseline_path};
+  assert(baseline_store.save(profile, baseline));
+  PatchBaseline loaded_baseline{};
+  assert(baseline_store.load(profile, loaded_baseline));
+  assert(loaded_baseline.count == baseline.count);
+  assert(
+    loaded_baseline.find(profile.monster_damage.offset)->value ==
+    kOriginalMonsterDamageInstruction
+  );
+  auto wrong_baseline_profile = profile;
+  wrong_baseline_profile.build_id_prefix[0] ^= 0xFFU;
+  assert(!baseline_store.load(wrong_baseline_profile, loaded_baseline));
+  auto* corrupt_baseline = std::fopen(baseline_path, "ab");
+  assert(corrupt_baseline != nullptr);
+  assert(std::fputc(0, corrupt_baseline) != EOF);
+  assert(std::fclose(corrupt_baseline) == 0);
+  assert(!baseline_store.load(profile, loaded_baseline));
+  std::remove(baseline_path);
   assert(!patches.enable_runtime_feature(core::RuntimeFeature::Count));
   auto patch_writes = memory.write_count();
   assert(patches.set_frame_rate(core::FrameRate::Fps60));
@@ -957,7 +996,7 @@ int main() {
   );
 
   patch_writes = memory.write_count();
-  assert(!patches.set_monster_damage_mode(core::MonsterDamageMode::Off));
+  assert(patches.set_monster_damage_mode(core::MonsterDamageMode::Off));
   assert(memory.write_count() == patch_writes);
   assert(patches.set_monster_damage_mode(
     core::MonsterDamageMode::InstantKill
@@ -1889,16 +1928,35 @@ int main() {
     0,
     0,
   };
-  memory.store(kMainBase + 0x198, std::uint32_t{0xE1A00000});
-  memory.store(kMainBase + 0x19C, std::uint32_t{0xE1A00000});
-  GamePatches compound_numeric(
-    memory, compound_numeric_profile, kMainBase, 0x1000, 0, 0x20000
+  FakeMemory compound_memory{0x20000};
+  compound_memory.store(
+    kMainBase + 0x198, std::uint32_t{0xE1A00000}
   );
+  compound_memory.store(
+    kMainBase + 0x19C, std::uint32_t{0xE1A00000}
+  );
+  GamePatches compound_numeric(
+    compound_memory,
+    compound_numeric_profile,
+    kMainBase,
+    0x1000,
+    0,
+    0x20000
+  );
+  PatchBaseline compound_baseline{};
+  assert(compound_numeric.capture_baseline(
+    clean_settings, compound_baseline
+  ));
+  assert(compound_numeric.set_baseline(compound_baseline));
   assert(compound_numeric.set_numeric_feature(
     core::NumericFeature::HunterAffinity, 4
   ));
-  assert(memory.load<std::uint32_t>(kMainBase + 0x198) == 0xE3A02003);
-  assert(memory.load<std::uint32_t>(kMainBase + 0x19C) == 0xE3A00001);
+  assert(
+    compound_memory.load<std::uint32_t>(kMainBase + 0x198) == 0xE3A02003
+  );
+  assert(
+    compound_memory.load<std::uint32_t>(kMainBase + 0x19C) == 0xE3A00001
+  );
 
   patch_writes = memory.write_count();
   assert(patches.enable_runtime_feature(
@@ -1923,6 +1981,83 @@ int main() {
         kMainBase + profile.runtime_patches[armor_transmog_index]
           .patches[index].offset
       ) == profile.runtime_patches[armor_transmog_index].patches[index].value
+    );
+  }
+
+  GamePatches patched_capture(
+    memory, profile, kMainBase, 0x1000, 0, 0x20000
+  );
+  PatchBaseline rejected_baseline{};
+  assert(!patched_capture.capture_baseline(
+    clean_settings, rejected_baseline
+  ));
+
+  assert(patches.set_monster_damage_mode(core::MonsterDamageMode::Off));
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + profile.monster_damage.offset
+    ) == kOriginalMonsterDamageInstruction
+  );
+  assert(patches.set_runtime_feature(
+    core::RuntimeFeature::ArmorTransmog, false
+  ));
+  for (std::size_t index = 0; index < 2; ++index) {
+    assert(
+      memory.load<std::uint32_t>(
+        kMainBase + profile.runtime_patches[armor_transmog_index]
+          .patches[index].offset
+      ) == kOriginalArmorTransmogInstruction
+    );
+  }
+  assert(patches.disable_numeric_feature(
+    core::NumericFeature::Zenny, 0x123456
+  ));
+  for (std::size_t index = 0; index < 5; ++index) {
+    assert(
+      memory.load<std::uint32_t>(
+        kMainBase + profile.numeric_patches[zenny_index].patches[index].offset
+      ) == kOriginalZennyInstruction
+    );
+  }
+
+  assert(patches.set_runtime_feature(
+    core::RuntimeFeature::WeaponTransmog, false
+  ));
+  assert(patches.set_runtime_feature(
+    core::RuntimeFeature::WeaponTransmog, true
+  ));
+  constexpr std::uint32_t kConflictingInstruction = 0xDEADBEEF;
+  const auto& weapon_transmog = profile.runtime_patches[weapon_transmog_index];
+  memory.store(
+    kMainBase + weapon_transmog.patches[0].offset,
+    kConflictingInstruction
+  );
+  assert(!patches.set_runtime_feature(
+    core::RuntimeFeature::WeaponTransmog, false
+  ));
+  assert(
+    memory.load<std::uint32_t>(
+      kMainBase + weapon_transmog.patches[1].offset
+    ) == weapon_transmog.patches[1].value
+  );
+  memory.store(
+    kMainBase + weapon_transmog.patches[0].offset,
+    weapon_transmog.patches[0].value
+  );
+  assert(patches.set_runtime_feature(
+    core::RuntimeFeature::WeaponTransmog, false
+  ));
+
+  memory.fail_write_after(1);
+  assert(!patches.set_runtime_feature(
+    core::RuntimeFeature::ArmorTransmog, true
+  ));
+  for (std::size_t index = 0; index < 2; ++index) {
+    assert(
+      memory.load<std::uint32_t>(
+        kMainBase + profile.runtime_patches[armor_transmog_index]
+          .patches[index].offset
+      ) == kOriginalArmorTransmogInstruction
     );
   }
 

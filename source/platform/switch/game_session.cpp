@@ -54,7 +54,7 @@ void GameSession::shutdown() {
   initialized_ = false;
 }
 
-bool GameSession::attach() {
+bool GameSession::attach(const core::CoreSettings& settings) {
 #ifdef __SWITCH__
   bool has_process{};
   if (R_FAILED(dmntchtHasCheatProcess(&has_process))) {
@@ -107,14 +107,24 @@ bool GameSession::attach() {
       heap_base_,
       heap_size_
     );
+    PatchBaseline baseline{};
+    baseline_ready_ = baseline_store_.load(*profile_, baseline);
+    if (!baseline_ready_) {
+      baseline_ready_ = patches_->capture_baseline(settings, baseline) &&
+                        baseline_store_.save(*profile_, baseline);
+    }
+    baseline_ready_ = baseline_ready_ && patches_->set_baseline(baseline);
     reader_ = std::make_unique<MonsterReader>(
       memory_, *profile_, heap_base_, heap_size_
     );
     frame_rate_applied_ = false;
     applied_frame_rate_ = core::FrameRate::Fps30;
     applied_monster_damage_mode_ = core::MonsterDamageMode::Off;
+    monster_damage_mode_synced_ = false;
     applied_runtime_features_ = {};
+    runtime_features_synced_ = {};
     applied_numeric_features_ = {};
+    numeric_features_synced_ = {};
     pointer_read_failures_ = 0;
     damage_tracker_.reset();
     view_ = {};
@@ -126,6 +136,7 @@ bool GameSession::attach() {
   }
   return true;
 #else
+  static_cast<void>(settings);
   detach(SessionStatus::NoGame);
   return false;
 #endif
@@ -146,8 +157,12 @@ void GameSession::detach(const SessionStatus status) {
   frame_rate_applied_ = false;
   applied_frame_rate_ = core::FrameRate::Fps30;
   applied_monster_damage_mode_ = core::MonsterDamageMode::Off;
+  monster_damage_mode_synced_ = false;
   applied_runtime_features_ = {};
+  runtime_features_synced_ = {};
   applied_numeric_features_ = {};
+  numeric_features_synced_ = {};
+  baseline_ready_ = false;
   damage_tracker_.reset();
   view_ = {};
   view_.status = status;
@@ -168,7 +183,7 @@ bool GameSession::sync_frame_rate(const core::FrameRate frame_rate) {
 bool GameSession::sync_monster_damage_mode(
   const core::MonsterDamageMode mode
 ) {
-  if (mode == core::MonsterDamageMode::Off ||
+  if (monster_damage_mode_synced_ &&
       mode == applied_monster_damage_mode_) {
     return true;
   }
@@ -176,6 +191,7 @@ bool GameSession::sync_monster_damage_mode(
     return false;
   }
   applied_monster_damage_mode_ = mode;
+  monster_damage_mode_synced_ = true;
   return true;
 }
 
@@ -184,17 +200,20 @@ bool GameSession::sync_runtime_features(
 ) {
   bool success = true;
   for (std::size_t index = 0; index < core::kRuntimeFeatureCount; ++index) {
-    if (!settings.runtime_features[index] ||
-        applied_runtime_features_[index]) {
+    const auto requested = settings.runtime_features[index];
+    if (runtime_features_synced_[index] &&
+        requested == applied_runtime_features_[index]) {
       continue;
     }
-    if (patches_ == nullptr || !patches_->enable_runtime_feature(
-                                 static_cast<core::RuntimeFeature>(index)
+    if (patches_ == nullptr || !patches_->set_runtime_feature(
+                                 static_cast<core::RuntimeFeature>(index),
+                                 requested
                                )) {
       success = false;
       continue;
     }
-    applied_runtime_features_[index] = true;
+    applied_runtime_features_[index] = requested;
+    runtime_features_synced_[index] = true;
   }
   return success;
 }
@@ -206,18 +225,26 @@ bool GameSession::sync_numeric_features(
   for (std::size_t index = 0; index < core::kNumericFeatureCount; ++index) {
     const auto& requested = settings.numeric_features[index];
     auto& applied = applied_numeric_features_[index];
-    if (!requested.enabled ||
-        (applied.enabled && applied.value == requested.value)) {
+    if (numeric_features_synced_[index] &&
+        applied.enabled == requested.enabled &&
+        (!requested.enabled || applied.value == requested.value)) {
       continue;
     }
-    if (patches_ == nullptr || !patches_->set_numeric_feature(
-                                 static_cast<core::NumericFeature>(index),
-                                 requested.value
-                               )) {
+    const auto feature = static_cast<core::NumericFeature>(index);
+    bool applied_ok{};
+    if (patches_ != nullptr && requested.enabled) {
+      applied_ok = patches_->set_numeric_feature(feature, requested.value);
+    } else if (patches_ != nullptr) {
+      applied_ok = patches_->disable_numeric_feature(
+        feature, requested.value
+      );
+    }
+    if (!applied_ok) {
       success = false;
       continue;
     }
     applied = requested;
+    numeric_features_synced_[index] = true;
   }
   return success;
 }
@@ -238,14 +265,18 @@ void GameSession::poll(const core::CoreSettings& settings) {
     detach(SessionStatus::NoGame);
     return;
   }
-  if (!attach() || reader_ == nullptr) {
+  if (!attach(settings) || reader_ == nullptr) {
     return;
   }
   const auto frame_rate_ok = sync_frame_rate(settings.frame_rate);
-  const auto monster_damage_mode_ok =
-    sync_monster_damage_mode(settings.monster_damage_mode);
-  const auto runtime_features_ok = sync_runtime_features(settings);
-  const auto numeric_features_ok = sync_numeric_features(settings);
+  const auto monster_damage_mode_ok = baseline_ready_ &&
+                                      sync_monster_damage_mode(
+                                        settings.monster_damage_mode
+                                      );
+  const auto runtime_features_ok = baseline_ready_ &&
+                                   sync_runtime_features(settings);
+  const auto numeric_features_ok = baseline_ready_ &&
+                                   sync_numeric_features(settings);
   const auto quest_features_result = sync_quest_features(settings);
   view_.patch_write_failed =
     !frame_rate_ok || !monster_damage_mode_ok || !runtime_features_ok ||
