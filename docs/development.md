@@ -212,6 +212,17 @@ Kiranico is authoritative for base sizes and crown thresholds.
 the Kiranico-derived write range. The range is per monster, not per quest or
 map.
 
+The player-facing crown-size reference is independent from the write range.
+Regenerate it from the current catalog and MH Crown pages with:
+
+```sh
+python3 tools/generate_size_reference.py
+```
+
+Review every reported mismatch and unavailable page before committing the
+generated `docs/monster-size-reference.md` file. This command never changes
+the Overlay's legal size ranges.
+
 ## Release version
 
 `VERSION` is the single version source. From a clean, synchronized `main`

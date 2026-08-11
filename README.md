@@ -155,6 +155,8 @@ Both transmog options can be disabled again during the current game process.
   future adapters
 - [Size presets and safety](docs/size-lock.md) — behavior and write-safety
   limits
+- [Crown size reference](docs/monster-size-reference.md) — Kiranico crown
+  thresholds compared with MH Crown's documented extremes
 
 ## Credits
 
