@@ -143,16 +143,28 @@ The map and large-monster-location selector applies two static ARM instruction
 patches from the same build profile. Both addresses are validated against the
 main NSO before either write begins; each write is then read back immediately.
 The carry-items-into-pouch and invincibility selectors each apply one
-instruction through the same validated path. These are one-way memory patches:
-the requested **On**/**Off** state is persisted, and **Off** prevents the patch
-from being applied on the next game launch. A patch already written in the
-current process is not reversed; restoring the original instructions is left to
-a game restart.
+instruction through the same validated path.
 
-One-way selectors are represented as bounded patch sets keyed by a portable
-runtime-feature identifier. The application model and session track requested
-and applied features in fixed-size arrays, while all raw offsets and
-instructions remain inside the MHGU build profile.
+Code-patch selectors are reversible. Before applying any saved patch state,
+the adapter loads a baseline keyed by the MHGU title ID, recognized build-ID
+prefix, and the complete sorted set of profile offsets. A missing baseline is
+captured only while the game process is paused and only when live memory does
+not already match a known monster-damage, runtime-feature, or saved numeric
+patch signature. The baseline is checksummed and persisted atomically at
+`sdmc:/config/mhgu-overlay/patch-baseline.bin`, so unloading and reopening the
+Tesla overlay does not lose the original instructions.
+
+Enabling, changing, or disabling a patch pauses the process and validates the
+entire affected patch set before writing. Every word is read back immediately.
+If a write fails, previously written words are rolled back to their
+pre-operation values; if an unexpected instruction is present, no word in the
+set is changed. **Off** therefore restores the captured originals during the
+current game process instead of waiting for a restart.
+
+Selectors remain bounded patch sets keyed by portable feature identifiers. The
+application model and session track requested, synchronized, and applied states
+in fixed-size arrays, while all raw offsets and replacement instructions remain
+inside the MHGU build profile.
 
 Quest operations use a separate profile layout. The adapter loads the game's
 32-bit quest-object pointer from the recognized main module, validates every
@@ -272,6 +284,7 @@ Host CI checks:
 - bounded, verified size writes;
 - bounded, verified 30/60 FPS writes;
 - version-gated, bounded static instruction patches;
+- baseline identity, persistence, restoration, and conflict rejection;
 - settings persistence.
 
 Switch CI compiles the complete `.ovl` with devkitA64 and both submodules. Hardware testing remains necessary for process permissions, firmware behavior, pointer profiles, visual layout, hitboxes, crown registration, and save effects.

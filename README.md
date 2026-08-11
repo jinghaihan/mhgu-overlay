@@ -12,9 +12,9 @@ appearance, hunter and Palico combat values, resources, and item-pouch edits.
 > Overlay features modify live game memory. Back up your save before enabling
 > memory features, avoid online use, and read
 > [Size presets and safety](docs/size-lock.md).
-> One-way code patches cannot be disabled from the menu after they have been
-> applied. Exit the overlay and restart the game to restore the original game
-> code.
+> After installing a version with reversible patches for the first time,
+> fully restart MHGU before opening the overlay. This lets the overlay capture
+> a clean, version-gated copy of the original game instructions.
 
 <p align="center">
   <img src="./assets/screenshot.jpg" alt="MHGU monster overlay" width="520" />
@@ -51,7 +51,7 @@ The main menu is ordered as follows:
 | **Weapon transmog** | Enables the game's weapon appearance/transmog path. |
 | **Armor transmog** | Enables the game's armor appearance/transmog path. |
 
-Both transmog options are one-way code patches for the current game process.
+Both transmog options can be disabled again during the current game process.
 
 ### Hunter
 
@@ -138,13 +138,14 @@ Both transmog options are one-way code patches for the current game process.
   `sdmc:/config/mhgu-overlay/settings.ini`.
 - Runtime patch states, numeric-feature enabled states, and monster damage mode
   are saved. Press `A` on a patch or numeric row to toggle it between **On** and
-  **Off**; an **Off** state prevents that patch from being applied on the next
-  game launch.
-- Selecting **Off** for monster damage mode stops further writes. If an active
-  damage mode or another one-way patch has already changed game code, the
-  current game process remains patched until it is restarted. Restart the game
-  to restore the original instructions; the saved **Off** state then keeps the
-  patch disabled.
+  **Off**. Selecting **Off** restores the original instructions immediately;
+  the saved state also prevents the patch from being applied on the next game
+  launch.
+- Original instructions are stored separately in
+  `sdmc:/config/mhgu-overlay/patch-baseline.bin`. The file is accepted only
+  when its game identity, build ID, patch offsets, and checksum match the
+  active profile. If a safe baseline cannot be established, the overlay
+  refuses code-patch writes instead of guessing the original instructions.
 
 ## Documentation
 
