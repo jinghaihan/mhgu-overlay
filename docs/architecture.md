@@ -213,6 +213,14 @@ Tesla rendering and memory scanning have different timing requirements.
 
 The compact HUD draws independent translucent monster cards using a persisted layout preset: bottom-left vertical, left-center vertical, top-right vertical, right-center vertical, or top-center horizontal. The top-center layout uses up to three centered columns and wraps additional cards; unusually large card stacks move damage events lower to avoid overlap. Its information hierarchy is inspired by desktop overlays, while the implementation and visual treatment are native to this project. An optional portable damage tracker converts decreases between health samples into short-lived events; Tesla renders those events as animated values at a fixed screen position rather than attempting to project monster coordinates. The HUD releases foreground input to the game, renders at a higher refresh rate while damage display is enabled, and otherwise uses the lower refresh rate. Holding both sticks returns to the full settings UI.
 
+The Tesla UI is organized under `source/ui/components/` by responsibility:
+damage text, shared menu items, HUD rendering, submenus, and the main menu.
+These `.hpp` files are intentionally assembled by `source/ui/main.cpp` into a
+single translation unit. The bundled libtesla fork defines non-inline runtime
+symbols in its public header, so compiling several Tesla-facing `.cpp` files
+would create duplicate linker definitions. This structure keeps navigation and
+editing manageable without weakening linker checks or modifying the submodule.
+
 ## Quest size preset flow
 
 ```mermaid
