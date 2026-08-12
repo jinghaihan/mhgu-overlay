@@ -17,7 +17,7 @@ appearance, hunter and Palico combat values, resources, and item-pouch edits.
 > a clean, version-gated copy of the original game instructions.
 
 <p align="center">
-  <img src="./assets/screenshot.jpg" alt="MHGU monster overlay" width="520" />
+  <img src="./assets/mhgu-overlay.gif" alt="MHGU Overlay demonstration" />
 </p>
 
 ## Menu and features
