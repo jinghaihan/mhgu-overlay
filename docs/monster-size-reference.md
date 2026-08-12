@@ -11,7 +11,7 @@ event-only, exclusive to a special individual, or otherwise outside the regular
 range. Percentages are calculated from Kiranico's base size; display differences
 may be caused by rounding at the source.
 
-The table covers 83 monsters with variable sizes. 5 threshold comparisons differ only by 0.01, 1 does not match, and 4 MH Crown pages do not provide crown-size data. Fixed-size monsters and monsters without crown classification are omitted.
+The table covers 83 monsters with variable sizes. 5 threshold comparisons differ only by 0.01, none fail to match, and 4 MH Crown pages do not provide crown-size data. Fixed-size monsters and monsters without crown classification are omitted.
 
 | Monster | Kiranico thresholds | MH Crown extremes | Comparison |
 |---|---:|---:|---|
@@ -55,7 +55,7 @@ The table covers 83 monsters with variable sizes. 5 threshold comparisons differ
 | [水龙](https://mhxx.kiranico.com/en/mon/76a56) | Miniature ≤ 2362.35 (90%)<br>Gold ≥ 3228.54 (123%) | Smallest miniature: 2309.85 (88%)<br>Largest gold: 3281.04 (125%)<br>[Source](https://mhcrown.com/mhgu/plesioth/) | Thresholds match |
 | [雪狮子王](https://mhxx.kiranico.com/en/mon/6a056) | Miniature ≤ 773.92 (90%)<br>Gold ≥ 1057.69 (123%) | Smallest miniature: 756.72 (88%)<br>Largest gold: 1074.89 (125%)<br>[Source](https://mhcrown.com/mhgu/blangonga/) | Thresholds match |
 | [熔岩龙](https://mhxx.kiranico.com/en/mon/6ba96) | Miniature ≤ 1869.90 (90%)<br>Gold ≥ 2555.53 (123%) | Smallest miniature: 1828.35 (88%)<br>Largest gold: 2597.09 (125%)<br>[Source](https://mhcrown.com/mhgu/lavasioth/) | Thresholds match |
-| [将军镰蟹](https://mhxx.kiranico.com/en/mon/6bb96) | Miniature ≤ 538.19 (90%)<br>Gold ≥ 735.53 (123%) | Smallest miniature: 1042.23 (174.29%)<br>Largest gold: 1480.44 (247.57%)<br>[Source](https://mhcrown.com/mhgu/shogunceanataur/) | ⚠ Threshold mismatch |
+| [将军镰蟹](https://mhxx.kiranico.com/en/mon/6bb96) | Miniature ≤ 538.19 (90%)<br>Gold ≥ 735.53 (123%) | Smallest miniature: 526.23 (88%)<br>Largest gold: 747.49 (125%)<br>[Source](https://mhcrown.com/mhxx/shogunceanataur/) | Thresholds match |
 | [铠裂将军镰蟹](https://mhxx.kiranico.com/en/mon/6a044) | Miniature ≤ 660.90 (96%)<br>Gold ≥ 784.82 (114%) | Smallest miniature: 654.02 (95%)<br>Largest gold: 791.71 (115%)<br>[Source](https://mhcrown.com/mhgu/rustrazorceanataur/) | Thresholds match |
 | [绞蛇龙](https://mhxx.kiranico.com/en/mon/69a46) | Miniature ≤ 3649.50 (90%)<br>Gold ≥ 4987.65 (123%) | Smallest miniature: 3568.40 (88%)<br>Largest gold: 5068.75 (125%)<br>[Source](https://mhcrown.com/mhgu/najarala/) | Thresholds match |
 | [迅龙](https://mhxx.kiranico.com/en/mon/6a856) | Miniature ≤ 1441.97 (90%)<br>Gold ≥ 1970.69 (123%) | Smallest miniature: 1409.93 (88%)<br>Largest gold: 2002.74 (125%)<br>[Source](https://mhcrown.com/mhgu/nargacuga/) | Thresholds match |
@@ -106,6 +106,8 @@ The table covers 83 monsters with variable sizes. 5 threshold comparisons differ
 - `Special minimum/maximum` identifies DLC, event, special-individual, or
   out-of-range sizes. It is useful for record checking but is not a regular
   quest extremum.
+- Some ordinary quests deliberately exceed the usual gold-crown range. These
+  legitimate quest-specific outliers remain in the listed extremes.
 - `Thresholds match` means that MH Crown lists both Kiranico crown boundaries;
   it does not mean that the two sites claim identical absolute extrema.
 - A difference of 0.01 is treated as source display rounding.
@@ -118,7 +120,7 @@ The table covers 83 monsters with variable sizes. 5 threshold comparisons differ
 
 - [Kiranico MHXX](https://mhxx.kiranico.com/en/mon): base sizes and crown
   thresholds.
-- [MH Crown MHGU](https://mhcrown.com/mhgu/): discrete crown sizes and
+- [MH Crown MHXX/MHGU](https://mhcrown.com/): discrete crown sizes and
   special-size markers.
 
 This document summarizes numerical facts only. It does not reproduce source

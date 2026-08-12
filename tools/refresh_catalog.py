@@ -142,6 +142,7 @@ def build_catalog(
 ) -> dict:
   seed = json.loads(SEED_PATH.read_text(encoding="utf-8"))
   rows = seed["monsters"]
+  crown_validation_overrides = seed.get("crownValidationOverrides", {})
   fetched: dict[str, PageFacts] = {}
   with ThreadPoolExecutor(max_workers=jobs) as executor:
     futures = {executor.submit(fetch_facts, row[0]): row[0] for row in rows}
@@ -188,9 +189,12 @@ def build_catalog(
         "switch": {"rawId": raw_id},
         "sources": {
           "sizeAndNames": f"{BASE_URL}/{kiranico_id}",
-          "crownValidation": (
-            f"https://mhcrown.com/mhgu/{key.replace('-', '')}/" if variable else None
-          ),
+          "crownValidation": crown_validation_overrides.get(
+            key,
+            f"https://mhcrown.com/mhgu/{key.replace('-', '')}/",
+          )
+          if variable
+          else None,
         },
       }
     )

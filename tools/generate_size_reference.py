@@ -49,21 +49,23 @@ def size_percent(base_x100: int, size: Decimal) -> str:
   return f"{rounded:.2f}".rstrip("0").rstrip(".") + "%"
 
 
-def section(document: str, heading: str) -> str:
-  start_pattern = re.compile(
-    rf'<p\s+class="menuLine">\s*{re.escape(heading)}\s*</p>',
-    re.IGNORECASE,
-  )
-  start = start_pattern.search(document)
-  if start is None:
-    return ""
-  remainder = document[start.end() :]
-  paragraph = re.search(
-    r"<p(?:\s[^>]*)?>(.*?)</p>",
-    remainder,
-    re.IGNORECASE | re.DOTALL,
-  )
-  return paragraph.group(1) if paragraph is not None else ""
+def section(document: str, heading: str, *aliases: str) -> str:
+  for candidate in (heading, *aliases):
+    start_pattern = re.compile(
+      rf'<p\s+class="menuLine">\s*{re.escape(candidate)}\s*</p>',
+      re.IGNORECASE,
+    )
+    start = start_pattern.search(document)
+    if start is None:
+      continue
+    remainder = document[start.end() :]
+    paragraph = re.search(
+      r"<p(?:\s[^>]*)?>(.*?)</p>",
+      remainder,
+      re.IGNORECASE | re.DOTALL,
+    )
+    return paragraph.group(1) if paragraph is not None else ""
+  return ""
 
 
 def parse_sizes(fragment: str) -> tuple[CrownSize, ...]:
@@ -83,13 +85,9 @@ def parse_sizes(fragment: str) -> tuple[CrownSize, ...]:
         "特殊個体専用サイズ",
       )
     )
-    for match in SIZE_PATTERN.finditer(visible):
-      parsed.append(
-        CrownSize(
-          Decimal(match.group(0).replace(",", "")),
-          special_only,
-        )
-      )
+    match = SIZE_PATTERN.search(visible)
+    if match is not None:
+      parsed.append(CrownSize(Decimal(match.group(0).replace(",", "")), special_only))
   return tuple(parsed)
 
 
@@ -105,8 +103,8 @@ def fetch_mhcrown(
       with urlopen(request, timeout=timeout) as response:
         document = response.read().decode("utf-8")
       facts = MhCrownFacts(
-        parse_sizes(section(document, "Miniature Crown")),
-        parse_sizes(section(document, "Gold Crown")),
+        parse_sizes(section(document, "Miniature Crown", "最小金冠")),
+        parse_sizes(section(document, "Gold Crown", "最大金冠")),
       )
       if not facts.miniature and not facts.gold:
         return None
@@ -213,7 +211,12 @@ def generate_document(
       f"| [{name}]({source}) | {kiranico_text(monster)} | "
       f"{mhcrown_text(monster, mhcrown)} | {comparison} |"
     )
-  mismatch_verb = "does" if mismatch_count == 1 else "do"
+  if mismatch_count == 0:
+    mismatch_summary = "none fail to match"
+  elif mismatch_count == 1:
+    mismatch_summary = "1 does not match"
+  else:
+    mismatch_summary = f"{mismatch_count} do not match"
 
   return "\n".join(
     [
@@ -232,7 +235,7 @@ def generate_document(
       "",
       f"The table covers {len(monsters)} monsters with variable sizes. "
       f"{approximate_count} threshold comparisons differ only by 0.01, "
-      f"{mismatch_count} {mismatch_verb} not match, and "
+      f"{mismatch_summary}, and "
       f"{unavailable_count} MH Crown pages "
       "do not provide crown-size data. Fixed-size monsters and monsters without crown "
       "classification are omitted.",
@@ -248,6 +251,8 @@ def generate_document(
       "- `Special minimum/maximum` identifies DLC, event, special-individual, or",
       "  out-of-range sizes. It is useful for record checking but is not a regular",
       "  quest extremum.",
+      "- Some ordinary quests deliberately exceed the usual gold-crown range. These",
+      "  legitimate quest-specific outliers remain in the listed extremes.",
       "- `Thresholds match` means that MH Crown lists both Kiranico crown boundaries;",
       "  it does not mean that the two sites claim identical absolute extrema.",
       "- A difference of 0.01 is treated as source display rounding.",
@@ -260,7 +265,7 @@ def generate_document(
       "",
       "- [Kiranico MHXX](https://mhxx.kiranico.com/en/mon): base sizes and crown",
       "  thresholds.",
-      "- [MH Crown MHGU](https://mhcrown.com/mhgu/): discrete crown sizes and",
+      "- [MH Crown MHXX/MHGU](https://mhcrown.com/): discrete crown sizes and",
       "  special-size markers.",
       "",
       "This document summarizes numerical facts only. It does not reproduce source",

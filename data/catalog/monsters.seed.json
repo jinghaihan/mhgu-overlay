@@ -4,6 +4,9 @@
     "catalog": "This file only connects stable project keys, upstream record IDs, and adapter-specific raw IDs.",
     "localization": "All user-facing names live under data/locales."
   },
+  "crownValidationOverrides": {
+    "shogun-ceanataur": "https://mhcrown.com/mhxx/shogunceanataur/"
+  },
   "monsters": [
     ["60036", "great-maccao", "0x452060"],
     ["64dd6", "velocidrome", "0x27A020"],

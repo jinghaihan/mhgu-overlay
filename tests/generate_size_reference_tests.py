@@ -84,6 +84,32 @@ class MhCrownParserTests(unittest.TestCase):
       [Decimal("1275.70")],
     )
 
+  def test_uses_mhxx_measurement_instead_of_parenthesized_mhx_size(self) -> None:
+    document = """
+      <p class="menuLine">最小金冠</p>
+      <p>
+        <span class="size0">526.23</span>(1042.23)<br>
+        <span class="size">532.21</span>(1054.07)
+      </p>
+      <p class="menuLine">最大金冠</p>
+      <p>
+        <span class="size">735.53</span>(1456.75)<br>
+        <span class="size0">747.49</span>(1480.44)
+      </p>
+    """
+
+    self.assertEqual(
+      [
+        size.value
+        for size in parse_sizes(section(document, "Miniature Crown", "最小金冠"))
+      ],
+      [Decimal("526.23"), Decimal("532.21")],
+    )
+    self.assertEqual(
+      [size.value for size in parse_sizes(section(document, "Gold Crown", "最大金冠"))],
+      [Decimal("735.53"), Decimal("747.49")],
+    )
+
 
 if __name__ == "__main__":
   unittest.main()

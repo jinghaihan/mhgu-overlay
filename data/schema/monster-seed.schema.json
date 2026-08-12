@@ -4,6 +4,13 @@
   "type": "object",
   "required": ["monsters"],
   "properties": {
+    "crownValidationOverrides": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
     "monsters": {
       "type": "array",
       "items": {

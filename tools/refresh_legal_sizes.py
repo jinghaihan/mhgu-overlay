@@ -115,7 +115,7 @@ def build_ranges(timeout: float, retries: int, jobs: int) -> dict:
     "$schema": "../schema/legal-size-ranges.schema.json",
     "sources": {
       "authoritative": "https://mhxx.kiranico.com/en/mon",
-      "crossCheck": "https://mhcrown.com/mhgu/",
+      "crossCheck": "https://mhcrown.com/",
     },
     "monsters": dict(sorted(ranges.items())),
   }

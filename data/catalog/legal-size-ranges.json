@@ -2,7 +2,7 @@
   "$schema": "../schema/legal-size-ranges.schema.json",
   "sources": {
     "authoritative": "https://mhxx.kiranico.com/en/mon",
-    "crossCheck": "https://mhcrown.com/mhgu/"
+    "crossCheck": "https://mhcrown.com/"
   },
   "monsters": {
     "agnaktor": {
@@ -333,7 +333,7 @@
     "shogun-ceanataur": {
       "minPercent": 90,
       "maxPercent": 123,
-      "validation": "mhcrown-mismatch"
+      "validation": "mhcrown-matched"
     },
     "silver-rathalos": {
       "minPercent": 97,
