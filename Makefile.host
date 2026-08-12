@@ -1,5 +1,6 @@
 CXX ?= c++
 CXXFLAGS ?= -std=c++17 -Wall -Wextra -Werror -pedantic -O2
+PYTHON ?= python3
 
 HOST_BUILD := .build-host
 CORE_SOURCES := \
@@ -23,6 +24,7 @@ test: $(TEST_BINARY) $(DAMAGE_TEST_BINARY) $(CATALOG_TEST_BINARY) \
 	@$(CATALOG_TEST_BINARY)
 	@$(SWITCH_TEST_BINARY)
 	@$(SETTINGS_TEST_BINARY)
+	@$(PYTHON) tests/generate_size_reference_tests.py
 
 $(TEST_BINARY): $(CORE_SOURCES) tests/core_tests.cpp
 	@mkdir -p $(HOST_BUILD)

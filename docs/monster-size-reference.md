@@ -11,7 +11,7 @@ event-only, exclusive to a special individual, or otherwise outside the regular
 range. Percentages are calculated from Kiranico's base size; display differences
 may be caused by rounding at the source.
 
-The table covers 83 monsters with variable sizes. 5 threshold comparisons differ only by 0.01, 2 do not match, and 4 MH Crown pages do not provide crown-size data. Fixed-size monsters and monsters without crown classification are omitted.
+The table covers 83 monsters with variable sizes. 5 threshold comparisons differ only by 0.01, 1 does not match, and 4 MH Crown pages do not provide crown-size data. Fixed-size monsters and monsters without crown classification are omitted.
 
 | Monster | Kiranico thresholds | MH Crown extremes | Comparison |
 |---|---:|---:|---|
@@ -25,7 +25,7 @@ The table covers 83 monsters with variable sizes. 5 threshold comparisons differ
 | [白速龙王](https://mhxx.kiranico.com/en/mon/64d84) | Miniature ≤ 780.08 (90%)<br>Gold ≥ 1066.10 (123%) | Smallest miniature: 762.74 (88%)<br>Largest gold: 1083.44 (125%)<br>[Source](https://mhcrown.com/mhgu/giadrome/) | Thresholds match within 0.01 |
 | [黄速龙王](https://mhxx.kiranico.com/en/mon/6eab6) | Miniature ≤ 778.05 (90%)<br>Gold ≥ 1063.34 (123%) | Smallest miniature: 760.76 (88%)<br>Largest gold: 1080.62 (125%)<br>[Source](https://mhcrown.com/mhgu/gendrome/) | Thresholds match within 0.01 |
 | [砂龙王](https://mhxx.kiranico.com/en/mon/65e76) | Miniature ≤ 1509.84 (90%)<br>Gold ≥ 2063.45 (123%) | Smallest miniature: 1476.29 (88%)<br>Largest gold: 2097.00 (125%)<br>[Source](https://mhcrown.com/mhgu/cephadrome/) | Thresholds match |
-| [怪鸟](https://mhxx.kiranico.com/en/mon/a67b6) | Miniature ≤ 808.74 (90%)<br>Gold ≥ 1105.28 (123%) | Smallest miniature: 799.75 (89%)<br>Largest gold: 1123.25 (125%)<br>[Source](https://mhcrown.com/mhgu/yiankutku/) | Thresholds match |
+| [怪鸟](https://mhxx.kiranico.com/en/mon/a67b6) | Miniature ≤ 808.74 (90%)<br>Gold ≥ 1105.28 (123%) | Smallest miniature: 790.77 (88%)<br>Largest gold: 1123.25 (125%)<br>[Source](https://mhcrown.com/mhgu/yiankutku/) | Thresholds match |
 | [红速龙王](https://mhxx.kiranico.com/en/mon/69846) | Miniature ≤ 820.53 (90%)<br>Gold ≥ 1121.39 (123%) | Smallest miniature: 802.30 (88%)<br>Largest gold: 1139.62 (125%)<br>[Source](https://mhcrown.com/mhgu/iodrome/) | Thresholds match |
 | [奇猿狐](https://mhxx.kiranico.com/en/mon/6a756) | Miniature ≤ 797.49 (90%)<br>Gold ≥ 1010.15 (114%) | Smallest miniature: 779.77 (88%)<br>Largest gold: 1019.01 (115%)<br>[Source](https://mhcrown.com/mhgu/kechawacha/) | Thresholds match |
 | [白兔兽](https://mhxx.kiranico.com/en/mon/68a46) | Miniature ≤ 474.57 (90%)<br>Gold ≥ 648.58 (123%) | Smallest miniature: 464.02 (88%)<br>Largest gold: 659.12 (125%)<br>[Source](https://mhcrown.com/mhgu/lagombi/) | Thresholds match |
@@ -59,7 +59,7 @@ The table covers 83 monsters with variable sizes. 5 threshold comparisons differ
 | [铠裂将军镰蟹](https://mhxx.kiranico.com/en/mon/6a044) | Miniature ≤ 660.90 (96%)<br>Gold ≥ 784.82 (114%) | Smallest miniature: 654.02 (95%)<br>Largest gold: 791.71 (115%)<br>[Source](https://mhcrown.com/mhgu/rustrazorceanataur/) | Thresholds match |
 | [绞蛇龙](https://mhxx.kiranico.com/en/mon/69a46) | Miniature ≤ 3649.50 (90%)<br>Gold ≥ 4987.65 (123%) | Smallest miniature: 3568.40 (88%)<br>Largest gold: 5068.75 (125%)<br>[Source](https://mhcrown.com/mhgu/najarala/) | Thresholds match |
 | [迅龙](https://mhxx.kiranico.com/en/mon/6a856) | Miniature ≤ 1441.97 (90%)<br>Gold ≥ 1970.69 (123%) | Smallest miniature: 1409.93 (88%)<br>Largest gold: 2002.74 (125%)<br>[Source](https://mhcrown.com/mhgu/nargacuga/) | Thresholds match |
-| [白疾风迅龙](https://mhxx.kiranico.com/en/mon/63506) | Miniature ≤ 1651.26 (97%)<br>Gold ≥ 2093.87 (123%) | Smallest miniature: 1617.21 (95%)<br>Largest gold: 2110.89 (124%)<br>[Source](https://mhcrown.com/mhgu/silverwindnargacuga/) | Thresholds match |
+| [白疾风迅龙](https://mhxx.kiranico.com/en/mon/63506) | Miniature ≤ 1651.26 (97%)<br>Gold ≥ 2093.87 (123%) | Smallest miniature: 1617.21 (95%)<br>Largest gold: 2127.91 (125%)<br>[Source](https://mhcrown.com/mhgu/silverwindnargacuga/) | Thresholds match |
 | [黑狼鸟](https://mhxx.kiranico.com/en/mon/60736) | Miniature ≤ 1256.04 (90%)<br>Gold ≥ 1716.59 (123%) | Smallest miniature: 1228.13 (88%)<br>Largest gold: 1744.50 (125%)<br>[Source](https://mhcrown.com/mhgu/yiangaruga/) | Thresholds match |
 | [独眼黑狼鸟](https://mhxx.kiranico.com/en/mon/68046) | Miniature ≤ 1150.74 (97%)<br>Gold ≥ 1459.19 (123%) | Smallest miniature: 1127.01 (95%)<br>Largest gold: 1482.91 (125%)<br>[Source](https://mhcrown.com/mhgu/deadeyeyiangaruga/) | Thresholds match |
 | [爆锤龙](https://mhxx.kiranico.com/en/mon/65076) | Miniature ≤ 1876.88 (90%)<br>Gold ≥ 2565.07 (123%) | Smallest miniature: 1835.17 (88%)<br>Largest gold: 2606.77 (125%)<br>[Source](https://mhcrown.com/mhgu/uragaan/) | Thresholds match |
@@ -80,7 +80,7 @@ The table covers 83 monsters with variable sizes. 5 threshold comparisons differ
 | [黑蚀龙](https://mhxx.kiranico.com/en/mon/60336) | Miniature ≤ 1584.81 (90%)<br>Gold ≥ 2165.91 (123%) | Smallest miniature: 1549.59 (88%)<br>Largest gold: 2201.12 (125%)<br>[Source](https://mhcrown.com/mhgu/goremagala/) | Thresholds match |
 | [混沌黑蚀龙](https://mhxx.kiranico.com/en/mon/680d5) | Miniature ≤ 1615.23 (90%)<br>Gold ≥ 2207.48 (123%) | —<br>[Source](https://mhcrown.com/mhgu/chaoticgoremagala/) | MH Crown unavailable |
 | [千刃龙](https://mhxx.kiranico.com/en/mon/67eb6) | Miniature ≤ 1555.29 (90%)<br>Gold ≥ 1970.03 (114%) | Smallest miniature: 1520.73 (88%)<br>Largest gold: 1987.31 (115%)<br>[Source](https://mhcrown.com/mhgu/seregios/) | Thresholds match |
-| [尾锤龙](https://mhxx.kiranico.com/en/mon/6ab56) | Miniature ≤ 1875.78 (90%)<br>Gold ≥ 2563.57 (123%) | Smallest miniature: 1834.10 (88%)<br>Largest gold: 2605.25 (125%)<br>[Source](https://mhcrown.com/mhgu/duramboros/) | ⚠ Threshold mismatch |
+| [尾锤龙](https://mhxx.kiranico.com/en/mon/6ab56) | Miniature ≤ 1875.78 (90%)<br>Gold ≥ 2563.57 (123%) | Smallest miniature: 1834.10 (88%)<br>Largest gold: 2605.25 (125%)<br>[Source](https://mhcrown.com/mhgu/duramboros/) | Thresholds match |
 | [轰龙](https://mhxx.kiranico.com/en/mon/68746) | Miniature ≤ 1561.86 (90%)<br>Gold ≥ 2134.54 (123%) | Smallest miniature: 1527.15 (88%)<br>Largest gold: 2169.25 (125%)<br>[Source](https://mhcrown.com/mhgu/tigrex/) | Thresholds match |
 | [荒钩爪轰龙](https://mhxx.kiranico.com/en/mon/6d486) | Miniature ≤ 2036.26 (96%)<br>Gold ≥ 2312.00 (109%) | Smallest miniature: 2015.05 (95%)<br>Largest gold: 2333.21 (110%)<br>[Source](https://mhcrown.com/mhgu/grimclawtigrex/) | Thresholds match |
 | [铠龙](https://mhxx.kiranico.com/en/mon/69596) | Miniature ≤ 1888.83 (90%)<br>Gold ≥ 2581.40 (123%) | Smallest miniature: 1846.86 (88%)<br>Largest gold: 2623.38 (125%)<br>Special minimum: 629.61 (30%)<br>[Source](https://mhcrown.com/mhgu/gravios/) | Thresholds match |

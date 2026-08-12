@@ -23,10 +23,7 @@ LEGAL_RANGES_PATH = ROOT / "data" / "catalog" / "legal-size-ranges.json"
 LOCALE_PATH = ROOT / "data" / "locales" / "zh-Hans.json"
 OUTPUT_PATH = ROOT / "docs" / "monster-size-reference.md"
 USER_AGENT = "mhgu-overlay-catalog/0.1 (+https://github.com/jinghaihan/mhgu-overlay)"
-SIZE_PATTERN = re.compile(
-  r'<span\s+class="size0?">\s*([\d,]+\.\d{2})\s*</span>(.*?)(?:<br\s*/?>|</p>)',
-  re.IGNORECASE | re.DOTALL,
-)
+SIZE_PATTERN = re.compile(r"\b(?:\d{1,3}(?:,\d{3})+|\d{3,5})\.\d{2}\b")
 
 
 @dataclass(frozen=True)
@@ -52,7 +49,7 @@ def size_percent(base_x100: int, size: Decimal) -> str:
   return f"{rounded:.2f}".rstrip("0").rstrip(".") + "%"
 
 
-def section(document: str, heading: str, next_heading: str | None) -> str:
+def section(document: str, heading: str) -> str:
   start_pattern = re.compile(
     rf'<p\s+class="menuLine">\s*{re.escape(heading)}\s*</p>',
     re.IGNORECASE,
@@ -61,38 +58,38 @@ def section(document: str, heading: str, next_heading: str | None) -> str:
   if start is None:
     return ""
   remainder = document[start.end() :]
-  if next_heading is None:
-    end = re.search(r'<div\s+class="sharedaddy\b', remainder, re.IGNORECASE)
-  else:
-    end = re.search(
-      rf'<p\s+class="menuLine">\s*{re.escape(next_heading)}\s*</p>',
-      remainder,
-      re.IGNORECASE,
-    )
-  return remainder[: end.start()] if end is not None else remainder
+  paragraph = re.search(
+    r"<p(?:\s[^>]*)?>(.*?)</p>",
+    remainder,
+    re.IGNORECASE | re.DOTALL,
+  )
+  return paragraph.group(1) if paragraph is not None else ""
 
 
 def parse_sizes(fragment: str) -> tuple[CrownSize, ...]:
   parsed = []
-  for match in SIZE_PATTERN.finditer(fragment):
-    suffix = html.unescape(re.sub(r"<[^>]+>", " ", match.group(2)))
-    normalized = " ".join(suffix.split()).lower()
-    parsed.append(
-      CrownSize(
-        Decimal(match.group(1).replace(",", "")),
-        any(
-          marker in normalized
-          for marker in (
-            "dlc only",
-            "event only",
-            "event quest size",
-            "イベントクエスト専用サイズ",
-            "規格外",
-            "特殊個体専用サイズ",
-          )
-        ),
+  lines = re.sub(r"<br\s*/?>", "\n", fragment, flags=re.IGNORECASE)
+  for line in lines.splitlines():
+    visible = html.unescape(re.sub(r"<[^>]+>", " ", line))
+    normalized = " ".join(visible.split()).lower()
+    special_only = any(
+      marker in normalized
+      for marker in (
+        "dlc only",
+        "event only",
+        "event quest size",
+        "イベントクエスト専用サイズ",
+        "規格外",
+        "特殊個体専用サイズ",
       )
     )
+    for match in SIZE_PATTERN.finditer(visible):
+      parsed.append(
+        CrownSize(
+          Decimal(match.group(0).replace(",", "")),
+          special_only,
+        )
+      )
   return tuple(parsed)
 
 
@@ -108,11 +105,14 @@ def fetch_mhcrown(
       with urlopen(request, timeout=timeout) as response:
         document = response.read().decode("utf-8")
       facts = MhCrownFacts(
-        parse_sizes(section(document, "Miniature Crown", "Gold Crown")),
-        parse_sizes(section(document, "Gold Crown", None)),
+        parse_sizes(section(document, "Miniature Crown")),
+        parse_sizes(section(document, "Gold Crown")),
       )
       if not facts.miniature and not facts.gold:
         return None
+      if not facts.miniature or not facts.gold:
+        missing = "Miniature Crown" if not facts.miniature else "Gold Crown"
+        raise RuntimeError(f"{url}: {missing} section contains no sizes")
       return facts
     except (HTTPError, URLError, OSError, socket.timeout) as error:
       last_error = error
@@ -213,6 +213,7 @@ def generate_document(
       f"| [{name}]({source}) | {kiranico_text(monster)} | "
       f"{mhcrown_text(monster, mhcrown)} | {comparison} |"
     )
+  mismatch_verb = "does" if mismatch_count == 1 else "do"
 
   return "\n".join(
     [
@@ -231,7 +232,8 @@ def generate_document(
       "",
       f"The table covers {len(monsters)} monsters with variable sizes. "
       f"{approximate_count} threshold comparisons differ only by 0.01, "
-      f"{mismatch_count} do not match, and {unavailable_count} MH Crown pages "
+      f"{mismatch_count} {mismatch_verb} not match, and "
+      f"{unavailable_count} MH Crown pages "
       "do not provide crown-size data. Fixed-size monsters and monsters without crown "
       "classification are omitted.",
       "",
