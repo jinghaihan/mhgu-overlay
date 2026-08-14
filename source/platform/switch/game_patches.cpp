@@ -230,16 +230,19 @@ bool GamePatches::capture_baseline(
     return true;
   };
 
-  const MainWordPatch instant_kill{
-    profile_.monster_damage.offset,
-    profile_.monster_damage.instant_kill_value,
-  };
-  const MainWordPatch leave_one_hp{
-    profile_.monster_damage.offset,
-    profile_.monster_damage.leave_one_hp_value,
-  };
-  bool already_patched = patch_set_is_applied(&instant_kill, 1) ||
-                         patch_set_is_applied(&leave_one_hp, 1);
+  bool already_patched = false;
+  if (profile_.monster_damage.offset != 0) {
+    const MainWordPatch instant_kill{
+      profile_.monster_damage.offset,
+      profile_.monster_damage.instant_kill_value,
+    };
+    const MainWordPatch leave_one_hp{
+      profile_.monster_damage.offset,
+      profile_.monster_damage.leave_one_hp_value,
+    };
+    already_patched = patch_set_is_applied(&instant_kill, 1) ||
+                      patch_set_is_applied(&leave_one_hp, 1);
+  }
   for (std::size_t index = 0;
        !already_patched && index < profile_.runtime_patches.size();
        ++index) {
@@ -294,6 +297,9 @@ bool GamePatches::capture_baseline(
 }
 
 QuestOperationResult GamePatches::quest_base(std::uint64_t& base) {
+  if (profile_.quest.pointer_from_main == 0) {
+    return QuestOperationResult::NoActiveQuest;
+  }
   std::uint64_t pointer_address{};
   if (!checked_add(
         main_base_, profile_.quest.pointer_from_main, pointer_address
@@ -355,6 +361,42 @@ bool GamePatches::apply_value(
 
 bool GamePatches::set_frame_rate(const core::FrameRate frame_rate) {
   const auto& patch = profile_.frame_rate;
+  std::uint64_t mode_address{};
+  std::uint8_t mode_current{};
+  bool mode_changed = false;
+  if (patch.mode_pointer_from_main != 0 ||
+      patch.mode_target_from_pointer != 0 || patch.mode_value != 0) {
+    std::uint64_t mode_pointer_address{};
+    if (!checked_add(
+          main_base_, patch.mode_pointer_from_main, mode_pointer_address
+        ) ||
+        !contains(
+          main_base_, main_size_, mode_pointer_address, sizeof(std::uint32_t)
+        )) {
+      return false;
+    }
+    std::uint32_t mode_target_base{};
+    if (!memory_.read(
+          mode_pointer_address, &mode_target_base, sizeof(mode_target_base)
+        ) ||
+        !checked_add(
+          mode_target_base, patch.mode_target_from_pointer, mode_address
+        ) ||
+        !contains(
+          address_space_base_, address_space_size_, mode_address, sizeof(mode_current)
+        ) ||
+        (heap_size_ != 0 &&
+         !contains(heap_base_, heap_size_, mode_address, sizeof(mode_current))) ||
+        !memory_.read(mode_address, &mode_current, sizeof(mode_current)) ||
+        (mode_current != 0 && mode_current != 1 && mode_current != 2 &&
+         mode_current != patch.mode_value)) {
+      return false;
+    }
+  }
+
+  if (patch.pointer_from_main == 0 && patch.target_from_pointer == 0) {
+    return false;
+  }
   std::uint64_t pointer_address{};
   if (!checked_add(main_base_, patch.pointer_from_main, pointer_address) ||
       !contains(
@@ -388,24 +430,49 @@ bool GamePatches::set_frame_rate(const core::FrameRate frame_rate) {
   const auto desired = frame_rate == core::FrameRate::Fps60
                          ? patch.fps60_value
                          : patch.fps30_value;
+  if (current != desired && current != patch.fps30_value &&
+      current != patch.fps60_value) {
+    return false;
+  }
+  if (mode_address != 0 && mode_current != patch.mode_value) {
+    if (!memory_.write(mode_address, &patch.mode_value, sizeof(patch.mode_value))) {
+      return false;
+    }
+    std::uint8_t verified_mode{};
+    if (!memory_.read(mode_address, &verified_mode, sizeof(verified_mode)) ||
+        verified_mode != patch.mode_value) {
+      return false;
+    }
+    mode_changed = true;
+  }
+
   if (current == desired) {
     return true;
   }
-  if (current != patch.fps30_value && current != patch.fps60_value) {
-    return false;
-  }
   if (!memory_.write(target_address, &desired, sizeof(desired))) {
+    if (mode_changed) {
+      memory_.write(mode_address, &mode_current, sizeof(mode_current));
+    }
     return false;
   }
 
   std::uint32_t verified{};
-  return memory_.read(target_address, &verified, sizeof(verified)) &&
-         verified == desired;
+  if (memory_.read(target_address, &verified, sizeof(verified)) &&
+      verified == desired) {
+    return true;
+  }
+  if (mode_changed) {
+    memory_.write(mode_address, &mode_current, sizeof(mode_current));
+  }
+  return false;
 }
 
 bool GamePatches::set_monster_damage_mode(
   const core::MonsterDamageMode mode
 ) {
+  if (profile_.monster_damage.offset == 0) {
+    return mode == core::MonsterDamageMode::Off;
+  }
   std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> original{};
   const MainWordPatch enabled_patch{profile_.monster_damage.offset, 0};
   if (!baseline_patch_set(&enabled_patch, 1, original)) {
@@ -570,7 +637,10 @@ bool GamePatches::set_runtime_feature(
     return false;
   }
   const auto& patch_set = profile_.runtime_patches[feature_index];
-  if (patch_set.count == 0 || patch_set.count > patch_set.patches.size()) {
+  if (patch_set.count == 0) {
+    return !enabled;
+  }
+  if (patch_set.count > patch_set.patches.size()) {
     return false;
   }
 
@@ -675,7 +745,10 @@ bool GamePatches::disable_numeric_feature(
     return false;
   }
   const auto& patch_set = profile_.numeric_patches[feature_index];
-  if (patch_set.count == 0 || patch_set.count > patch_set.patches.size()) {
+  if (patch_set.count == 0) {
+    return true;
+  }
+  if (patch_set.count > patch_set.patches.size()) {
     return false;
   }
   std::array<MainWordPatch, kMaxMainWordPatchesPerFeature> targets{};

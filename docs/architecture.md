@@ -187,7 +187,7 @@ Small-monster secondary IDs are rejected before catalog lookup.
 
 ### Automatic language detection
 
-For MHGU, the adapter asks libnx for the application's control data and desired language. If that service is unavailable, it falls back to the system language.
+For MHGU, the adapter asks libnx for the application's control data and desired language. If that service is unavailable, it falls back to the system language. MHXX is a Japanese-only profile and therefore selects Japanese automatically.
 
 Mappings are deliberately narrow:
 
@@ -196,8 +196,9 @@ Mappings are deliberately narrow:
 - Simplified or Traditional Chinese → Simplified Chinese UI;
 - every other language or error → English.
 
-A manual language setting always wins. MHXX remains a future profile and is
-not selected by the current Switch adapter.
+A manual language setting always wins. The Switch adapter selects a profile by
+Title ID and Build ID before it creates the monster reader or applies any
+profile-backed write.
 
 ## Application model and threading
 

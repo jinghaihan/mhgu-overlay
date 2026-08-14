@@ -25,8 +25,23 @@ constexpr PointerListLayout kPointerListLayout{
 };
 
 constexpr FrameRatePatch kFrameRatePatch{
+  0,
+  0,
+  0,
   0x018A6210,
   0x0000243C,
+  0x41F00000,
+  0x42700000,
+};
+
+constexpr FrameRatePatch kMhxxFrameRatePatch{
+  // MHXX's frame-rate mode selector uses a 32-bit pointer load and a byte
+  // write before the float target is changed.
+  0x00DFD9CC,
+  0x000008B4,
+  2,
+  0x018AD81C,
+  0x0000003C,
   0x41F00000,
   0x42700000,
 };
@@ -70,6 +85,13 @@ constexpr MainWordPatchSet kInvinciblePatches{
   {{{0x0016B2A4, 0xE3A00000}}},
   1,
 };
+
+constexpr MainWordPatchSet kMhxxInvinciblePatches{
+  {{{0x001661D8, 0xE12FFF1E}}},
+  1,
+};
+
+constexpr MainWordPatchSet kNoRuntimePatches{{}, 0};
 
 constexpr MainWordPatchSet kHealthNoDecreasePatches{
   {{{0x002F0CFC, 0xE302170F}}},
@@ -303,6 +325,46 @@ constexpr NumericWordPatchSet kWycademyPointsPatches{
   9999999,
 };
 
+constexpr NumericWordPatchSet kMhxxZennyPatches{
+  {{{0x013E6710,
+     0xE3003000,
+     NumericWordEncoding::ArmMovwImmediate,
+     0,
+     0},
+    {0x013E6714,
+     0xE3403000,
+     NumericWordEncoding::ArmMovtImmediate,
+     0,
+     0},
+    {0x013E6718, 0xE5853024, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E671C, 0xE12FFF1E, NumericWordEncoding::Fixed, 0, 0},
+    {0x00625374, 0xEB3704E5, NumericWordEncoding::Fixed, 0, 0}}},
+  5,
+  0,
+  9999999,
+};
+
+constexpr NumericWordPatchSet kMhxxWycademyPointsPatches{
+  {{{0x013E6720,
+     0xE3003000,
+     NumericWordEncoding::ArmMovwImmediate,
+     0,
+     0},
+    {0x013E6724,
+     0xE3403000,
+     NumericWordEncoding::ArmMovtImmediate,
+     0,
+     0},
+    {0x013E6728, 0xE585302C, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E672C, 0xE12FFF1E, NumericWordEncoding::Fixed, 0, 0},
+    {0x006253A4, 0xEB3704DD, NumericWordEncoding::Fixed, 0, 0}}},
+  5,
+  0,
+  9999999,
+};
+
+constexpr NumericWordPatchSet kNoNumericPatches{{}, 0, 0, 0};
+
 constexpr std::array<NumericWordPatchSet, core::kNumericFeatureCount>
   kNumericPatches{
     kHunterAffinityPatches,
@@ -314,6 +376,37 @@ constexpr std::array<NumericWordPatchSet, core::kNumericFeatureCount>
     kMovementSpeedMultiplierPatches,
     kZennyPatches,
     kWycademyPointsPatches,
+  };
+
+constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
+  kMhxxRuntimePatches{
+    kNoRuntimePatches,
+    kNoRuntimePatches,
+    kMhxxInvinciblePatches,
+    kNoRuntimePatches,
+    kNoRuntimePatches,
+    kNoRuntimePatches,
+    kNoRuntimePatches,
+    kNoRuntimePatches,
+    kNoRuntimePatches,
+    kNoRuntimePatches,
+    kNoRuntimePatches,
+    kNoRuntimePatches,
+    kNoRuntimePatches,
+    kNoRuntimePatches,
+  };
+
+constexpr std::array<NumericWordPatchSet, core::kNumericFeatureCount>
+  kMhxxNumericPatches{
+    kNoNumericPatches,
+    kNoNumericPatches,
+    kNoNumericPatches,
+    kNoNumericPatches,
+    kNoNumericPatches,
+    kNoNumericPatches,
+    kNoNumericPatches,
+    kMhxxZennyPatches,
+    kMhxxWycademyPointsPatches,
   };
 
 constexpr GameProfile kProfiles[]{
@@ -332,6 +425,25 @@ constexpr GameProfile kProfiles[]{
     kQuestLayout,
     kRuntimePatches,
     kNumericPatches,
+  },
+  {
+    // The monster HP, maximum HP, and size fields match the current MHGU
+    // object layout. The pointer-list range is an initial candidate and must
+    // still be checked on a real MHXX process.
+    "MHXX 1.5.1",
+    core::GameId::Mhxx,
+    kMhxxTitleId,
+    kMhxx151BuildId,
+    0x10A00000,
+    0x10F00000,
+    kMonsterLayout,
+    kPointerListLayout,
+    kMhxxFrameRatePatch,
+    {},
+    {},
+    {},
+    kMhxxRuntimePatches,
+    kMhxxNumericPatches,
   },
 };
 

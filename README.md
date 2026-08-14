@@ -1,9 +1,10 @@
 # MHGU Overlay
 
-An in-game hunting companion for Monster Hunter Generations Ultimate 1.4.0 on
-Nintendo Switch. It combines a low-profile large-monster HUD and crown-size
-controller with version-gated gameplay tools for frame rate, equipment
-appearance, hunter and Palico combat values, resources, and item-pouch edits.
+An in-game hunting companion for Monster Hunter Generations Ultimate 1.4.0 and
+Monster Hunter XX 1.5.1 on Nintendo Switch. It combines a low-profile
+large-monster HUD and crown-size controller with version-gated gameplay tools
+for frame rate, equipment appearance, hunter and Palico combat values,
+resources, and item-pouch edits.
 
 [![build](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml/badge.svg)](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -15,6 +16,10 @@ appearance, hunter and Palico combat values, resources, and item-pouch edits.
 > After installing a version with reversible patches for the first time,
 > fully restart MHGU before opening the overlay. This lets the overlay capture
 > a clean, version-gated copy of the original game instructions.
+
+MHXX 1.5.1 support is experimental and currently covers the profile-backed
+monster, frame-rate, invincibility, Zenny, and Wycademy-point paths. Other
+features remain unavailable until their offsets are independently verified.
 
 <p align="center">
   <img src="./assets/mhgu-overlay.gif" alt="MHGU Overlay demonstration" />
@@ -108,7 +113,7 @@ Both transmog options can be disabled again during the current game process.
 
 ## Requirements
 
-- MHGU 1.4.0 for Nintendo Switch
+- MHGU 1.4.0 or MHXX 1.5.1 for Nintendo Switch
 - Atmosphère with `dmnt:cht`
 - Tesla Menu / ovlmenu
 
@@ -119,7 +124,7 @@ Both transmog options can be disabled again during the current game process.
    or download the `mhgu-overlay` artifact from a successful
    [build workflow](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml).
 2. Copy it to `sdmc:/switch/.overlays/mhgu-overlay.ovl`.
-3. Start MHGU 1.4.0, open Tesla Menu, and select **MHGU Overlay**.
+3. Start a supported game version, open Tesla Menu, and select **MHGU Overlay**.
 
 ## Controls and persistence
 
