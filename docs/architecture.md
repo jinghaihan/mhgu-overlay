@@ -103,7 +103,10 @@ Floating-point source values are converted to fixed-point integers during data g
 
 ### Game profiles
 
-Raw offsets are isolated in `GameProfile`. The current profile contains:
+Raw offsets are isolated in `GameProfile`. Each supported title keeps its
+complete layouts and patch tables in a separate `mhgu_profile.cpp` or
+`mhxx_profile.cpp`; `game_profile.cpp` only selects between those profiles.
+The current profile contains:
 
 | Field | Monster-relative offset |
 | --- | ---: |
