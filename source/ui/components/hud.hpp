@@ -65,7 +65,7 @@ private:
     s32 y;
   };
 
-  static constexpr s32 kCardWidth = 328;
+  static constexpr s32 kCardWidth = 360;
   static constexpr s32 kCardHeight = 58;
   static constexpr s32 kCardGap = 5;
   static constexpr s32 kMargin = 12;
