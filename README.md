@@ -17,9 +17,12 @@ resources, and item-pouch edits.
 > fully restart MHGU before opening the overlay. This lets the overlay capture
 > a clean, version-gated copy of the original game instructions.
 
-MHXX 1.5.1 support is experimental and currently covers the profile-backed
-monster, frame-rate, invincibility, Zenny, and Wycademy-point paths. Other
-features remain unavailable until their offsets are independently verified.
+MHXX 1.5.1 support is experimental. Its profile currently includes the
+version-specific frame-rate, combat, hunter, resource, equipment-transmog,
+quest, and carry-item patch paths from the matching Build ID. Long-sword
+spirit-gauge control, item-pouch quantity editing, Palico HP protection, and
+movement-speed multipliers remain unavailable. The MHXX monster layout and
+pointer-list candidate also still require real-Switch verification.
 
 <p align="center">
   <img src="./assets/mhgu-overlay.gif" alt="MHGU Overlay demonstration" />
@@ -34,7 +37,7 @@ The main menu is ordered as follows:
 | Menu item | What it does |
 | --- | --- |
 | **Language** | Uses automatic game-language detection or selects English, Simplified Chinese, or Japanese manually. |
-| **Status** | Shows whether MHGU 1.4.0 is detected, scanning, ready, unsupported, or unable to read or write memory. |
+| **Status** | Shows whether a supported MHGU/MHXX profile is detected, scanning, ready, unsupported, or unable to read or write memory. |
 | **Monster HUD** | Opens the low-profile hunting HUD. Each active large monster gets a card with its name, health bar, current and maximum health, health percentage, size multiplier, calculated size, crown class, and Hyper status. The separate **HUD layout** selector chooses lower-left, left-center, upper-right, right-center, or top-center placement. |
 | **Damage display** | Shows animated damage values near the upper center of the hunting HUD when a large monster's health decreases. |
 | **Frame rate** | Switches the game's frame-rate target between 30 FPS and 60 FPS. This setting can be changed in either direction. |

@@ -124,7 +124,7 @@ These values are reverse-engineering facts derived from community prior art and 
 
 1. detect the current cheat process;
 2. read its title ID and heap base;
-3. require the MHGU 1.4.0 Title ID and build ID profile;
+3. require a supported Title ID and build ID profile;
 4. scan the profile's bounded heap range in 64 KiB chunks;
 5. validate candidate list markers, padding, pointer continuity, count, and the first monster identity;
 6. read each monster field individually and retain live objects marked either

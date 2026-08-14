@@ -107,6 +107,49 @@ int main() {
     ].patches[0].offset == 0x001661D8
   );
   assert(
+    mhxx_profile->runtime_patches[
+      core::runtime_feature_index(core::RuntimeFeature::MapAndLargeMonsters)
+    ].patches[0].offset == 0x00612F40
+  );
+  assert(
+    mhxx_profile->runtime_patches[
+      core::runtime_feature_index(core::RuntimeFeature::CarryItemsIntoPouch)
+    ].patches[0].offset == 0x0019198C
+  );
+  assert(
+    mhxx_profile->runtime_patches[
+      core::runtime_feature_index(core::RuntimeFeature::HealthNoDecrease)
+    ].patches[0].offset == 0x002EDC5C
+  );
+  assert(
+    mhxx_profile->runtime_patches[
+      core::runtime_feature_index(core::RuntimeFeature::WeaponTransmog)
+    ].patches[0].offset == 0x000D9C1C
+  );
+  assert(mhxx_profile->monster_damage.offset == 0x00097ADC);
+  assert(mhxx_profile->quest.pointer_from_main == 0x018AC1C0);
+  assert(mhxx_profile->quest.secondary_faint_count_from_quest == 0x15A6);
+  assert(
+    mhxx_profile->numeric_patches[
+      core::numeric_feature_index(core::NumericFeature::HunterAffinity)
+    ].patches[0].offset == 0x000E2D48
+  );
+  assert(
+    mhxx_profile->numeric_patches[
+      core::numeric_feature_index(core::NumericFeature::AttackMultiplier)
+    ].count == 10
+  );
+  assert(
+    mhxx_profile->numeric_patches[
+      core::numeric_feature_index(core::NumericFeature::LongSwordSpiritGauge)
+    ].count == 0
+  );
+  assert(
+    mhxx_profile->numeric_patches[
+      core::numeric_feature_index(core::NumericFeature::MovementSpeedMultiplier)
+    ].count == 0
+  );
+  assert(
     mhxx_profile->numeric_patches[
       core::numeric_feature_index(core::NumericFeature::Zenny)
     ].patches[4].offset == 0x00625374

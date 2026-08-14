@@ -91,6 +91,102 @@ constexpr MainWordPatchSet kMhxxInvinciblePatches{
   1,
 };
 
+constexpr MainWordPatchSet kMhxxMapAndLargeMonstersPatches{
+  {{{0x00612F40, 0xE3A00001}, {0x00613FB4, 0xE3A00001}}},
+  2,
+};
+
+constexpr MainWordPatchSet kMhxxCarryItemsIntoPouchPatches{
+  {{{0x0019198C, 0x33000000}}},
+  1,
+};
+
+constexpr MainWordPatchSet kMhxxHealthNoDecreasePatches{
+  {{{0x002EDC5C, 0xE302170F}}},
+  1,
+};
+
+constexpr MainWordPatchSet kMhxxStaminaNoDecreasePatches{
+  {{{0x002A0E24, 0xE3A00001}, {0x002A2990, 0xE3A00001}}},
+  2,
+};
+
+constexpr MainWordPatchSet kMhxxSharpnessNoDecreasePatches{
+  {{{0x002AA340, 0xE6BF1070}}},
+  1,
+};
+
+constexpr MainWordPatchSet kMhxxUnlockHunterArtSlotsPatches{
+  {{{0x00274B14, 0xE3A00003}}},
+  1,
+};
+
+constexpr MainWordPatchSet kMhxxUnlimitedHunterArtsPatches{
+  {{{0x0029F648, 0xE18020B3}, {0x0029F64C, 0xE1500000}}},
+  2,
+};
+
+constexpr MainWordPatchSet kMhxxValorGaugeNoDecreasePatches{
+  {{{0x00299374, 0xE3A02040},
+    {0x0029B650, 0xE3A00FFA},
+    {0x0029B654, 0xE1C600B0}}},
+  3,
+};
+
+constexpr MainWordPatchSet kMhxxAlchemyGaugeFullPatches{
+  {{{0x0029B8E0, 0xE3440800}, {0x0029B8E4, 0xE5860000}}},
+  2,
+};
+
+constexpr MainWordPatchSet kMhxxSpStatusNoExpirePatches{
+  {{{0x0029B50C, 0xE3A00000}}},
+  1,
+};
+
+constexpr MainWordPatchSet kMhxxBowgunAutoReloadPatches{
+  {{{0x002FB308, 0xE1C120B2}}},
+  1,
+};
+
+constexpr MainWordPatchSet kMhxxConsumableItemsNoDecreasePatches{
+  {{{0x002FE558, 0xE3A07000}}},
+  1,
+};
+
+constexpr MainWordPatchSet kMhxxWeaponTransmogPatches{
+  {{{0x000D9C1C, 0xE3A00001},
+    {0x000D9C38, 0x33000000},
+    {0x000DC898, 0xEB018417},
+    {0x002806EC, 0xEBFAF482},
+    {0x002844C8, 0xEBFAE50B},
+    {0x0013EE34, 0xE3520015},
+    {0x0013EE58, 0xE2411016},
+    {0x0013EE5C, 0xE3510002}}},
+  8,
+};
+
+constexpr MainWordPatchSet kMhxxArmorTransmogPatches{
+  {{{0x0013F0B0, 0xE3866000}, {0x0013F164, 0x13866000}}},
+  2,
+};
+
+constexpr MonsterDamagePatch kMhxxMonsterDamagePatch{
+  0x00097ADC,
+  0xE1A00006,
+  0xE2860001,
+};
+
+constexpr QuestLayout kMhxxQuestLayout{
+  0x018AC1C0,
+  0x001C,
+  0x44610000,
+  0x00C4,
+  // The second 78000000 offset is cumulative: C4 + 15A6.
+  0x15A6,
+  0x00EC,
+  0x29,
+};
+
 constexpr MainWordPatchSet kNoRuntimePatches{{}, 0};
 
 constexpr MainWordPatchSet kHealthNoDecreasePatches{
@@ -344,6 +440,76 @@ constexpr NumericWordPatchSet kMhxxZennyPatches{
   9999999,
 };
 
+constexpr NumericWordPatchSet kMhxxHunterAffinityPatches{
+  {{{0x000E2D48,
+     0xE3A00000,
+     NumericWordEncoding::LinearImmediate,
+     1,
+     0}}},
+  1,
+  0,
+  100,
+};
+
+constexpr NumericWordPatchSet kMhxxPalicoAffinityPatches{
+  {{{0x000E4960,
+     0xE3A00000,
+     NumericWordEncoding::LinearImmediate,
+     1,
+     0},
+    {0x000E4974,
+     0xE3A00000,
+     NumericWordEncoding::LinearImmediate,
+     1,
+     0}}},
+  2,
+  0,
+  100,
+};
+
+constexpr NumericWordPatchSet kMhxxSpLevelPatches{
+  {{{0x002A950C,
+     0xE3A02000,
+     NumericWordEncoding::LinearImmediate,
+     1,
+     -1}}},
+  1,
+  1,
+  4,
+};
+
+constexpr NumericWordPatchSet kMhxxAttackMultiplierPatches{
+  {{{0x013E66A8, 0xE59F1018, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66AC, 0xE0000190, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66B0, 0xE6BF0070, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66B4, 0xE3500C7D, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66B8, 0xC3A00C7D, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66BC, 0xE300133A, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66C0, 0xE1A400B1, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66C4, 0xEAB3ECAA, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66C8, 0x00000000, NumericWordEncoding::LinearWord, 1, 0},
+    {0x000E1960, 0xEB4C1350, NumericWordEncoding::Fixed, 0, 0}}},
+  10,
+  1,
+  10,
+};
+
+constexpr NumericWordPatchSet kMhxxDefenseMultiplierPatches{
+  {{{0x013E66CC, 0xE0855001, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66D0, 0xE59F1014, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66D4, 0xE0000190, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66D8, 0xE6BF0070, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66DC, 0xE3500C7D, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66E0, 0xC3A00C7D, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66E4, 0xE1C500B0, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66E8, 0xE12FFF1E, NumericWordEncoding::Fixed, 0, 0},
+    {0x013E66EC, 0x00000000, NumericWordEncoding::LinearWord, 1, 0},
+    {0x000E23B8, 0xEB4C10C3, NumericWordEncoding::Fixed, 0, 0}}},
+  10,
+  1,
+  10,
+};
+
 constexpr NumericWordPatchSet kMhxxWycademyPointsPatches{
   {{{0x013E6720,
      0xE3003000,
@@ -380,30 +546,32 @@ constexpr std::array<NumericWordPatchSet, core::kNumericFeatureCount>
 
 constexpr std::array<MainWordPatchSet, core::kRuntimeFeatureCount>
   kMhxxRuntimePatches{
-    kNoRuntimePatches,
-    kNoRuntimePatches,
+    kMhxxMapAndLargeMonstersPatches,
+    kMhxxCarryItemsIntoPouchPatches,
     kMhxxInvinciblePatches,
-    kNoRuntimePatches,
-    kNoRuntimePatches,
-    kNoRuntimePatches,
-    kNoRuntimePatches,
-    kNoRuntimePatches,
-    kNoRuntimePatches,
-    kNoRuntimePatches,
-    kNoRuntimePatches,
-    kNoRuntimePatches,
-    kNoRuntimePatches,
+    kMhxxHealthNoDecreasePatches,
+    kMhxxStaminaNoDecreasePatches,
+    kMhxxSharpnessNoDecreasePatches,
+    kMhxxUnlockHunterArtSlotsPatches,
+    kMhxxUnlimitedHunterArtsPatches,
+    kMhxxValorGaugeNoDecreasePatches,
+    kMhxxAlchemyGaugeFullPatches,
+    kMhxxSpStatusNoExpirePatches,
+    kMhxxBowgunAutoReloadPatches,
+    kMhxxConsumableItemsNoDecreasePatches,
+    kMhxxWeaponTransmogPatches,
+    kMhxxArmorTransmogPatches,
     kNoRuntimePatches,
   };
 
 constexpr std::array<NumericWordPatchSet, core::kNumericFeatureCount>
   kMhxxNumericPatches{
+    kMhxxHunterAffinityPatches,
+    kMhxxPalicoAffinityPatches,
+    kMhxxSpLevelPatches,
     kNoNumericPatches,
-    kNoNumericPatches,
-    kNoNumericPatches,
-    kNoNumericPatches,
-    kNoNumericPatches,
-    kNoNumericPatches,
+    kMhxxAttackMultiplierPatches,
+    kMhxxDefenseMultiplierPatches,
     kNoNumericPatches,
     kMhxxZennyPatches,
     kMhxxWycademyPointsPatches,
@@ -439,9 +607,9 @@ constexpr GameProfile kProfiles[]{
     kMonsterLayout,
     kPointerListLayout,
     kMhxxFrameRatePatch,
+    kMhxxMonsterDamagePatch,
     {},
-    {},
-    {},
+    kMhxxQuestLayout,
     kMhxxRuntimePatches,
     kMhxxNumericPatches,
   },
