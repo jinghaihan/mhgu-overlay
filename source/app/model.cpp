@@ -113,11 +113,15 @@ void Model::cycle_hud_layout(const int direction) {
   persist(changed);
 }
 
-void Model::toggle_damage_display() {
+void Model::cycle_hud_content(const int direction) {
   core::CoreSettings changed{};
   {
     const std::scoped_lock lock(mutex_);
-    settings_.damage_display_enabled = !settings_.damage_display_enabled;
+    constexpr auto kContentCount = 3;
+    auto current = static_cast<int>(settings_.hud_content);
+    current = (current + (direction < 0 ? -1 : 1) + kContentCount) %
+              kContentCount;
+    settings_.hud_content = static_cast<core::HudContent>(current);
     changed = settings_;
   }
   persist(changed);
@@ -331,7 +335,8 @@ void Model::worker_main() {
     }
     const auto current_settings = settings();
     const auto damage_polling_enabled =
-      current_settings.damage_display_enabled && monster_hud_active_.load();
+      current_settings.hud_content != core::HudContent::MonsterInfo &&
+      monster_hud_active_.load();
     const auto damage_now = Clock::now();
     if (damage_polling_enabled && damage_now >= next_damage_poll) {
       const auto now_ms = static_cast<std::uint64_t>(

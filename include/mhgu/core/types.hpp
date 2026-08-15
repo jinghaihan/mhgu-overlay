@@ -63,6 +63,12 @@ enum class HudLayout : std::uint8_t {
   CenterRightVertical,
 };
 
+enum class HudContent : std::uint8_t {
+  MonsterInfoAndDamage,
+  MonsterInfo,
+  DamageOnly,
+};
+
 enum class RuntimeFeature : std::uint8_t {
   MapAndLargeMonsters,
   CarryItemsIntoPouch,
@@ -186,7 +192,7 @@ struct CoreSettings {
   SizePreset size_preset{SizePreset::Off};
   FrameRate frame_rate{FrameRate::Fps30};
   HudLayout hud_layout{HudLayout::BottomLeftVertical};
-  bool damage_display_enabled{};
+  HudContent hud_content{HudContent::MonsterInfoAndDamage};
   bool infinite_quest_time{};
   bool unlimited_faints{};
   MonsterDamageMode monster_damage_mode{MonsterDamageMode::Off};

@@ -93,7 +93,10 @@ UI_KEYS = [
   "hudTopCenterHorizontal",
   "hudCenterLeftVertical",
   "hudCenterRightVertical",
-  "damageDisplay",
+  "hudContent",
+  "hudMonsterInfo",
+  "hudMonsterInfoAndDamage",
+  "hudDamageOnly",
 ]
 
 TESLA_MENU_TEXT_KEYS = {
@@ -160,7 +163,10 @@ TESLA_MENU_TEXT_KEYS = {
   "hudTopCenterHorizontal",
   "hudCenterLeftVertical",
   "hudCenterRightVertical",
-  "damageDisplay",
+  "hudContent",
+  "hudMonsterInfo",
+  "hudMonsterInfoAndDamage",
+  "hudDamageOnly",
 }
 # The overlay uses the full 1280px Tesla framebuffer for the game HUD and
 # settings menu. Keep a guard against accidental runaway labels while allowing

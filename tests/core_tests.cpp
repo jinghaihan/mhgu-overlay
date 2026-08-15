@@ -97,6 +97,24 @@ int main() {
       "モンスターデータ待機中"
     ) == 0
   );
+  assert(
+    std::strcmp(
+      ui_message(UiMessage::HudDamageOnly, Locale::English),
+      "Damage only"
+    ) == 0
+  );
+  assert(
+    std::strcmp(
+      ui_message(UiMessage::HudDamageOnly, Locale::SimplifiedChinese),
+      "仅伤害数字"
+    ) == 0
+  );
+  assert(
+    std::strcmp(
+      ui_message(UiMessage::HudDamageOnly, Locale::Japanese),
+      "ダメージのみ"
+    ) == 0
+  );
 
   GameSnapshot snapshot{};
   snapshot.game = GameId::Mhgu;

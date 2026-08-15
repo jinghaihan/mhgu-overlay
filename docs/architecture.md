@@ -204,14 +204,14 @@ not selected by the current Switch adapter.
 Tesla rendering and memory scanning have different timing requirements.
 
 - The UI thread reads immutable copies of `SessionView` and edits settings.
-- A worker thread performs a full game poll every 250 ms. When damage display
-  is enabled, it also samples current and maximum large-monster health every
-  33 ms from the already validated monster handles.
+- A worker thread performs a full game poll every 100 ms. While the HUD is
+  showing damage events, it also samples current large-monster health every
+  16 ms from the already validated monster handles.
 - Settings and view copies are protected by a short-held mutex.
 - The potentially slow heap scan and all `dmnt:cht` calls remain on the worker.
 - Settings are persisted atomically through a temporary file and rename.
 
-The compact HUD draws independent translucent monster cards using a persisted layout preset: bottom-left vertical, left-center vertical, top-right vertical, right-center vertical, or top-center horizontal. The top-center layout uses up to three centered columns and wraps additional cards; unusually large card stacks move damage events lower to avoid overlap. Its information hierarchy is inspired by desktop overlays, while the implementation and visual treatment are native to this project. An optional portable damage tracker converts decreases between health samples into short-lived events; Tesla renders those events as animated values at a fixed screen position rather than attempting to project monster coordinates. The HUD releases foreground input to the game, renders at a higher refresh rate while damage display is enabled, and otherwise uses the lower refresh rate. Holding both sticks returns to the full settings UI.
+The compact HUD draws independent translucent monster cards using a persisted layout preset: bottom-left vertical, left-center vertical, top-right vertical, right-center vertical, or top-center horizontal. The top-center layout uses up to three centered columns and wraps additional cards; unusually large card stacks move damage events lower to avoid overlap. Its information hierarchy is inspired by desktop overlays, while the implementation and visual treatment are native to this project. An optional portable damage tracker converts decreases between health samples into short-lived events; Tesla renders those events as animated values at a fixed screen position rather than attempting to project monster coordinates. A persisted content selector makes the single transparent HUD render monster information, monster information with damage, or damage only. The HUD releases foreground input to the game and uses the higher refresh rate whenever its selected content includes damage. Holding both sticks returns to the full settings UI.
 
 The Tesla UI is organized under `source/ui/components/` by responsibility:
 damage text, shared menu items, HUD rendering, submenus, and the main menu.

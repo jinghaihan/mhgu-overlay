@@ -30,8 +30,8 @@ The main menu is ordered as follows:
 | --- | --- |
 | **Language** | Uses automatic game-language detection or selects English, Simplified Chinese, or Japanese manually. |
 | **Status** | Shows whether MHGU 1.4.0 is detected, scanning, ready, unsupported, or unable to read or write memory. |
-| **Monster HUD** | Opens the low-profile hunting HUD. Each active large monster gets a card with its name, health bar, current and maximum health, health percentage, size multiplier, calculated size, crown class, and Hyper status. The separate **HUD layout** selector chooses lower-left, left-center, upper-right, right-center, or top-center placement. |
-| **Damage display** | Shows animated damage values near the upper center of the hunting HUD when a large monster's health decreases. |
+| **Monster HUD** | Opens the low-profile hunting HUD. The separate **HUD layout** selector chooses lower-left, left-center, upper-right, right-center, or top-center placement. |
+| **HUD content** | Selects monster information, monster information with animated damage values, or damage values only. Monster cards include the name, health bar, current and maximum health, health percentage, size multiplier, calculated size, crown class, and Hyper status. |
 | **Frame rate** | Switches the game's frame-rate target between 30 FPS and 60 FPS. This setting can be changed in either direction. |
 | **Size lock** | Selects **Off**, **Mini crown**, **Silver crown**, or **Gold crown**. The chosen per-monster crown threshold is applied when a valid monster object appears; **Off** is the default. |
 | **Map & monster icons** | Automatically displays the map and marks large-monster locations. |
@@ -130,10 +130,10 @@ Both transmog options can be disabled again during the current game process.
   0.1/0.5; Zenny and Wycademy Points use 10,000/1,000,000; item-pouch slot and
   quantity use 1/5 and 1/10 respectively. SP level, attack, and defense change
   by one with either control.
-- **Monster HUD** returns input to the game. Hold `L3 + R3` to return
-  to settings, and press `B` on a settings page to go back or close the
-  overlay.
-- Language, Monster HUD, HUD layout, damage display, frame rate, size lock,
+- **Monster HUD** returns input to the game. Hold
+  `L3 + R3` to return to settings, and press `B` on a settings page to go back
+  or close the overlay.
+- Language, HUD layout, HUD content, frame rate, size lock,
   selected numeric values, and the two item-pouch inputs are saved to
   `sdmc:/config/mhgu-overlay/settings.ini`.
 - Runtime patch states, numeric-feature enabled states, and monster damage mode

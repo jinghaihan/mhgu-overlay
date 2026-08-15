@@ -16,31 +16,40 @@ public:
       view.output.monster_count, mhgu::core::kMaxMonsters
     );
 
-    if (count == 0) {
-      const auto* message =
-        view.status == SessionStatus::Ready
-          ? mhgu::core::ui_message(UiMessage::NoMonsters, locale)
-          : status_value(view.status, locale);
-      draw_status(renderer, locale, message, settings.hud_layout);
-    } else {
-      for (std::size_t index = 0; index < count; ++index) {
-        const auto position = card_position(settings.hud_layout, count, index);
-        draw_monster(
-          renderer,
-          view.output.monsters[index],
-          locale,
-          position.x,
-          position.y
-        );
+    const auto shows_monster_info =
+      settings.hud_content != HudContent::DamageOnly;
+    const auto shows_damage =
+      settings.hud_content != HudContent::MonsterInfo;
+
+    if (shows_monster_info) {
+      if (count == 0) {
+        const auto* message =
+          view.status == SessionStatus::Ready
+            ? mhgu::core::ui_message(UiMessage::NoMonsters, locale)
+            : status_value(view.status, locale);
+        draw_status(renderer, locale, message, settings.hud_layout);
+      } else {
+        for (std::size_t index = 0; index < count; ++index) {
+          const auto position = card_position(
+            settings.hud_layout, count, index
+          );
+          draw_monster(
+            renderer,
+            view.output.monsters[index],
+            locale,
+            position.x,
+            position.y
+          );
+        }
       }
     }
-    if (settings.damage_display_enabled) {
+    if (shows_damage) {
       draw_damage_events(
         renderer,
         view.damage,
         monotonic_milliseconds(),
         settings.hud_layout,
-        count
+        shows_monster_info ? count : 0
       );
     }
   }
@@ -580,11 +589,13 @@ class HudGui final : public tsl::Gui {
 public:
   explicit HudGui(Model& model)
     : model_(model) {
+    const auto shows_damage =
+      model_.settings().hud_content != HudContent::MonsterInfo;
     model_.set_monster_hud_active(true);
     FullMode = false;
     alphabackground = 0;
     deactivateOriginalFooter = true;
-    TeslaFPS = model_.settings().damage_display_enabled ? 60 : 10;
+    TeslaFPS = shows_damage ? 60 : 10;
     tsl::hlp::requestForeground(false);
   }
 
@@ -595,10 +606,6 @@ public:
     deactivateOriginalFooter = false;
     TeslaFPS = 30;
     tsl::hlp::requestForeground(true);
-  }
-
-  tsl::elm::Element* createUI() override {
-    return new HudElement(model_);
   }
 
   bool handleInput(
@@ -614,6 +621,10 @@ public:
       return true;
     }
     return false;
+  }
+
+  tsl::elm::Element* createUI() override {
+    return new HudElement(model_);
   }
 
 private:
