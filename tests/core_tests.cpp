@@ -99,20 +99,20 @@ int main() {
   );
   assert(
     std::strcmp(
-      ui_message(UiMessage::DamageOnlyOverlay, Locale::English),
-      "Damage-only HUD"
+      ui_message(UiMessage::HudDamageOnly, Locale::English),
+      "Damage only"
     ) == 0
   );
   assert(
     std::strcmp(
-      ui_message(UiMessage::DamageOnlyOverlay, Locale::SimplifiedChinese),
-      "仅伤害数字 HUD"
+      ui_message(UiMessage::HudDamageOnly, Locale::SimplifiedChinese),
+      "仅伤害数字"
     ) == 0
   );
   assert(
     std::strcmp(
-      ui_message(UiMessage::DamageOnlyOverlay, Locale::Japanese),
-      "ダメージのみHUD"
+      ui_message(UiMessage::HudDamageOnly, Locale::Japanese),
+      "ダメージのみ"
     ) == 0
   );
 

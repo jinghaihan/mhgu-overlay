@@ -48,6 +48,43 @@ void refresh_hud_layout_item(tsl::elm::ListItem* item, Model& model) {
   item->setValue(hud_layout_value(model));
 }
 
+const char* hud_content_value(Model& model) {
+  switch (model.settings().hud_content) {
+    case HudContent::MonsterInfoAndDamage:
+      return text(model, UiMessage::HudMonsterInfoAndDamage);
+    case HudContent::DamageOnly:
+      return text(model, UiMessage::HudDamageOnly);
+    default:
+      return text(model, UiMessage::HudMonsterInfo);
+  }
+}
+
+void refresh_hud_content_item(tsl::elm::ListItem* item, Model& model) {
+  item->setText(text(model, UiMessage::HudContent));
+  item->setValue(hud_content_value(model));
+}
+
+tsl::elm::ListItem* hud_content_item(Model& model) {
+  auto* item = new tsl::elm::ListItem(text(model, UiMessage::HudContent));
+  refresh_hud_content_item(item, model);
+  item->setClickListener(
+    [model_ptr = &model, item](const u64 keys) {
+      int direction{};
+      if ((keys & HidNpadButton_Left) != 0) {
+        direction = -1;
+      } else if ((keys & (HidNpadButton_A | HidNpadButton_Right)) != 0) {
+        direction = 1;
+      } else {
+        return false;
+      }
+      model_ptr->cycle_hud_content(direction);
+      refresh_hud_content_item(item, *model_ptr);
+      return true;
+    }
+  );
+  return item;
+}
+
 tsl::elm::ListItem* hud_layout_item(Model& model) {
   auto* item = new tsl::elm::ListItem(text(model, UiMessage::HudLayout));
   refresh_hud_layout_item(item, model);

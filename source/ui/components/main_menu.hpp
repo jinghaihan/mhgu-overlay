@@ -77,37 +77,11 @@ public:
     });
     list->addItem(hud_item_);
 
-    damage_only_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::DamageOnlyOverlay, locale)
-    );
-    damage_only_item_->setClickListener([this](const u64 keys) {
-      if ((keys & HidNpadButton_A) != 0) {
-        tsl::changeTo<DamageOnlyGui>(model_);
-        return true;
-      }
-      return false;
-    });
-    list->addItem(damage_only_item_);
-
     hud_layout_item_ = hud_layout_item(model_);
     list->addItem(hud_layout_item_);
 
-    damage_display_item_ = new tsl::elm::ListItem(
-      mhgu::core::ui_message(UiMessage::DamageDisplay, locale)
-    );
-    damage_display_item_->setValue(mhgu::core::ui_message(
-      model_.settings().damage_display_enabled ? UiMessage::On : UiMessage::Off,
-      locale
-    ));
-    damage_display_item_->setClickListener([this](const u64 keys) {
-      if ((keys & HidNpadButton_A) != 0) {
-        model_.toggle_damage_display();
-        refresh_labels();
-        return true;
-      }
-      return false;
-    });
-    list->addItem(damage_display_item_);
+    hud_content_item_ = hud_content_item(model_);
+    list->addItem(hud_content_item_);
 
     frame_rate_item_ = new tsl::elm::ListItem(
       mhgu::core::ui_message(UiMessage::FrameRate, locale)
@@ -227,17 +201,8 @@ private:
     hud_item_->setText(
       mhgu::core::ui_message(UiMessage::MonsterInfoOverlay, locale)
     );
-    damage_only_item_->setText(
-      mhgu::core::ui_message(UiMessage::DamageOnlyOverlay, locale)
-    );
     refresh_hud_layout_item(hud_layout_item_, model_);
-    damage_display_item_->setText(
-      mhgu::core::ui_message(UiMessage::DamageDisplay, locale)
-    );
-    damage_display_item_->setValue(mhgu::core::ui_message(
-      model_.settings().damage_display_enabled ? UiMessage::On : UiMessage::Off,
-      locale
-    ));
+    refresh_hud_content_item(hud_content_item_, model_);
     frame_rate_item_->setText(
       mhgu::core::ui_message(UiMessage::FrameRate, locale)
     );
@@ -282,9 +247,8 @@ private:
   Model& model_;
   LocalizedOverlayFrame* frame_{};
   tsl::elm::ListItem* hud_item_{};
-  tsl::elm::ListItem* damage_only_item_{};
   tsl::elm::ListItem* hud_layout_item_{};
-  tsl::elm::ListItem* damage_display_item_{};
+  tsl::elm::ListItem* hud_content_item_{};
   tsl::elm::ListItem* language_item_{};
   tsl::elm::ListItem* frame_rate_item_{};
   tsl::elm::ListItem* preset_item_{};

@@ -74,8 +74,10 @@
     "hudTopCenterHorizontal": "Top-center horizontal",
     "hudCenterLeftVertical": "Left-center vertical",
     "hudCenterRightVertical": "Right-center vertical",
-    "damageOnlyOverlay": "Damage-only HUD",
-    "damageDisplay": "Damage in Monster HUD"
+    "hudContent": "HUD content",
+    "hudMonsterInfo": "Monster info",
+    "hudMonsterInfoAndDamage": "Monster info + damage",
+    "hudDamageOnly": "Damage only"
   },
   "monsters": {
     "great-maccao": "Great Maccao",

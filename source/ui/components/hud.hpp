@@ -2,15 +2,10 @@
 
 // Included by source/ui/main.cpp inside its private UI namespace.
 
-enum class HudContent : std::uint8_t {
-  MonsterCards,
-  DamageOnly,
-};
-
 class HudElement final : public tsl::elm::Element {
 public:
-  HudElement(Model& model, const HudContent content)
-    : model_(model), content_(content) {}
+  explicit HudElement(Model& model)
+    : model_(model) {}
 
   void draw(tsl::gfx::Renderer* renderer) override {
     renderer->clearScreen();
@@ -21,7 +16,12 @@ public:
       view.output.monster_count, mhgu::core::kMaxMonsters
     );
 
-    if (content_ == HudContent::MonsterCards) {
+    const auto shows_monster_info =
+      settings.hud_content != HudContent::DamageOnly;
+    const auto shows_damage =
+      settings.hud_content != HudContent::MonsterInfo;
+
+    if (shows_monster_info) {
       if (count == 0) {
         const auto* message =
           view.status == SessionStatus::Ready
@@ -43,14 +43,13 @@ public:
         }
       }
     }
-    if (content_ == HudContent::DamageOnly ||
-        settings.damage_display_enabled) {
+    if (shows_damage) {
       draw_damage_events(
         renderer,
         view.damage,
         monotonic_milliseconds(),
         settings.hud_layout,
-        count
+        shows_monster_info ? count : 0
       );
     }
   }
@@ -584,28 +583,24 @@ private:
   }
 
   Model& model_;
-  const HudContent content_;
 };
 
-class TransparentHudGui : public tsl::Gui {
+class HudGui final : public tsl::Gui {
 public:
-  TransparentHudGui(Model& model, const HudContent content)
-    : model_(model), content_(content) {
-    const auto damage_only = content_ == HudContent::DamageOnly;
-    const auto needs_damage_rate =
-      damage_only || model_.settings().damage_display_enabled;
-    model_.set_monster_hud_active(!damage_only);
-    model_.set_damage_only_hud_active(damage_only);
+  explicit HudGui(Model& model)
+    : model_(model) {
+    const auto shows_damage =
+      model_.settings().hud_content != HudContent::MonsterInfo;
+    model_.set_monster_hud_active(true);
     FullMode = false;
     alphabackground = 0;
     deactivateOriginalFooter = true;
-    TeslaFPS = needs_damage_rate ? 60 : 10;
+    TeslaFPS = shows_damage ? 60 : 10;
     tsl::hlp::requestForeground(false);
   }
 
-  ~TransparentHudGui() override {
+  ~HudGui() override {
     model_.set_monster_hud_active(false);
-    model_.set_damage_only_hud_active(false);
     FullMode = true;
     alphabackground = 0xD;
     deactivateOriginalFooter = false;
@@ -628,27 +623,10 @@ public:
     return false;
   }
 
-protected:
+  tsl::elm::Element* createUI() override {
+    return new HudElement(model_);
+  }
+
+private:
   Model& model_;
-  const HudContent content_;
-};
-
-class HudGui final : public TransparentHudGui {
-public:
-  explicit HudGui(Model& model)
-    : TransparentHudGui(model, HudContent::MonsterCards) {}
-
-  tsl::elm::Element* createUI() override {
-    return new HudElement(model_, content_);
-  }
-};
-
-class DamageOnlyGui final : public TransparentHudGui {
-public:
-  explicit DamageOnlyGui(Model& model)
-    : TransparentHudGui(model, HudContent::DamageOnly) {}
-
-  tsl::elm::Element* createUI() override {
-    return new HudElement(model_, content_);
-  }
 };
