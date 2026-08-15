@@ -1,7 +1,7 @@
 # MHGU Overlay
 
-An in-game hunting companion for Monster Hunter Generations Ultimate 1.4.0 and
-Monster Hunter XX 1.5.1 on Nintendo Switch. It combines a low-profile
+An in-game hunting companion for Monster Hunter Generations Ultimate 1.4.0,
+with experimental Monster Hunter XX 1.5.1 support. It combines a low-profile
 large-monster HUD and crown-size controller with version-gated gameplay tools
 for frame rate, equipment appearance, hunter and Palico combat values,
 resources, and item-pouch edits.
@@ -16,13 +16,6 @@ resources, and item-pouch edits.
 > After installing a version with reversible patches for the first time,
 > fully restart MHGU before opening the overlay. This lets the overlay capture
 > a clean, version-gated copy of the original game instructions.
-
-MHXX 1.5.1 support is experimental. Its profile currently includes the
-version-specific frame-rate, combat, hunter, resource, equipment-transmog,
-quest, and carry-item patch paths from the matching Build ID. Long-sword
-spirit-gauge control, item-pouch quantity editing, Palico HP protection, and
-movement-speed multipliers remain unavailable. The MHXX monster layout and
-pointer-list candidate also still require real-Switch verification.
 
 <p align="center">
   <img src="./assets/mhgu-overlay.gif" alt="MHGU Overlay demonstration" />
