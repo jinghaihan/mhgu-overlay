@@ -96,13 +96,13 @@ core::HudLayout parse_hud_layout(const char* value) {
 }
 
 core::HudContent parse_hud_content(const char* value) {
-  if (std::strcmp(value, "monster_info_and_damage") == 0) {
-    return core::HudContent::MonsterInfoAndDamage;
+  if (std::strcmp(value, "monster_info") == 0) {
+    return core::HudContent::MonsterInfo;
   }
   if (std::strcmp(value, "damage_only") == 0) {
     return core::HudContent::DamageOnly;
   }
-  return core::HudContent::MonsterInfo;
+  return core::HudContent::MonsterInfoAndDamage;
 }
 
 core::MonsterDamageMode parse_monster_damage_mode(const char* value) {
@@ -291,12 +291,12 @@ const char* hud_layout_value(const core::HudLayout layout) {
 
 const char* hud_content_value(const core::HudContent content) {
   switch (content) {
-    case core::HudContent::MonsterInfoAndDamage:
-      return "monster_info_and_damage";
+    case core::HudContent::MonsterInfo:
+      return "monster_info";
     case core::HudContent::DamageOnly:
       return "damage_only";
     default:
-      return "monster_info";
+      return "monster_info_and_damage";
   }
 }
 

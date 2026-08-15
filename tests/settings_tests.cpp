@@ -21,7 +21,7 @@ int main() {
   assert(
     defaults.hud_layout == core::HudLayout::BottomLeftVertical
   );
-  assert(defaults.hud_content == core::HudContent::MonsterInfo);
+  assert(defaults.hud_content == core::HudContent::MonsterInfoAndDamage);
   assert(!defaults.infinite_quest_time);
   assert(!defaults.unlimited_faints);
   assert(defaults.monster_damage_mode == core::MonsterDamageMode::Off);

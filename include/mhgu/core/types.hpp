@@ -64,8 +64,8 @@ enum class HudLayout : std::uint8_t {
 };
 
 enum class HudContent : std::uint8_t {
-  MonsterInfo,
   MonsterInfoAndDamage,
+  MonsterInfo,
   DamageOnly,
 };
 
@@ -192,7 +192,7 @@ struct CoreSettings {
   SizePreset size_preset{SizePreset::Off};
   FrameRate frame_rate{FrameRate::Fps30};
   HudLayout hud_layout{HudLayout::BottomLeftVertical};
-  HudContent hud_content{HudContent::MonsterInfo};
+  HudContent hud_content{HudContent::MonsterInfoAndDamage};
   bool infinite_quest_time{};
   bool unlimited_faints{};
   MonsterDamageMode monster_damage_mode{MonsterDamageMode::Off};
