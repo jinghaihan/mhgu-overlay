@@ -77,6 +77,18 @@ public:
     });
     list->addItem(hud_item_);
 
+    damage_only_item_ = new tsl::elm::ListItem(
+      mhgu::core::ui_message(UiMessage::DamageOnlyOverlay, locale)
+    );
+    damage_only_item_->setClickListener([this](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0) {
+        tsl::changeTo<DamageOnlyGui>(model_);
+        return true;
+      }
+      return false;
+    });
+    list->addItem(damage_only_item_);
+
     hud_layout_item_ = hud_layout_item(model_);
     list->addItem(hud_layout_item_);
 
@@ -215,6 +227,9 @@ private:
     hud_item_->setText(
       mhgu::core::ui_message(UiMessage::MonsterInfoOverlay, locale)
     );
+    damage_only_item_->setText(
+      mhgu::core::ui_message(UiMessage::DamageOnlyOverlay, locale)
+    );
     refresh_hud_layout_item(hud_layout_item_, model_);
     damage_display_item_->setText(
       mhgu::core::ui_message(UiMessage::DamageDisplay, locale)
@@ -267,6 +282,7 @@ private:
   Model& model_;
   LocalizedOverlayFrame* frame_{};
   tsl::elm::ListItem* hud_item_{};
+  tsl::elm::ListItem* damage_only_item_{};
   tsl::elm::ListItem* hud_layout_item_{};
   tsl::elm::ListItem* damage_display_item_{};
   tsl::elm::ListItem* language_item_{};

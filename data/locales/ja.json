@@ -74,7 +74,8 @@
     "hudTopCenterHorizontal": "上中央・横",
     "hudCenterLeftVertical": "左中央・縦",
     "hudCenterRightVertical": "右中央・縦",
-    "damageDisplay": "ダメージ表示"
+    "damageOnlyOverlay": "ダメージのみHUD",
+    "damageDisplay": "モンスターHUDにダメージ表示"
   },
   "monsters": {
     "great-maccao": "ドスマッカォ",

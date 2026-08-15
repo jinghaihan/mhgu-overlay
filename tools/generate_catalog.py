@@ -93,6 +93,7 @@ UI_KEYS = [
   "hudTopCenterHorizontal",
   "hudCenterLeftVertical",
   "hudCenterRightVertical",
+  "damageOnlyOverlay",
   "damageDisplay",
 ]
 
@@ -160,6 +161,7 @@ TESLA_MENU_TEXT_KEYS = {
   "hudTopCenterHorizontal",
   "hudCenterLeftVertical",
   "hudCenterRightVertical",
+  "damageOnlyOverlay",
   "damageDisplay",
 }
 # The overlay uses the full 1280px Tesla framebuffer for the game HUD and

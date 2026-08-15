@@ -79,6 +79,7 @@ enum class UiMessage : std::uint8_t {
   HudTopCenterHorizontal,
   HudCenterLeftVertical,
   HudCenterRightVertical,
+  DamageOnlyOverlay,
   DamageDisplay,
 };
 

@@ -312,6 +312,10 @@ void Model::set_monster_hud_active(const bool active) {
   monster_hud_active_ = active;
 }
 
+void Model::set_damage_only_hud_active(const bool active) {
+  damage_only_hud_active_ = active;
+}
+
 void Model::persist(const core::CoreSettings& settings) {
   store_.save(settings);
 }
@@ -331,7 +335,9 @@ void Model::worker_main() {
     }
     const auto current_settings = settings();
     const auto damage_polling_enabled =
-      current_settings.damage_display_enabled && monster_hud_active_.load();
+      (current_settings.damage_display_enabled &&
+       monster_hud_active_.load()) ||
+      damage_only_hud_active_.load();
     const auto damage_now = Clock::now();
     if (damage_polling_enabled && damage_now >= next_damage_poll) {
       const auto now_ms = static_cast<std::uint64_t>(
