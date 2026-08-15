@@ -79,7 +79,10 @@ constexpr const char* kMessages[][3] = {
   {"Top-center horizontal", "顶部居中横向", "上中央・横"},
   {"Left-center vertical", "左侧居中纵向", "左中央・縦"},
   {"Right-center vertical", "右侧居中纵向", "右中央・縦"},
-  {"Damage display", "伤害显示", "ダメージ表示"},
+  {"HUD content", "HUD 显示内容", "HUD表示内容"},
+  {"Monster info", "怪物信息", "モンスター情報"},
+  {"Monster info + damage", "怪物信息 + 伤害", "モンスター情報＋ダメージ"},
+  {"Damage only", "仅伤害数字", "ダメージのみ"},
 };
 
 }  // namespace

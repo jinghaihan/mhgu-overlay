@@ -18,6 +18,7 @@ namespace {
 
 using mhgu::app::Model;
 using mhgu::app::QuestCompletionStatus;
+using mhgu::core::HudContent;
 using mhgu::core::HudLayout;
 using mhgu::core::Locale;
 using mhgu::core::LocaleMode;

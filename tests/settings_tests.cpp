@@ -21,7 +21,7 @@ int main() {
   assert(
     defaults.hud_layout == core::HudLayout::BottomLeftVertical
   );
-  assert(!defaults.damage_display_enabled);
+  assert(defaults.hud_content == core::HudContent::MonsterInfoAndDamage);
   assert(!defaults.infinite_quest_time);
   assert(!defaults.unlimited_faints);
   assert(defaults.monster_damage_mode == core::MonsterDamageMode::Off);
@@ -85,7 +85,7 @@ int main() {
   expected.size_preset = core::SizePreset::Gold;
   expected.frame_rate = core::FrameRate::Fps60;
   expected.hud_layout = core::HudLayout::CenterRightVertical;
-  expected.damage_display_enabled = true;
+  expected.hud_content = core::HudContent::DamageOnly;
   expected.infinite_quest_time = true;
   expected.unlimited_faints = true;
   expected.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
@@ -108,7 +108,7 @@ int main() {
   assert(restored.size_preset == expected.size_preset);
   assert(restored.frame_rate == expected.frame_rate);
   assert(restored.hud_layout == expected.hud_layout);
-  assert(restored.damage_display_enabled);
+  assert(restored.hud_content == core::HudContent::DamageOnly);
   assert(restored.infinite_quest_time);
   assert(restored.unlimited_faints);
   assert(
@@ -165,6 +165,14 @@ int main() {
   for (const auto& feature : reloaded.numeric_features) {
     assert(!feature.enabled);
   }
+
+  auto* legacy_damage = std::fopen(kPath, "w");
+  assert(legacy_damage != nullptr);
+  std::fprintf(legacy_damage, "damage_display=1\n");
+  assert(std::fclose(legacy_damage) == 0);
+  assert(
+    store.load().hud_content == core::HudContent::MonsterInfoAndDamage
+  );
 
   auto* numeric = std::fopen(kPath, "w");
   assert(numeric != nullptr);

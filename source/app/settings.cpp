@@ -95,6 +95,16 @@ core::HudLayout parse_hud_layout(const char* value) {
   return core::HudLayout::BottomLeftVertical;
 }
 
+core::HudContent parse_hud_content(const char* value) {
+  if (std::strcmp(value, "monster_info") == 0) {
+    return core::HudContent::MonsterInfo;
+  }
+  if (std::strcmp(value, "damage_only") == 0) {
+    return core::HudContent::DamageOnly;
+  }
+  return core::HudContent::MonsterInfoAndDamage;
+}
+
 core::MonsterDamageMode parse_monster_damage_mode(const char* value) {
   if (std::strcmp(value, "instant_kill") == 0) {
     return core::MonsterDamageMode::InstantKill;
@@ -279,6 +289,17 @@ const char* hud_layout_value(const core::HudLayout layout) {
   }
 }
 
+const char* hud_content_value(const core::HudContent content) {
+  switch (content) {
+    case core::HudContent::MonsterInfo:
+      return "monster_info";
+    case core::HudContent::DamageOnly:
+      return "damage_only";
+    default:
+      return "monster_info_and_damage";
+  }
+}
+
 const char* monster_damage_mode_value(const core::MonsterDamageMode mode) {
   switch (mode) {
     case core::MonsterDamageMode::InstantKill:
@@ -297,6 +318,8 @@ SettingsStore::SettingsStore(std::string path)
 
 core::CoreSettings SettingsStore::load() const {
   core::CoreSettings settings{};
+  bool has_hud_content = false;
+  bool legacy_damage_display_enabled = false;
   bool has_legacy_size_lock = false;
   bool legacy_size_lock_enabled = false;
   auto* file = std::fopen(path_.c_str(), "r");
@@ -323,8 +346,11 @@ core::CoreSettings SettingsStore::load() const {
       settings.frame_rate = parse_frame_rate(value);
     } else if (std::strcmp(key, "hud_layout") == 0) {
       settings.hud_layout = parse_hud_layout(value);
+    } else if (std::strcmp(key, "hud_content") == 0) {
+      settings.hud_content = parse_hud_content(value);
+      has_hud_content = true;
     } else if (std::strcmp(key, "damage_display") == 0) {
-      settings.damage_display_enabled = parse_enabled(value);
+      legacy_damage_display_enabled = parse_enabled(value);
     } else if (std::strcmp(key, "infinite_quest_time") == 0) {
       settings.infinite_quest_time = parse_enabled(value);
     } else if (std::strcmp(key, "unlimited_faints") == 0) {
@@ -394,6 +420,9 @@ core::CoreSettings SettingsStore::load() const {
     }
   }
   std::fclose(file);
+  if (!has_hud_content && legacy_damage_display_enabled) {
+    settings.hud_content = core::HudContent::MonsterInfoAndDamage;
+  }
   if (has_legacy_size_lock && !legacy_size_lock_enabled) {
     settings.size_preset = core::SizePreset::Off;
   }
@@ -416,8 +445,8 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
   std::fprintf(file, "hud_layout=%s\n", hud_layout_value(settings.hud_layout));
   std::fprintf(
     file,
-    "damage_display=%u\n",
-    settings.damage_display_enabled ? 1U : 0U
+    "hud_content=%s\n",
+    hud_content_value(settings.hud_content)
   );
   std::fprintf(
     file,

@@ -74,7 +74,10 @@
     "hudTopCenterHorizontal": "顶部居中横向",
     "hudCenterLeftVertical": "左侧居中纵向",
     "hudCenterRightVertical": "右侧居中纵向",
-    "damageDisplay": "伤害显示"
+    "hudContent": "HUD 显示内容",
+    "hudMonsterInfo": "怪物信息",
+    "hudMonsterInfoAndDamage": "怪物信息 + 伤害",
+    "hudDamageOnly": "仅伤害数字"
   },
   "monsters": {
     "great-maccao": "跳狗龙王",

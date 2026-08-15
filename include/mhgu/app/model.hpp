@@ -34,7 +34,7 @@ public:
   void cycle_language();
   void cycle_frame_rate();
   void cycle_hud_layout(int direction);
-  void toggle_damage_display();
+  void cycle_hud_content(int direction);
   void toggle_infinite_quest_time();
   void toggle_unlimited_faints();
   void request_complete_quest();
