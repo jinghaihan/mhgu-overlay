@@ -77,6 +77,9 @@ void append_patch_set_offsets(
     return;
   }
   for (std::size_t index = 0; index < patch_set.count; ++index) {
+    if (patch_set.patches[index].offset == 0) {
+      continue;
+    }
     if (count >= offsets.size()) {
       count = offsets.size() + 1;
       return;
@@ -108,7 +111,9 @@ std::size_t collect_patch_offsets(
   std::array<std::uint64_t, kMaxPatchBaselineEntries>& offsets
 ) {
   std::size_t count{};
-  offsets[count++] = profile.monster_damage.offset;
+  if (profile.monster_damage.offset != 0) {
+    offsets[count++] = profile.monster_damage.offset;
+  }
   for (const auto& patch_set : profile.runtime_patches) {
     append_patch_set_offsets(patch_set, offsets, count);
   }
@@ -117,6 +122,9 @@ std::size_t collect_patch_offsets(
       return 0;
     }
     for (std::size_t index = 0; index < patch_set.count; ++index) {
+      if (patch_set.patches[index].offset == 0) {
+        continue;
+      }
       if (count >= offsets.size()) {
         return 0;
       }

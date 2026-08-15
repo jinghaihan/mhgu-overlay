@@ -103,7 +103,10 @@ Floating-point source values are converted to fixed-point integers during data g
 
 ### Game profiles
 
-Raw offsets are isolated in `GameProfile`. The current profile contains:
+Raw offsets are isolated in `GameProfile`. Each supported title keeps its
+complete layouts and patch tables in a separate `mhgu_profile.cpp` or
+`mhxx_profile.cpp`; `game_profile.cpp` only selects between those profiles.
+The current profile contains:
 
 | Field | Monster-relative offset |
 | --- | ---: |
@@ -124,7 +127,7 @@ These values are reverse-engineering facts derived from community prior art and 
 
 1. detect the current cheat process;
 2. read its title ID and heap base;
-3. require the MHGU 1.4.0 Title ID and build ID profile;
+3. require a supported Title ID and build ID profile;
 4. scan the profile's bounded heap range in 64 KiB chunks;
 5. validate candidate list markers, padding, pointer continuity, count, and the first monster identity;
 6. read each monster field individually and retain live objects marked either
@@ -187,7 +190,7 @@ Small-monster secondary IDs are rejected before catalog lookup.
 
 ### Automatic language detection
 
-For MHGU, the adapter asks libnx for the application's control data and desired language. If that service is unavailable, it falls back to the system language.
+For MHGU, the adapter asks libnx for the application's control data and desired language. If that service is unavailable, it falls back to the system language. MHXX is a Japanese-only profile and therefore selects Japanese automatically.
 
 Mappings are deliberately narrow:
 
@@ -196,8 +199,9 @@ Mappings are deliberately narrow:
 - Simplified or Traditional Chinese → Simplified Chinese UI;
 - every other language or error → English.
 
-A manual language setting always wins. MHXX remains a future profile and is
-not selected by the current Switch adapter.
+A manual language setting always wins. The Switch adapter selects a profile by
+Title ID and Build ID before it creates the monster reader or applies any
+profile-backed write.
 
 ## Application model and threading
 

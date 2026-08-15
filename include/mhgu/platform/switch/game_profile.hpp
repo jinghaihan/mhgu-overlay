@@ -31,6 +31,9 @@ struct PointerListLayout {
 };
 
 struct FrameRatePatch {
+  std::uint64_t mode_pointer_from_main;
+  std::uint64_t mode_target_from_pointer;
+  std::uint8_t mode_value;
   std::uint64_t pointer_from_main;
   std::uint64_t target_from_pointer;
   std::uint32_t fps30_value;
@@ -125,6 +128,16 @@ constexpr BuildIdPrefix kMhgu140BuildId{
   0xD1,
   0x20,
   0x4F,
+};
+constexpr BuildIdPrefix kMhxx151BuildId{
+  0x9D,
+  0x4C,
+  0x86,
+  0xE6,
+  0xEF,
+  0x74,
+  0x50,
+  0x4A,
 };
 
 const GameProfile* profile_for_process(

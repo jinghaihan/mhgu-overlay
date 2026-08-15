@@ -87,6 +87,78 @@ int main() {
   const auto* matched_profile =
     profile_for_process(kMhguTitleId, build_id.data(), build_id.size());
   assert(matched_profile != nullptr);
+  std::array<std::uint8_t, 0x20> mhxx_build_id{};
+  std::copy(
+    kMhxx151BuildId.begin(), kMhxx151BuildId.end(), mhxx_build_id.begin()
+  );
+  const auto* mhxx_profile = profile_for_process(
+    kMhxxTitleId, mhxx_build_id.data(), mhxx_build_id.size()
+  );
+  assert(mhxx_profile != nullptr);
+  assert(mhxx_profile->game == core::GameId::Mhxx);
+  assert(mhxx_profile->frame_rate.mode_pointer_from_main == 0x00DFD9CC);
+  assert(mhxx_profile->frame_rate.mode_target_from_pointer == 0x8B4);
+  assert(mhxx_profile->frame_rate.mode_value == 2);
+  assert(mhxx_profile->frame_rate.pointer_from_main == 0x018AD81C);
+  assert(mhxx_profile->frame_rate.target_from_pointer == 0x3C);
+  assert(
+    mhxx_profile->runtime_patches[
+      core::runtime_feature_index(core::RuntimeFeature::Invincible)
+    ].patches[0].offset == 0x001661D8
+  );
+  assert(
+    mhxx_profile->runtime_patches[
+      core::runtime_feature_index(core::RuntimeFeature::MapAndLargeMonsters)
+    ].patches[0].offset == 0x00612F40
+  );
+  assert(
+    mhxx_profile->runtime_patches[
+      core::runtime_feature_index(core::RuntimeFeature::CarryItemsIntoPouch)
+    ].patches[0].offset == 0x0019198C
+  );
+  assert(
+    mhxx_profile->runtime_patches[
+      core::runtime_feature_index(core::RuntimeFeature::HealthNoDecrease)
+    ].patches[0].offset == 0x002EDC5C
+  );
+  assert(
+    mhxx_profile->runtime_patches[
+      core::runtime_feature_index(core::RuntimeFeature::WeaponTransmog)
+    ].patches[0].offset == 0x000D9C1C
+  );
+  assert(mhxx_profile->monster_damage.offset == 0x00097ADC);
+  assert(mhxx_profile->quest.pointer_from_main == 0x018AC1C0);
+  assert(mhxx_profile->quest.secondary_faint_count_from_quest == 0x15A6);
+  assert(
+    mhxx_profile->numeric_patches[
+      core::numeric_feature_index(core::NumericFeature::HunterAffinity)
+    ].patches[0].offset == 0x000E2D48
+  );
+  assert(
+    mhxx_profile->numeric_patches[
+      core::numeric_feature_index(core::NumericFeature::AttackMultiplier)
+    ].count == 10
+  );
+  assert(
+    mhxx_profile->numeric_patches[
+      core::numeric_feature_index(core::NumericFeature::LongSwordSpiritGauge)
+    ].count == 0
+  );
+  assert(
+    mhxx_profile->numeric_patches[
+      core::numeric_feature_index(core::NumericFeature::MovementSpeedMultiplier)
+    ].count == 0
+  );
+  assert(
+    mhxx_profile->numeric_patches[
+      core::numeric_feature_index(core::NumericFeature::Zenny)
+    ].patches[4].offset == 0x00625374
+  );
+  assert(
+    mhxx_profile->numeric_patches[
+      core::numeric_feature_index(core::NumericFeature::WycademyPoints)
+    ].patches[4].offset == 0x006253A4
+  );
   assert(
     profile_for_process(kMhxxTitleId, build_id.data(), build_id.size()) ==
     nullptr
@@ -708,6 +780,35 @@ int main() {
     kFrameRateTargetBase + kFrameRateTargetOffset,
     profile.frame_rate.fps30_value
   );
+
+  auto mhxx_frame_profile = *mhxx_profile;
+  mhxx_frame_profile.frame_rate.mode_pointer_from_main = 0x40;
+  mhxx_frame_profile.frame_rate.mode_target_from_pointer = 0x10;
+  mhxx_frame_profile.frame_rate.pointer_from_main = 0x48;
+  mhxx_frame_profile.frame_rate.target_from_pointer = 0x20;
+  constexpr std::uint64_t kMhxxModeBase = 0x10000;
+  constexpr std::uint64_t kMhxxFrameRateTargetBase = 0x11000;
+  FakeMemory mhxx_memory(0x20000);
+  mhxx_memory.store(0x40, std::uint32_t{kMhxxModeBase});
+  mhxx_memory.store(kMhxxModeBase + 0x10, std::uint8_t{0});
+  mhxx_memory.store(0x48, kMhxxFrameRateTargetBase);
+  mhxx_memory.store(
+    kMhxxFrameRateTargetBase + 0x20,
+    mhxx_frame_profile.frame_rate.fps30_value
+  );
+  GamePatches mhxx_frame_patches(
+    mhxx_memory, mhxx_frame_profile, 0, 0x1000, 0, 0x20000
+  );
+  assert(mhxx_frame_patches.set_frame_rate(core::FrameRate::Fps60));
+  assert(
+    mhxx_memory.load<std::uint8_t>(kMhxxModeBase + 0x10) ==
+    mhxx_frame_profile.frame_rate.mode_value
+  );
+  assert(
+    mhxx_memory.load<std::uint32_t>(kMhxxFrameRateTargetBase + 0x20) ==
+    mhxx_frame_profile.frame_rate.fps60_value
+  );
+
   memory.store(
     kMainBase + profile.quest.pointer_from_main, kQuest
   );

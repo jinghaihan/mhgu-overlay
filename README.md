@@ -1,9 +1,10 @@
 # MHGU Overlay
 
-An in-game hunting companion for Monster Hunter Generations Ultimate 1.4.0 on
-Nintendo Switch. It combines a low-profile large-monster HUD and crown-size
-controller with version-gated gameplay tools for frame rate, equipment
-appearance, hunter and Palico combat values, resources, and item-pouch edits.
+An in-game hunting companion for Monster Hunter Generations Ultimate 1.4.0,
+with experimental Monster Hunter XX 1.5.1 support. It combines a low-profile
+large-monster HUD and crown-size controller with version-gated gameplay tools
+for frame rate, equipment appearance, hunter and Palico combat values,
+resources, and item-pouch edits.
 
 [![build](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml/badge.svg)](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -29,7 +30,7 @@ The main menu is ordered as follows:
 | Menu item | What it does |
 | --- | --- |
 | **Language** | Uses automatic game-language detection or selects English, Simplified Chinese, or Japanese manually. |
-| **Status** | Shows whether MHGU 1.4.0 is detected, scanning, ready, unsupported, or unable to read or write memory. |
+| **Status** | Shows whether a supported MHGU/MHXX profile is detected, scanning, ready, unsupported, or unable to read or write memory. |
 | **Monster HUD** | Opens the low-profile hunting HUD. The separate **HUD layout** selector chooses lower-left, left-center, upper-right, right-center, or top-center placement. |
 | **HUD content** | Selects monster information, monster information with animated damage values, or damage values only. Monster cards include the name, health bar, current and maximum health, health percentage, size multiplier, calculated size, crown class, and Hyper status. |
 | **Frame rate** | Switches the game's frame-rate target between 30 FPS and 60 FPS. This setting can be changed in either direction. |
@@ -108,7 +109,7 @@ Both transmog options can be disabled again during the current game process.
 
 ## Requirements
 
-- MHGU 1.4.0 for Nintendo Switch
+- MHGU 1.4.0 or MHXX 1.5.1 for Nintendo Switch
 - Atmosphère with `dmnt:cht`
 - Tesla Menu / ovlmenu
 
@@ -119,7 +120,7 @@ Both transmog options can be disabled again during the current game process.
    or download the `mhgu-overlay` artifact from a successful
    [build workflow](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml).
 2. Copy it to `sdmc:/switch/.overlays/mhgu-overlay.ovl`.
-3. Start MHGU 1.4.0, open Tesla Menu, and select **MHGU Overlay**.
+3. Start a supported game version, open Tesla Menu, and select **MHGU Overlay**.
 
 ## Controls and persistence
 
