@@ -5,12 +5,47 @@
 #include <iostream>
 
 #include "mhgu/core/catalog.hpp"
+#include "mhgu/core/food_skills.hpp"
 #include "mhgu/core/locale.hpp"
 
 int main() {
   using namespace mhgu::core;
 
   assert(monster_catalog_size() == 94);
+  assert(food_skill_catalog_size() == 65);
+
+  const auto* food_skills = food_skill_catalog();
+  for (std::size_t index = 0; index < food_skill_catalog_size(); ++index) {
+    const auto& skill = food_skills[index];
+    assert(skill.id == index + 1);
+    assert(skill.key != nullptr && skill.key[0] != '\0');
+    assert(food_skill_name(skill.id, Locale::English)[0] != '\0');
+    assert(food_skill_name(skill.id, Locale::SimplifiedChinese)[0] != '\0');
+    assert(food_skill_name(skill.id, Locale::Japanese)[0] != '\0');
+  }
+  assert(find_food_skill(0) == nullptr);
+  assert(find_food_skill(66) == nullptr);
+  assert(
+    std::strcmp(food_skill_name(11, Locale::English), "Felyne Charisma") == 0
+  );
+  assert(
+    std::strcmp(food_skill_name(11, Locale::Japanese), "ネコのカリスマ") == 0
+  );
+  assert(
+    std::strcmp(
+      food_skill_name(18, Locale::SimplifiedChinese), "猫的火场怪力"
+    ) == 0
+  );
+  assert(
+    std::strcmp(
+      food_skill_name(40, Locale::SimplifiedChinese), "猫的击晕术"
+    ) == 0
+  );
+  assert(
+    std::strcmp(
+      food_skill_name(64, Locale::Japanese), "ネコのあとは任せた！"
+    ) == 0
+  );
 
   const auto* catalog = monster_catalog();
   for (std::size_t index = 0; index < monster_catalog_size(); ++index) {

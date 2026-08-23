@@ -11,11 +11,13 @@
 #include <utility>
 
 #include "mhgu/app/model.hpp"
+#include "mhgu/core/food_skills.hpp"
 #include "mhgu/core/locale.hpp"
 #include "mhgu/core/messages.hpp"
 
 namespace {
 
+using mhgu::app::FoodSkillApplyStatus;
 using mhgu::app::Model;
 using mhgu::app::QuestCompletionStatus;
 using mhgu::core::HudContent;

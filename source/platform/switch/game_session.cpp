@@ -391,6 +391,19 @@ bool GameSession::apply_item_pouch_quantity(
   return true;
 }
 
+FoodSkillOperationResult GameSession::apply_food_skills(
+  const std::array<core::FoodSkillId, core::kFoodSkillSlotCount>& skills
+) {
+  if (patches_ == nullptr) {
+    return FoodSkillOperationResult::NoCharacterData;
+  }
+  const auto result = patches_->set_food_skills(skills);
+  if (result == FoodSkillOperationResult::Failed) {
+    view_.patch_write_failed = true;
+  }
+  return result;
+}
+
 const SessionView& GameSession::view() const {
   return view_;
 }

@@ -56,6 +56,11 @@ QuestCompletionStatus Model::quest_completion_status() const {
   return quest_completion_status_;
 }
 
+FoodSkillApplyStatus Model::food_skill_apply_status() const {
+  const std::scoped_lock lock(mutex_);
+  return food_skill_apply_status_;
+}
+
 core::Locale Model::display_locale() const {
   const std::scoped_lock lock(mutex_);
   return core::resolve_locale(
@@ -285,6 +290,41 @@ void Model::request_item_pouch_quantity_write() {
   item_pouch_write_request_.store(request);
 }
 
+void Model::adjust_food_skill(const std::size_t slot, const int delta) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    if (slot >= settings_.food_skills.size()) {
+      return;
+    }
+    const auto adjusted = std::clamp(
+      static_cast<int>(settings_.food_skills[slot]) + delta,
+      static_cast<int>(core::kMinimumFoodSkillId),
+      static_cast<int>(core::kMaximumFoodSkillId)
+    );
+    if (adjusted == settings_.food_skills[slot]) {
+      return;
+    }
+    settings_.food_skills[slot] = static_cast<core::FoodSkillId>(adjusted);
+    food_skill_apply_status_ = FoodSkillApplyStatus::Idle;
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::request_food_skills_write() {
+  const auto current_settings = settings();
+  const auto request =
+    static_cast<std::uint32_t>(current_settings.food_skills[0]) << 16 |
+    static_cast<std::uint32_t>(current_settings.food_skills[1]) << 8 |
+    current_settings.food_skills[2];
+  {
+    const std::scoped_lock lock(mutex_);
+    food_skill_apply_status_ = FoodSkillApplyStatus::Pending;
+  }
+  food_skill_write_request_.store(request);
+}
+
 void Model::cycle_size_preset() {
   core::CoreSettings changed{};
   {
@@ -361,6 +401,32 @@ void Model::worker_main() {
         static_cast<std::uint8_t>(item_pouch_write_request >> 8),
         static_cast<std::uint8_t>(item_pouch_write_request & 0xFF)
       );
+    }
+    const auto food_skill_write_request =
+      food_skill_write_request_.exchange(0);
+    if (food_skill_write_request != 0) {
+      const std::array<core::FoodSkillId, core::kFoodSkillSlotCount> skills{{
+        static_cast<core::FoodSkillId>(
+          (food_skill_write_request >> 16) & 0xFF
+        ),
+        static_cast<core::FoodSkillId>(
+          (food_skill_write_request >> 8) & 0xFF
+        ),
+        static_cast<core::FoodSkillId>(food_skill_write_request & 0xFF),
+      }};
+      const auto result = session_.apply_food_skills(skills);
+      const std::scoped_lock lock(mutex_);
+      switch (result) {
+        case platform::switch_adapter::FoodSkillOperationResult::Success:
+          food_skill_apply_status_ = FoodSkillApplyStatus::Applied;
+          break;
+        case platform::switch_adapter::FoodSkillOperationResult::NoCharacterData:
+          food_skill_apply_status_ = FoodSkillApplyStatus::NoCharacterData;
+          break;
+        default:
+          food_skill_apply_status_ = FoodSkillApplyStatus::Failed;
+          break;
+      }
     }
     if (complete_quest_requested_.exchange(false)) {
       const auto result = session_.complete_quest();

@@ -43,6 +43,9 @@ public:
   void poll_damage(bool enabled, std::uint64_t now_ms);
   void request_rescan();
   bool apply_item_pouch_quantity(std::uint8_t slot, std::uint8_t quantity);
+  FoodSkillOperationResult apply_food_skills(
+    const std::array<core::FoodSkillId, core::kFoodSkillSlotCount>& skills
+  );
   QuestOperationResult complete_quest();
 
   const SessionView& view() const;

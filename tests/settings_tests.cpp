@@ -27,6 +27,9 @@ int main() {
   assert(defaults.monster_damage_mode == core::MonsterDamageMode::Off);
   assert(defaults.item_pouch_slot == 1);
   assert(defaults.item_pouch_quantity == 99);
+  constexpr std::array<core::FoodSkillId, core::kFoodSkillSlotCount>
+    kDefaultFoodSkills{{1, 2, 3}};
+  assert(defaults.food_skills == kDefaultFoodSkills);
   for (const auto enabled : defaults.runtime_features) {
     assert(!enabled);
   }
@@ -91,6 +94,7 @@ int main() {
   expected.monster_damage_mode = core::MonsterDamageMode::LeaveOneHp;
   expected.item_pouch_slot = 7;
   expected.item_pouch_quantity = 42;
+  expected.food_skills = {{16, 43, 61}};
   expected.runtime_features.fill(true);
   expected.numeric_features[affinity_index] = {73, true};
   expected.numeric_features[palico_affinity_index] = {61, true};
@@ -116,6 +120,7 @@ int main() {
   );
   assert(restored.item_pouch_slot == 7);
   assert(restored.item_pouch_quantity == 42);
+  assert(restored.food_skills == expected.food_skills);
   for (const auto enabled : restored.runtime_features) {
     assert(enabled);
   }
@@ -256,6 +261,18 @@ int main() {
   assert(std::fclose(numeric) == 0);
   assert(store.load().item_pouch_slot == 10);
   assert(store.load().item_pouch_quantity == 99);
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(
+    numeric,
+    "food_skill_1=0\nfood_skill_2=66\nfood_skill_3=invalid\n"
+  );
+  assert(std::fclose(numeric) == 0);
+  const auto sanitized_food_skills = store.load().food_skills;
+  assert(sanitized_food_skills[0] == core::kMinimumFoodSkillId);
+  assert(sanitized_food_skills[1] == core::kMaximumFoodSkillId);
+  assert(sanitized_food_skills[2] == 3);
 
   numeric = std::fopen(kPath, "w");
   assert(numeric != nullptr);

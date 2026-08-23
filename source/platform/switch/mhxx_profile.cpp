@@ -40,6 +40,14 @@ constexpr MonsterDamagePatch kMonsterDamagePatch{
   0xE2860001,
 };
 
+constexpr FoodSkillLayout kFoodSkillLayout{
+  0x018B7EB8,
+  0x29,
+  core::kFoodSkillSlotCount,
+  core::kMinimumFoodSkillId,
+  core::kMaximumFoodSkillId,
+};
+
 constexpr QuestLayout kQuestLayout{
   0x018AC1C0,
   0x001C,
@@ -296,6 +304,7 @@ constexpr GameProfile kProfile{
   kFrameRatePatch,
   kMonsterDamagePatch,
   {},
+  kFoodSkillLayout,
   kQuestLayout,
   kRuntimePatches,
   kNumericPatches,

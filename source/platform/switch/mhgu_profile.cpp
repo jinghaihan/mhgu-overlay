@@ -46,6 +46,14 @@ constexpr ItemPouchLayout kItemPouchLayout{
   99,
 };
 
+constexpr FoodSkillLayout kFoodSkillLayout{
+  0x01896C20,
+  0x29,
+  core::kFoodSkillSlotCount,
+  core::kMinimumFoodSkillId,
+  core::kMaximumFoodSkillId,
+};
+
 constexpr QuestLayout kQuestLayout{
   0x0188AD90,
   0x001C,
@@ -329,6 +337,7 @@ constexpr GameProfile kProfile{
   kFrameRatePatch,
   kMonsterDamagePatch,
   kItemPouchLayout,
+  kFoodSkillLayout,
   kQuestLayout,
   kRuntimePatches,
   kNumericPatches,

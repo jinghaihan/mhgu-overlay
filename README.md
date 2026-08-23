@@ -39,6 +39,7 @@ The main menu is ordered as follows:
 | **Carry to pouch** | Allows carried objects such as eggs to be placed in the item pouch. |
 | **Equipment transmog** | Opens the weapon and armor appearance submenu. |
 | **Hunter** | Opens hunter status and gauge tools. |
+| **Custom food skills** | Selects three food skills and applies them to the active character in one verified write. |
 | **Combat parameters** | Opens monster damage, attack, defense, and movement tools. |
 | **Quest** | Opens infinite-time, unlimited-faint, and complete-current-quest tools. |
 | **Resources** | Opens item, Zenny, Wycademy Point, and pouch-slot tools. |
@@ -80,6 +81,16 @@ Both transmog options can be disabled again during the current game process.
 | **Attack** | Sets the attack multiplier from x1 to x10. |
 | **Defense** | Sets the defense multiplier from x1 to x10. |
 | **Move speed** | Sets movement speed from x1.0 to x5.0. |
+
+### Custom food skills
+
+| Menu item | What it does |
+| --- | --- |
+| **Food skill 1–3** | Selects skill IDs `0x01` through `0x41` using the localized MHGU/MHXX food-skill names. |
+| **Apply food skills** | Resolves the active character pointer and performs one bounded, verified three-byte write. It does not repeat the write automatically. |
+
+Load a character before applying the selection. The game may replace active
+food skills after eating again or changing sessions.
 
 ### Quest
 
@@ -142,8 +153,8 @@ Both transmog options can be disabled again during the current game process.
   `L3 + R3` to return to settings, and press `B` on a settings page to go back
   or close the overlay.
 - Language, HUD layout, HUD content, frame rate, size lock,
-  selected numeric values, and the two item-pouch inputs are saved to
-  `sdmc:/config/mhgu-overlay/settings.ini`.
+  selected numeric values, the two item-pouch inputs, and the three food-skill
+  selections are saved to `sdmc:/config/mhgu-overlay/settings.ini`.
 - Runtime patch states, numeric-feature enabled states, and monster damage mode
   are saved. Press `A` on a patch or numeric row to toggle it between **On** and
   **Off**. Selecting **Off** restores the original instructions immediately;
@@ -181,8 +192,11 @@ screenshots, and media are not copied into this repository.
 - [旧大陆的革新之风：3G/4G/GU现代化工具下载&教程](https://www.bilibili.com/video/BV1A8Gw6yEHg/)
   by [hua莱士](https://space.bilibili.com/16486100) — prior art for the
   damage-display behavior.
-- [Kiranico](https://mhxx.kiranico.com/) — authoritative base sizes and
-  crown thresholds used by the catalog pipeline.
+- [Kiranico](https://mhxx.kiranico.com/) — authoritative base sizes, crown
+  thresholds, and MHGU/MHXX food-skill names used by the catalog pipeline.
+- [Monster Hunter World Chronicles](https://mhw.poedb.tw/chs/food_skills) —
+  Simplified Chinese labels reused only where the Japanese food-skill name
+  exactly matches MHGU/MHXX.
 - [MH Crown](https://mhcrown.com/) — independent crown-size cross-checks.
 - [libtesla](https://github.com/minazuki19/libtesla) — Tesla UI runtime
   dependency included as a Git submodule under its own license.

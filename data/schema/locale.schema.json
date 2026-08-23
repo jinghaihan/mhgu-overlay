@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "MHGU overlay locale",
   "type": "object",
-  "required": ["locale", "ui", "monsters"],
+  "required": ["locale", "ui", "monsters", "foodSkills"],
   "properties": {
     "locale": {
       "type": "string",
@@ -16,6 +16,13 @@
       }
     },
     "monsters": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "foodSkills": {
       "type": "object",
       "additionalProperties": {
         "type": "string",

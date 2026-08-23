@@ -16,6 +16,12 @@ enum class QuestOperationResult : std::uint8_t {
   Failed,
 };
 
+enum class FoodSkillOperationResult : std::uint8_t {
+  Success,
+  NoCharacterData,
+  Failed,
+};
+
 class GamePatches {
 public:
   GamePatches(
@@ -32,6 +38,9 @@ public:
   bool set_frame_rate(core::FrameRate frame_rate);
   bool set_monster_damage_mode(core::MonsterDamageMode mode);
   bool set_item_pouch_quantity(std::uint8_t slot, std::uint8_t quantity);
+  FoodSkillOperationResult set_food_skills(
+    const std::array<core::FoodSkillId, core::kFoodSkillSlotCount>& skills
+  );
   QuestOperationResult maintain_quest(
     bool infinite_time, bool unlimited_faints
   );

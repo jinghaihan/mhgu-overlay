@@ -282,6 +282,98 @@ tsl::elm::ListItem* apply_item_pouch_quantity_item(Model& model) {
   return item;
 }
 
+constexpr std::array<UiMessage, mhgu::core::kFoodSkillSlotCount>
+  kFoodSkillLabels{{
+    UiMessage::FoodSkill1,
+    UiMessage::FoodSkill2,
+    UiMessage::FoodSkill3,
+  }};
+
+void refresh_food_skill_item(
+  tsl::elm::ListItem* item, Model& model, const std::size_t slot
+) {
+  if (slot >= kFoodSkillLabels.size()) {
+    return;
+  }
+  const auto skill = model.settings().food_skills[slot];
+  char value[96]{};
+  std::snprintf(
+    value,
+    sizeof(value),
+    "%02X %s",
+    static_cast<unsigned>(skill),
+    mhgu::core::food_skill_name(skill, model.display_locale())
+  );
+  item->setText(text(model, kFoodSkillLabels[slot]));
+  item->setValue(value);
+}
+
+tsl::elm::ListItem* food_skill_item(
+  Model& model, const std::size_t slot
+) {
+  auto* item = new tsl::elm::ListItem(text(model, kFoodSkillLabels[slot]));
+  refresh_food_skill_item(item, model, slot);
+  item->setClickListener(
+    [model_ptr = &model, item, slot](const u64 keys) {
+      int delta{};
+      if ((keys & HidNpadButton_Left) != 0) {
+        delta = -1;
+      } else if ((keys & HidNpadButton_Right) != 0) {
+        delta = 1;
+      } else if ((keys & HidNpadButton_L) != 0) {
+        delta = -10;
+      } else if ((keys & HidNpadButton_R) != 0) {
+        delta = 10;
+      } else {
+        return false;
+      }
+      model_ptr->adjust_food_skill(slot, delta);
+      refresh_food_skill_item(item, *model_ptr, slot);
+      return true;
+    }
+  );
+  return item;
+}
+
+const char* food_skill_apply_value(Model& model) {
+  const auto locale = model.display_locale();
+  switch (model.food_skill_apply_status()) {
+    case FoodSkillApplyStatus::Pending:
+      return "...";
+    case FoodSkillApplyStatus::Applied:
+      return mhgu::core::ui_message(UiMessage::Completed, locale);
+    case FoodSkillApplyStatus::NoCharacterData:
+      return mhgu::core::ui_message(UiMessage::NoCharacterData, locale);
+    case FoodSkillApplyStatus::Failed:
+      return mhgu::core::ui_message(UiMessage::Failed, locale);
+    default:
+      return mhgu::core::ui_message(UiMessage::Execute, locale);
+  }
+}
+
+void refresh_apply_food_skills_item(
+  tsl::elm::ListItem* item, Model& model
+) {
+  item->setText(text(model, UiMessage::ApplyFoodSkills));
+  item->setValue(food_skill_apply_value(model));
+}
+
+tsl::elm::ListItem* apply_food_skills_item(Model& model) {
+  auto* item = new tsl::elm::ListItem(text(model, UiMessage::ApplyFoodSkills));
+  refresh_apply_food_skills_item(item, model);
+  item->setClickListener(
+    [model_ptr = &model, item](const u64 keys) {
+      if ((keys & HidNpadButton_A) == 0) {
+        return false;
+      }
+      model_ptr->request_food_skills_write();
+      refresh_apply_food_skills_item(item, *model_ptr);
+      return true;
+    }
+  );
+  return item;
+}
+
 mhgu::core::NumericFeatureSetting numeric_feature_setting(
   Model& model, const NumericFeature feature
 ) {

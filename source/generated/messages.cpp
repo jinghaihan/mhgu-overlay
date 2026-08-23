@@ -83,6 +83,12 @@ constexpr const char* kMessages[][3] = {
   {"Monster info", "怪物信息", "モンスター情報"},
   {"Monster info + damage", "怪物信息 + 伤害", "モンスター情報＋ダメージ"},
   {"Damage only", "仅伤害数字", "ダメージのみ"},
+  {"Custom food skills", "猫饭自定义", "食事スキル変更"},
+  {"Food skill 1", "猫饭技能 1", "食事スキル 1"},
+  {"Food skill 2", "猫饭技能 2", "食事スキル 2"},
+  {"Food skill 3", "猫饭技能 3", "食事スキル 3"},
+  {"Apply food skills", "应用猫饭技能", "食事スキルを適用"},
+  {"Character data unavailable", "角色数据不可用", "キャラデータなし"},
 };
 
 }  // namespace

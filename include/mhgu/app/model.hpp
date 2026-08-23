@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <cstddef>
 #include <cstdint>
 #include <mutex>
 #include <thread>
@@ -18,6 +19,14 @@ enum class QuestCompletionStatus : std::uint8_t {
   Failed,
 };
 
+enum class FoodSkillApplyStatus : std::uint8_t {
+  Idle,
+  Pending,
+  Applied,
+  NoCharacterData,
+  Failed,
+};
+
 class Model {
 public:
   Model();
@@ -29,6 +38,7 @@ public:
   core::CoreSettings settings() const;
   platform::switch_adapter::SessionView session_view() const;
   QuestCompletionStatus quest_completion_status() const;
+  FoodSkillApplyStatus food_skill_apply_status() const;
   core::Locale display_locale() const;
 
   void cycle_language();
@@ -45,6 +55,8 @@ public:
   void adjust_item_pouch_slot(int delta);
   void adjust_item_pouch_quantity(int delta);
   void request_item_pouch_quantity_write();
+  void adjust_food_skill(std::size_t slot, int delta);
+  void request_food_skills_write();
   void cycle_size_preset();
   void request_rescan();
   void set_monster_hud_active(bool active);
@@ -57,12 +69,14 @@ private:
   core::CoreSettings settings_{};
   platform::switch_adapter::SessionView view_{};
   QuestCompletionStatus quest_completion_status_{};
+  FoodSkillApplyStatus food_skill_apply_status_{};
   platform::switch_adapter::GameSession session_{};
   SettingsStore store_;
   std::atomic<bool> running_{false};
   std::atomic<bool> rescan_requested_{false};
   std::atomic<bool> monster_hud_active_{false};
   std::atomic<std::uint16_t> item_pouch_write_request_{};
+  std::atomic<std::uint32_t> food_skill_write_request_{};
   std::atomic<bool> complete_quest_requested_{};
   std::thread worker_;
 };

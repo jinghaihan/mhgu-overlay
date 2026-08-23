@@ -83,6 +83,12 @@ enum class UiMessage : std::uint8_t {
   HudMonsterInfo,
   HudMonsterInfoAndDamage,
   HudDamageOnly,
+  FoodSkills,
+  FoodSkill1,
+  FoodSkill2,
+  FoodSkill3,
+  ApplyFoodSkills,
+  NoCharacterData,
 };
 
 const char* ui_message(UiMessage message, Locale locale);

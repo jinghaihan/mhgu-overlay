@@ -544,6 +544,84 @@ bool GamePatches::set_item_pouch_quantity(
          verified == quantity;
 }
 
+FoodSkillOperationResult GamePatches::set_food_skills(
+  const std::array<core::FoodSkillId, core::kFoodSkillSlotCount>& skills
+) {
+  const auto& layout = profile_.food_skills;
+  if (layout.pointer_from_main == 0 ||
+      layout.slot_count != skills.size() ||
+      layout.minimum_id != core::kMinimumFoodSkillId ||
+      layout.maximum_id != core::kMaximumFoodSkillId) {
+    return FoodSkillOperationResult::Failed;
+  }
+  for (const auto skill : skills) {
+    if (skill < layout.minimum_id || skill > layout.maximum_id) {
+      return FoodSkillOperationResult::Failed;
+    }
+  }
+
+  std::uint64_t pointer_address{};
+  if (!checked_add(main_base_, layout.pointer_from_main, pointer_address) ||
+      !contains(
+        main_base_, main_size_, pointer_address, sizeof(std::uint32_t)
+      ) ||
+      !memory_.pause()) {
+    return FoodSkillOperationResult::Failed;
+  }
+
+  auto finish = [this](const FoodSkillOperationResult result) {
+    return memory_.resume() ? result : FoodSkillOperationResult::Failed;
+  };
+
+  std::uint32_t target_base{};
+  if (!memory_.read(
+        pointer_address, &target_base, sizeof(target_base)
+      )) {
+    return finish(FoodSkillOperationResult::Failed);
+  }
+  if (target_base == 0) {
+    return finish(FoodSkillOperationResult::NoCharacterData);
+  }
+
+  std::uint64_t target{};
+  if (!checked_add(target_base, layout.first_skill_from_pointer, target) ||
+      !contains(
+        address_space_base_, address_space_size_, target, skills.size()
+      ) ||
+      (heap_size_ != 0 &&
+       !contains(heap_base_, heap_size_, target, skills.size()))) {
+    return finish(FoodSkillOperationResult::Failed);
+  }
+
+  std::array<core::FoodSkillId, core::kFoodSkillSlotCount> previous{};
+  if (!memory_.read(target, previous.data(), previous.size())) {
+    return finish(FoodSkillOperationResult::Failed);
+  }
+  if (previous == skills) {
+    return finish(FoodSkillOperationResult::Success);
+  }
+
+  auto write_verified = [this, target](
+                          const std::array<
+                            core::FoodSkillId,
+                            core::kFoodSkillSlotCount
+                          >& values
+                        ) {
+    std::array<core::FoodSkillId, core::kFoodSkillSlotCount> verified{};
+    return memory_.write(target, values.data(), values.size()) &&
+           memory_.read(target, verified.data(), verified.size()) &&
+           verified == values;
+  };
+  if (write_verified(skills)) {
+    return finish(FoodSkillOperationResult::Success);
+  }
+
+  // A failed write may still have changed part of the target. Restore the
+  // complete previous value and verify that write through the same path.
+  static_cast<void>(write_verified(previous));
+  return finish(FoodSkillOperationResult::Failed);
+}
+
 QuestOperationResult GamePatches::maintain_quest(
   const bool infinite_time, const bool unlimited_faints
 ) {
