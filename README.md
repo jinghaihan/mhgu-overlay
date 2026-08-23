@@ -111,16 +111,23 @@ Both transmog options can be disabled again during the current game process.
 
 - MHGU 1.4.0 or MHXX 1.5.1 for Nintendo Switch
 - Atmosphère with `dmnt:cht`
-- Tesla Menu / ovlmenu
+- Tesla Menu / ovlmenu with
+  [nx-ovlloader 1.0.7 (8 MiB heap)](https://github.com/zdm65477730/nx-ovlloader/releases/download/1.0.7/nx-ovlloader.zip).
+  Loaders with a smaller heap may fail to open the full-width HUD with error
+  `2345-0002`.
 
 ## Install
 
-1. Download `mhgu-overlay.ovl` from the
+1. Install or update the recommended `nx-ovlloader` above. From its archive,
+   copy only `atmosphere/contents/420000000007E51A` to the same location on
+   the SD card, preserving the existing Tesla hotkey configuration, then fully
+   restart the console.
+2. Download `mhgu-overlay.ovl` from the
    [latest release](https://github.com/jinghaihan/mhgu-overlay/releases/latest),
    or download the `mhgu-overlay` artifact from a successful
    [build workflow](https://github.com/jinghaihan/mhgu-overlay/actions/workflows/build.yml).
-2. Copy it to `sdmc:/switch/.overlays/mhgu-overlay.ovl`.
-3. Start a supported game version, open Tesla Menu, and select **MHGU Overlay**.
+3. Copy it to `sdmc:/switch/.overlays/mhgu-overlay.ovl`.
+4. Start a supported game version, open Tesla Menu, and select **MHGU Overlay**.
 
 ## Controls and persistence
 
