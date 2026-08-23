@@ -142,6 +142,11 @@ public:
     hunter_item_ = submenu_item<HunterGui>(model_, UiMessage::Hunter);
     list->addItem(hunter_item_);
 
+    food_skills_item_ = submenu_item<FoodSkillsGui>(
+      model_, UiMessage::FoodSkills
+    );
+    list->addItem(food_skills_item_);
+
     combat_parameters_item_ = submenu_item<CombatParametersGui>(
       model_, UiMessage::CombatParameters
     );
@@ -230,6 +235,9 @@ private:
       RuntimeFeature::CarryItemsIntoPouch
     );
     hunter_item_->setText(mhgu::core::ui_message(UiMessage::Hunter, locale));
+    food_skills_item_->setText(
+      mhgu::core::ui_message(UiMessage::FoodSkills, locale)
+    );
     combat_parameters_item_->setText(
       mhgu::core::ui_message(UiMessage::CombatParameters, locale)
     );
@@ -256,6 +264,7 @@ private:
   tsl::elm::ListItem* carry_item_{};
   tsl::elm::ListItem* transmog_item_{};
   tsl::elm::ListItem* hunter_item_{};
+  tsl::elm::ListItem* food_skills_item_{};
   tsl::elm::ListItem* combat_parameters_item_{};
   tsl::elm::ListItem* quest_item_{};
   tsl::elm::ListItem* resources_item_{};

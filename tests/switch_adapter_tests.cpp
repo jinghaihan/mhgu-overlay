@@ -127,6 +127,8 @@ int main() {
     ].patches[0].offset == 0x000D9C1C
   );
   assert(mhxx_profile->monster_damage.offset == 0x00097ADC);
+  assert(mhxx_profile->food_skills.pointer_from_main == 0x018B7EB8);
+  assert(mhxx_profile->food_skills.first_skill_from_pointer == 0x29);
   assert(mhxx_profile->quest.pointer_from_main == 0x018AC1C0);
   assert(mhxx_profile->quest.secondary_faint_count_from_quest == 0x15A6);
   assert(
@@ -180,8 +182,11 @@ int main() {
   constexpr std::uint64_t kFrameRateTargetOffset = 0x20;
   constexpr std::uint64_t kItemPouchHeapBase = 0x10000;
   constexpr std::uint64_t kItemPouchHeapSize = 0x1000;
+  constexpr std::uint64_t kFoodSkillPointerOffset = 0x98;
+  constexpr std::uint32_t kFoodSkillTargetBase = 0x10200;
   profile.frame_rate.pointer_from_main = kFrameRatePointer;
   profile.frame_rate.target_from_pointer = kFrameRateTargetOffset;
+  profile.food_skills.pointer_from_main = kFoodSkillPointerOffset;
   const auto map_index = core::runtime_feature_index(
     core::RuntimeFeature::MapAndLargeMonsters
   );
@@ -280,6 +285,17 @@ int main() {
   assert(matched_profile->item_pouch.slot_count == 10);
   assert(matched_profile->item_pouch.minimum_quantity == 1);
   assert(matched_profile->item_pouch.maximum_quantity == 99);
+  assert(matched_profile->food_skills.pointer_from_main == 0x01896C20);
+  assert(matched_profile->food_skills.first_skill_from_pointer == 0x29);
+  assert(
+    matched_profile->food_skills.slot_count == core::kFoodSkillSlotCount
+  );
+  assert(
+    matched_profile->food_skills.minimum_id == core::kMinimumFoodSkillId
+  );
+  assert(
+    matched_profile->food_skills.maximum_id == core::kMaximumFoodSkillId
+  );
   assert(matched_profile->runtime_patches[health_index].count == 1);
   assert(
     matched_profile->runtime_patches[health_index].patches[0].offset ==
@@ -825,6 +841,16 @@ int main() {
   memory.store(
     kQuest + profile.quest.completion_state_from_quest, std::uint8_t{0}
   );
+  memory.store(
+    kMainBase + profile.food_skills.pointer_from_main,
+    kFoodSkillTargetBase
+  );
+  const auto food_skill_target =
+    kFoodSkillTargetBase + profile.food_skills.first_skill_from_pointer;
+  memory.store(
+    food_skill_target,
+    std::array<core::FoodSkillId, core::kFoodSkillSlotCount>{{1, 2, 3}}
+  );
   constexpr std::uint32_t kOriginalShowMapInstruction = 0x0A000001;
   constexpr std::uint32_t kOriginalMarkInstruction = 0xE3A00000;
   constexpr std::uint32_t kOriginalCarryInstruction = 0x1A000001;
@@ -1186,6 +1212,74 @@ int main() {
   );
   assert(!invalid_item_pouch.set_item_pouch_quantity(1, 50));
   assert(memory.write_count() == patch_writes);
+
+  const std::array<core::FoodSkillId, core::kFoodSkillSlotCount>
+    selected_food_skills{{16, 43, 61}};
+  patch_writes = memory.write_count();
+  assert(
+    patches.set_food_skills(selected_food_skills) ==
+    FoodSkillOperationResult::Success
+  );
+  assert(memory.write_count() == patch_writes + 1);
+  assert((
+    memory.load<std::array<core::FoodSkillId, core::kFoodSkillSlotCount>>(
+      food_skill_target
+    ) == selected_food_skills
+  ));
+  patch_writes = memory.write_count();
+  assert(
+    patches.set_food_skills(selected_food_skills) ==
+    FoodSkillOperationResult::Success
+  );
+  assert(memory.write_count() == patch_writes);
+
+  auto invalid_food_skills = selected_food_skills;
+  invalid_food_skills[1] = 0;
+  assert(
+    patches.set_food_skills(invalid_food_skills) ==
+    FoodSkillOperationResult::Failed
+  );
+  assert(memory.write_count() == patch_writes);
+
+  memory.store(
+    kMainBase + profile.food_skills.pointer_from_main, std::uint32_t{0}
+  );
+  patch_writes = memory.write_count();
+  assert(
+    patches.set_food_skills(selected_food_skills) ==
+    FoodSkillOperationResult::NoCharacterData
+  );
+  assert(memory.write_count() == patch_writes);
+
+  memory.store(
+    kMainBase + profile.food_skills.pointer_from_main,
+    std::uint32_t{0x12000}
+  );
+  patch_writes = memory.write_count();
+  assert(
+    patches.set_food_skills(selected_food_skills) ==
+    FoodSkillOperationResult::Failed
+  );
+  assert(memory.write_count() == patch_writes);
+
+  memory.store(
+    kMainBase + profile.food_skills.pointer_from_main,
+    kFoodSkillTargetBase
+  );
+  const std::array<core::FoodSkillId, core::kFoodSkillSlotCount>
+    replacement_food_skills{{40, 41, 42}};
+  patch_writes = memory.write_count();
+  memory.fail_write_after(0);
+  assert(
+    patches.set_food_skills(replacement_food_skills) ==
+    FoodSkillOperationResult::Failed
+  );
+  assert(memory.write_count() == patch_writes + 1);
+  assert((
+    memory.load<std::array<core::FoodSkillId, core::kFoodSkillSlotCount>>(
+      food_skill_target
+    ) == selected_food_skills
+  ));
 
   patch_writes = memory.write_count();
   assert(

@@ -216,6 +216,62 @@ private:
   Model& model_;
 };
 
+class FoodSkillsGui final : public tsl::Gui {
+public:
+  explicit FoodSkillsGui(Model& model)
+    : model_(model) {}
+
+  tsl::elm::Element* createUI() override {
+    const auto locale = model_.display_locale();
+    frame_ = new LocalizedOverlayFrame(
+      mhgu::core::ui_message(UiMessage::FoodSkills, locale), kVersion
+    );
+    auto* list = new tsl::elm::List(6);
+    for (std::size_t slot = 0; slot < food_skill_items_.size(); ++slot) {
+      food_skill_items_[slot] = food_skill_item(model_, slot);
+      list->addItem(food_skill_items_[slot]);
+    }
+    apply_item_ = apply_food_skills_item(model_);
+    list->addItem(apply_item_);
+    frame_->setContent(list);
+    return frame_;
+  }
+
+  void update() override {
+    if (frame_ == nullptr || apply_item_ == nullptr) {
+      return;
+    }
+    frame_->setTitle(
+      mhgu::core::ui_message(UiMessage::FoodSkills, model_.display_locale())
+    );
+    for (std::size_t slot = 0; slot < food_skill_items_.size(); ++slot) {
+      refresh_food_skill_item(food_skill_items_[slot], model_, slot);
+    }
+    refresh_apply_food_skills_item(apply_item_, model_);
+  }
+
+  bool handleInput(
+    const u64 keys_down,
+    u64,
+    const HidTouchState&,
+    JoystickPosition,
+    JoystickPosition
+  ) override {
+    if ((keys_down & HidNpadButton_B) != 0) {
+      tsl::goBack();
+      return true;
+    }
+    return false;
+  }
+
+private:
+  Model& model_;
+  LocalizedOverlayFrame* frame_{};
+  std::array<tsl::elm::ListItem*, mhgu::core::kFoodSkillSlotCount>
+    food_skill_items_{};
+  tsl::elm::ListItem* apply_item_{};
+};
+
 class QuestGui final : public tsl::Gui {
 public:
   explicit QuestGui(Model& model)

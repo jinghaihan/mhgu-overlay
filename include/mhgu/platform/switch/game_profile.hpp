@@ -54,6 +54,14 @@ struct ItemPouchLayout {
   std::uint8_t maximum_quantity;
 };
 
+struct FoodSkillLayout {
+  std::uint64_t pointer_from_main;
+  std::uint64_t first_skill_from_pointer;
+  std::uint8_t slot_count;
+  core::FoodSkillId minimum_id;
+  core::FoodSkillId maximum_id;
+};
+
 struct QuestLayout {
   std::uint64_t pointer_from_main;
   std::uint64_t time_from_quest;
@@ -112,6 +120,7 @@ struct GameProfile {
   FrameRatePatch frame_rate;
   MonsterDamagePatch monster_damage;
   ItemPouchLayout item_pouch;
+  FoodSkillLayout food_skills;
   QuestLayout quest;
   std::array<MainWordPatchSet, core::kRuntimeFeatureCount> runtime_patches;
   std::array<NumericWordPatchSet, core::kNumericFeatureCount> numeric_patches;

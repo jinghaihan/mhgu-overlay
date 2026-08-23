@@ -35,11 +35,13 @@ $(DAMAGE_TEST_BINARY): source/core/damage.cpp tests/damage_tests.cpp
 	$(CXX) $(CXXFLAGS) -Iinclude $^ -o $@
 
 $(CATALOG_TEST_BINARY): source/core/locale.cpp source/generated/catalog.cpp \
-		source/generated/messages.cpp tests/catalog_tests.cpp
+		source/generated/food_skills.cpp source/generated/messages.cpp \
+		tests/catalog_tests.cpp
 	@mkdir -p $(HOST_BUILD)
 	$(CXX) $(CXXFLAGS) -Iinclude $^ -o $@
 
 $(SWITCH_TEST_BINARY): source/generated/catalog.cpp \
+		source/generated/food_skills.cpp \
 		source/generated/messages.cpp \
 		source/generated/switch_aliases.cpp \
 		source/core/damage.cpp \

@@ -7,9 +7,14 @@
 namespace mhgu::core {
 
 constexpr std::size_t kMaxMonsters = 10;
+constexpr std::size_t kFoodSkillSlotCount = 3;
 
 using MonsterId = std::uint16_t;
 using MonsterHandle = std::uint64_t;
+using FoodSkillId = std::uint8_t;
+
+constexpr FoodSkillId kMinimumFoodSkillId = 0x01;
+constexpr FoodSkillId kMaximumFoodSkillId = 0x41;
 
 enum class GameId : std::uint8_t {
   Unknown,
@@ -171,6 +176,12 @@ struct MonsterDefinition {
   bool variable_size;
 };
 
+struct FoodSkillDefinition {
+  FoodSkillId id;
+  const char* key;
+  LocalizedNames names;
+};
+
 struct MonsterSnapshot {
   MonsterHandle handle;
   MonsterId monster_id;
@@ -198,6 +209,7 @@ struct CoreSettings {
   MonsterDamageMode monster_damage_mode{MonsterDamageMode::Off};
   std::uint8_t item_pouch_slot{1};
   std::uint8_t item_pouch_quantity{99};
+  std::array<FoodSkillId, kFoodSkillSlotCount> food_skills{{1, 2, 3}};
   std::array<bool, kRuntimeFeatureCount> runtime_features{};
   std::array<NumericFeatureSetting, kNumericFeatureCount> numeric_features{{
     {100, false},

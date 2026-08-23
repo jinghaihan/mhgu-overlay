@@ -244,6 +244,21 @@ std::uint8_t parse_item_pouch_quantity(const char* value) {
   return static_cast<std::uint8_t>(std::clamp(parsed, 1L, 99L));
 }
 
+core::FoodSkillId parse_food_skill(
+  const char* value, const core::FoodSkillId fallback
+) {
+  char* end{};
+  const auto parsed = std::strtol(value, &end, 10);
+  if (end == value || *end != '\0') {
+    return fallback;
+  }
+  return static_cast<core::FoodSkillId>(std::clamp(
+    parsed,
+    static_cast<long>(core::kMinimumFoodSkillId),
+    static_cast<long>(core::kMaximumFoodSkillId)
+  ));
+}
+
 const char* locale_value(const core::LocaleMode mode) {
   switch (mode) {
     case core::LocaleMode::English:
@@ -397,6 +412,12 @@ core::CoreSettings SettingsStore::load() const {
       settings.item_pouch_slot = parse_item_pouch_slot(value);
     } else if (std::strcmp(key, "item_pouch_quantity") == 0) {
       settings.item_pouch_quantity = parse_item_pouch_quantity(value);
+    } else if (std::strcmp(key, "food_skill_1") == 0) {
+      settings.food_skills[0] = parse_food_skill(value, 1);
+    } else if (std::strcmp(key, "food_skill_2") == 0) {
+      settings.food_skills[1] = parse_food_skill(value, 2);
+    } else if (std::strcmp(key, "food_skill_3") == 0) {
+      settings.food_skills[2] = parse_food_skill(value, 3);
     } else if (std::strcmp(key, "size_lock") == 0) {
       has_legacy_size_lock = true;
       legacy_size_lock_enabled = parse_enabled(value);
@@ -556,6 +577,14 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
     "item_pouch_quantity=%u\n",
     static_cast<unsigned>(settings.item_pouch_quantity)
   );
+  for (std::size_t index = 0; index < settings.food_skills.size(); ++index) {
+    std::fprintf(
+      file,
+      "food_skill_%u=%u\n",
+      static_cast<unsigned>(index + 1),
+      static_cast<unsigned>(settings.food_skills[index])
+    );
+  }
   const auto close_result = std::fclose(file);
   if (close_result != 0) {
     std::remove(temporary.c_str());
