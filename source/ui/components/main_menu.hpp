@@ -77,11 +77,11 @@ public:
     });
     list->addItem(hud_item_);
 
-    hud_layout_item_ = hud_layout_item(model_);
-    list->addItem(hud_layout_item_);
-
     hud_content_item_ = hud_content_item(model_);
     list->addItem(hud_content_item_);
+
+    hud_layout_item_ = hud_layout_item(model_);
+    list->addItem(hud_layout_item_);
 
     frame_rate_item_ = new tsl::elm::ListItem(
       mhgu::core::ui_message(UiMessage::FrameRate, locale)
@@ -178,13 +178,29 @@ public:
     return frame_;
   }
 
+  // The damage display submenu can change the HUD content mode; refresh the
+  // outer item whenever the value changed while another Gui was on top.
+  void update() override {
+    if (hud_content_item_ == nullptr) {
+      return;
+    }
+    const auto current = model_.settings().hud_content;
+    if (current != last_hud_content_) {
+      last_hud_content_ = current;
+      refresh_hud_content_item(hud_content_item_, model_);
+    }
+  }
+
   bool handleInput(
     const u64 keys_down,
-    u64,
+    const u64 keys_held,
     const HidTouchState&,
     JoystickPosition,
     JoystickPosition
   ) override {
+    if (handle_minimize_combo(keys_down, keys_held)) {
+      return true;
+    }
     if ((keys_down & HidNpadButton_B) != 0) {
       tsl::goBack();
       return true;
@@ -257,6 +273,7 @@ private:
   tsl::elm::ListItem* hud_item_{};
   tsl::elm::ListItem* hud_layout_item_{};
   tsl::elm::ListItem* hud_content_item_{};
+  HudContent last_hud_content_{HudContent::MonsterInfoAndDamage};
   tsl::elm::ListItem* language_item_{};
   tsl::elm::ListItem* frame_rate_item_{};
   tsl::elm::ListItem* preset_item_{};

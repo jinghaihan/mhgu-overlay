@@ -20,6 +20,10 @@ namespace {
 using mhgu::app::FoodSkillApplyStatus;
 using mhgu::app::Model;
 using mhgu::app::QuestCompletionStatus;
+using mhgu::core::DamageAppearEffect;
+using mhgu::core::DamageDriftMode;
+using mhgu::core::DamageStaggerMode;
+using mhgu::core::DamageStaggerType;
 using mhgu::core::HudContent;
 using mhgu::core::HudLayout;
 using mhgu::core::Locale;
@@ -45,6 +49,31 @@ std::uint64_t monotonic_milliseconds() {
   );
 }
 
+// Monotonic timestamp of the last time the Tesla overlay became visible.
+std::uint64_t g_overlay_shown_at_ms = 0;
+
+// Handles L + Down on any menu page: hides the overlay and returns to the
+// game without popping the Gui stack.  The stack keeps the current page
+// alive, so reopening the Tesla menu lands on the exact page the player
+// left.  The chord that opens the menu (L + Down + R3 by default) is still
+// queued as freshly pressed keys on the first visible frame, so the combo
+// is ignored briefly after every show to avoid immediately hiding again.
+inline bool handle_minimize_combo(
+  const u64 keys_down,
+  const u64 keys_held
+) {
+  constexpr std::uint64_t kReopenGuardMs = 300;
+  if (monotonic_milliseconds() - g_overlay_shown_at_ms < kReopenGuardMs) {
+    return false;
+  }
+  if ((keys_down & HidNpadButton_Down) != 0 &&
+      (keys_held & HidNpadButton_L) != 0) {
+    tsl::Overlay::get()->hide();
+    return true;
+  }
+  return false;
+}
+
 #include "components/damage_text.hpp"
 #include "components/menu_items.hpp"
 #include "components/hud.hpp"
@@ -59,6 +88,10 @@ public:
 
   void exitServices() override {
     model_.stop();
+  }
+
+  void onShow() override {
+    g_overlay_shown_at_ms = monotonic_milliseconds();
   }
 
   std::unique_ptr<tsl::Gui> loadInitialGui() override {

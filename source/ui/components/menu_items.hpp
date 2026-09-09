@@ -64,15 +64,24 @@ void refresh_hud_content_item(tsl::elm::ListItem* item, Model& model) {
   item->setValue(hud_content_value(model));
 }
 
+// Damage display settings submenu. Defined after LocalizedOverlayFrame below.
+class DamageDisplayGui;
+
 tsl::elm::ListItem* hud_content_item(Model& model) {
   auto* item = new tsl::elm::ListItem(text(model, UiMessage::HudContent));
   refresh_hud_content_item(item, model);
   item->setClickListener(
     [model_ptr = &model, item](const u64 keys) {
+      // A opens the damage display settings submenu; the value itself can
+      // still be cycled quickly with Left / Right.
+      if ((keys & HidNpadButton_A) != 0) {
+        tsl::changeTo<DamageDisplayGui>(*model_ptr);
+        return true;
+      }
       int direction{};
       if ((keys & HidNpadButton_Left) != 0) {
         direction = -1;
-      } else if ((keys & (HidNpadButton_A | HidNpadButton_Right)) != 0) {
+      } else if ((keys & HidNpadButton_Right) != 0) {
         direction = 1;
       } else {
         return false;
@@ -308,6 +317,10 @@ void refresh_food_skill_item(
   item->setValue(value);
 }
 
+// Picker that lists every food skill (0x01..0x41) and assigns the chosen one
+// to a given slot.  Defined after LocalizedOverlayFrame below.
+class FoodSkillPickerGui;
+
 tsl::elm::ListItem* food_skill_item(
   Model& model, const std::size_t slot
 ) {
@@ -315,6 +328,10 @@ tsl::elm::ListItem* food_skill_item(
   refresh_food_skill_item(item, model, slot);
   item->setClickListener(
     [model_ptr = &model, item, slot](const u64 keys) {
+      if ((keys & HidNpadButton_A) != 0) {
+        tsl::changeTo<FoodSkillPickerGui>(*model_ptr, slot);
+        return true;
+      }
       int delta{};
       if ((keys & HidNpadButton_Left) != 0) {
         delta = -1;
@@ -517,4 +534,471 @@ public:
   void setTitle(std::string title) {
     m_title = std::move(title);
   }
+
+  // Draw the menu on the left half of the screen only.  The full 1280px
+  // framebuffer is needed for the hunting HUD's side-by-side layout, but the
+  // menu list only needs half that width and leaves the rest of the game
+  // visible.
+  void draw(tsl::gfx::Renderer* renderer) override {
+    const u16 half_width = tsl::cfg::FramebufferWidth / 2;
+
+    renderer->drawRect(
+      0, 0, half_width, tsl::cfg::FramebufferHeight,
+      tsl::gfx::Color{0x0, 0x0, 0x0, alphabackground}
+    );
+
+    renderer->drawString(
+      m_title.c_str(), false, 20, 50, 30,
+      tsl::gfx::Color{0xF, 0xF, 0xF, 0xF}
+    );
+    renderer->drawString(
+      m_subtitle.c_str(), false, 20, 70, 15,
+      tsl::gfx::Color{0xC, 0xC, 0xC, 0xF}
+    );
+
+    if (FullMode) {
+      renderer->drawRect(
+        15, tsl::cfg::FramebufferHeight - 73, half_width - 30, 1,
+        tsl::gfx::Color{0xF, 0xF, 0xF, 0xF}
+      );
+    }
+    if (!deactivateOriginalFooter) {
+      renderer->drawString(
+        "\uE0E1  Back     \uE0E0  OK", false, 30, 693, 23,
+        tsl::gfx::Color{0xF, 0xF, 0xF, 0xF}
+      );
+    }
+
+    if (m_contentElement != nullptr) {
+      m_contentElement->frame(renderer);
+    }
+  }
+
+  void layout(
+    u16 parentX, u16 parentY, u16 parentWidth, u16 parentHeight
+  ) override {
+    const u16 half_width = parentWidth / 2;
+    setBoundaries(parentX, parentY, half_width, parentHeight);
+
+    if (m_contentElement != nullptr) {
+      m_contentElement->setBoundaries(
+        parentX + 35, parentY + 140, half_width - 85, parentHeight - 73 - 105
+      );
+      m_contentElement->invalidate();
+    }
+  }
+};
+
+// Lists every food skill (0x01..0x41) and assigns the chosen one to a slot.
+// Returning to FoodSkillsGui lets its update() refresh the slot label.
+class FoodSkillPickerGui final : public tsl::Gui {
+public:
+  FoodSkillPickerGui(Model& model, const std::size_t slot)
+    : model_(model), slot_(slot) {}
+
+  tsl::elm::Element* createUI() override {
+    const auto locale = model_.display_locale();
+    frame_ = new LocalizedOverlayFrame(
+      mhgu::core::ui_message(UiMessage::FoodSkills, locale), kVersion
+    );
+    list_ = new tsl::elm::List(6);
+    current_index_ = static_cast<std::size_t>(
+      model_.food_skill(slot_) - mhgu::core::kMinimumFoodSkillId
+    );
+    for (unsigned id = mhgu::core::kMinimumFoodSkillId;
+         id <= mhgu::core::kMaximumFoodSkillId; ++id) {
+      const auto skill_id = static_cast<mhgu::core::FoodSkillId>(id);
+      char label[96]{};
+      std::snprintf(
+        label,
+        sizeof(label),
+        "%02X %s",
+        id,
+        mhgu::core::food_skill_name(skill_id, locale)
+      );
+      auto* item = new tsl::elm::ListItem(label);
+      item->setClickListener(
+        [this, skill_id](const u64 keys) {
+          if ((keys & HidNpadButton_A) == 0) {
+            return false;
+          }
+          model_.set_food_skill(slot_, skill_id);
+          tsl::goBack();
+          return true;
+        }
+      );
+      list_->addItem(item);
+    }
+    frame_->setContent(list_);
+    return frame_;
+  }
+
+  void update() override {
+    // Move focus to the currently assigned skill on the first frame so the
+    // list opens at the right row instead of always jumping to the top.
+    if (focus_initialized_) {
+      return;
+    }
+    focus_initialized_ = true;
+    for (std::size_t i = 0; i < current_index_; ++i) {
+      this->requestFocus(list_, tsl::FocusDirection::Down);
+    }
+  }
+
+  bool handleInput(
+    const u64 keys_down,
+    const u64 keys_held,
+    const HidTouchState&,
+    JoystickPosition,
+    JoystickPosition
+  ) override {
+    if (handle_minimize_combo(keys_down, keys_held)) {
+      return true;
+    }
+    if ((keys_down & HidNpadButton_B) != 0) {
+      tsl::goBack();
+      return true;
+    }
+    return false;
+  }
+
+private:
+  Model& model_;
+  std::size_t slot_;
+  LocalizedOverlayFrame* frame_{};
+  tsl::elm::List* list_{};
+  std::size_t current_index_{};
+  bool focus_initialized_{false};
+};
+
+const char* damage_drift_mode_label(Model& model) {
+  switch (model.settings().damage_display.drift_mode) {
+    case DamageDriftMode::Upward:
+      return text(model, UiMessage::DriftUpward);
+    case DamageDriftMode::Off:
+      return text(model, UiMessage::Off);
+    default:
+      return text(model, UiMessage::DriftRandom);
+  }
+}
+
+const char* damage_appear_effect_label(Model& model) {
+  switch (model.settings().damage_display.appear_effect) {
+    case DamageAppearEffect::SizeOnly:
+      return text(model, UiMessage::AppearSizeOnly);
+    case DamageAppearEffect::ColorOnly:
+      return text(model, UiMessage::AppearColorOnly);
+    case DamageAppearEffect::Fixed:
+      return text(model, UiMessage::AppearFixed);
+    default:
+      return text(model, UiMessage::AppearSizeAndColor);
+  }
+}
+
+const char* damage_stagger_mode_label(Model& model) {
+  switch (model.settings().damage_display.stagger_mode) {
+    case DamageStaggerMode::Horizontal:
+      return text(model, UiMessage::StaggerHorizontal);
+    case DamageStaggerMode::Upward:
+      return text(model, UiMessage::StaggerUpward);
+    case DamageStaggerMode::Down:
+      return text(model, UiMessage::StaggerDown);
+    case DamageStaggerMode::Left:
+      return text(model, UiMessage::StaggerLeft);
+    case DamageStaggerMode::Right:
+      return text(model, UiMessage::StaggerRight);
+    default:
+      return text(model, UiMessage::StaggerVertical);
+  }
+}
+
+const char* damage_stagger_type_label(Model& model) {
+  switch (model.settings().damage_display.stagger_type) {
+    case DamageStaggerType::Linear:
+      return text(model, UiMessage::StaggerLinear);
+    default:
+      return text(model, UiMessage::StaggerZigzag);
+  }
+}
+
+// Damage display effect settings.  Row 1 mirrors the outer "HUD 显示内容"
+// item so the two stay in sync; the remaining rows tune the damage numbers
+// (overlap, size, position, appear effect, drift); the last row restores the
+// tuned defaults.
+class DamageDisplayGui final : public tsl::Gui {
+public:
+  explicit DamageDisplayGui(Model& model)
+    : model_(model) {}
+
+  tsl::elm::Element* createUI() override {
+    const auto locale = model_.display_locale();
+    frame_ = new LocalizedOverlayFrame(
+      mhgu::core::ui_message(UiMessage::DamageDisplay, locale), kVersion
+    );
+    auto* list = new tsl::elm::List(6);
+
+    auto* mode_item = new tsl::elm::ListItem(
+      text(model_, UiMessage::HudDisplayMode)
+    );
+    mode_item->setClickListener(
+      [this](const u64 keys) {
+        int direction{};
+        if ((keys & HidNpadButton_Left) != 0) {
+          direction = -1;
+        } else if ((keys & (HidNpadButton_A | HidNpadButton_Right)) != 0) {
+          direction = 1;
+        } else {
+          return false;
+        }
+        model_.cycle_hud_content(direction);
+        return true;
+      }
+    );
+    list->addItem(mode_item);
+
+    auto* overlap_item = new tsl::elm::ListItem(
+      text(model_, UiMessage::DamageOverlap)
+    );
+    overlap_item->setClickListener(
+      [this](const u64 keys) {
+        if ((keys & HidNpadButton_A) == 0) {
+          return false;
+        }
+        model_.toggle_damage_overlap();
+        return true;
+      }
+    );
+    list->addItem(overlap_item);
+
+    auto* size_item = new tsl::elm::ListItem(
+      text(model_, UiMessage::DamageSize)
+    );
+    size_item->setClickListener(
+      [this](const u64 keys) {
+        const auto delta = adjust_delta(keys, 5, 20);
+        if (delta == 0) {
+          return false;
+        }
+        model_.adjust_damage_size(delta);
+        return true;
+      }
+    );
+    list->addItem(size_item);
+
+    auto* position_item = new tsl::elm::ListItem(
+      text(model_, UiMessage::DamagePosition)
+    );
+    position_item->setClickListener(
+      [this](const u64 keys) {
+        const auto delta = adjust_delta(keys, 5, 10);
+        if (delta == 0) {
+          return false;
+        }
+        model_.adjust_damage_position(delta);
+        return true;
+      }
+    );
+    list->addItem(position_item);
+
+    auto* appear_item = new tsl::elm::ListItem(
+      text(model_, UiMessage::DamageAppearEffect)
+    );
+    appear_item->setClickListener(
+      [this](const u64 keys) {
+        int direction{};
+        if ((keys & HidNpadButton_Left) != 0) {
+          direction = -1;
+        } else if ((keys & (HidNpadButton_A | HidNpadButton_Right)) != 0) {
+          direction = 1;
+        } else {
+          return false;
+        }
+        model_.cycle_damage_appear_effect(direction);
+        return true;
+      }
+    );
+    list->addItem(appear_item);
+
+    auto* drift_item = new tsl::elm::ListItem(
+      text(model_, UiMessage::DriftMode)
+    );
+    drift_item->setClickListener(
+      [this](const u64 keys) {
+        int direction{};
+        if ((keys & HidNpadButton_Left) != 0) {
+          direction = -1;
+        } else if ((keys & (HidNpadButton_A | HidNpadButton_Right)) != 0) {
+          direction = 1;
+        } else {
+          return false;
+        }
+        model_.cycle_damage_drift_mode(direction);
+        return true;
+      }
+    );
+    list->addItem(drift_item);
+
+    auto* distance_item = new tsl::elm::ListItem(
+      text(model_, UiMessage::DriftDistance)
+    );
+    distance_item->setClickListener(
+      [this](const u64 keys) {
+        const auto delta = adjust_delta(keys, 5, 10);
+        if (delta == 0) {
+          return false;
+        }
+        model_.adjust_damage_drift_distance(delta);
+        return true;
+      }
+    );
+    list->addItem(distance_item);
+
+    auto* speed_item = new tsl::elm::ListItem(
+      text(model_, UiMessage::DriftSpeed)
+    );
+    speed_item->setClickListener(
+      [this](const u64 keys) {
+        const auto delta = adjust_delta(keys, 5, 20);
+        if (delta == 0) {
+          return false;
+        }
+        model_.adjust_damage_drift_speed(delta);
+        return true;
+      }
+    );
+    list->addItem(speed_item);
+
+    auto* stagger_item = new tsl::elm::ListItem(
+      text(model_, UiMessage::StaggerMode)
+    );
+    stagger_item->setClickListener(
+      [this](const u64 keys) {
+        int direction{};
+        if ((keys & HidNpadButton_Left) != 0) {
+          direction = -1;
+        } else if ((keys & (HidNpadButton_A | HidNpadButton_Right)) != 0) {
+          direction = 1;
+        } else {
+          return false;
+        }
+        model_.cycle_damage_stagger_mode(direction);
+        return true;
+      }
+    );
+    list->addItem(stagger_item);
+
+    auto* stagger_type_item = new tsl::elm::ListItem(
+      text(model_, UiMessage::StaggerType)
+    );
+    stagger_type_item->setClickListener(
+      [this](const u64 keys) {
+        int direction{};
+        if ((keys & HidNpadButton_Left) != 0) {
+          direction = -1;
+        } else if ((keys & (HidNpadButton_A | HidNpadButton_Right)) != 0) {
+          direction = 1;
+        } else {
+          return false;
+        }
+        model_.cycle_damage_stagger_type(direction);
+        return true;
+      }
+    );
+    list->addItem(stagger_type_item);
+
+    auto* reset_item = new tsl::elm::ListItem(
+      text(model_, UiMessage::ResetDamageDisplay)
+    );
+    reset_item->setClickListener(
+      [this](const u64 keys) {
+        if ((keys & HidNpadButton_A) == 0) {
+          return false;
+        }
+        model_.reset_damage_display();
+        return true;
+      }
+    );
+    list->addItem(reset_item);
+
+    items_[0] = mode_item;
+    items_[1] = overlap_item;
+    items_[2] = size_item;
+    items_[3] = position_item;
+    items_[4] = appear_item;
+    items_[5] = drift_item;
+    items_[6] = distance_item;
+    items_[7] = speed_item;
+    items_[8] = stagger_item;
+    items_[9] = stagger_type_item;
+
+    frame_->setContent(list);
+    return frame_;
+  }
+
+  void update() override {
+    if (frame_ == nullptr) {
+      return;
+    }
+    frame_->setTitle(
+      mhgu::core::ui_message(UiMessage::DamageDisplay, model_.display_locale())
+    );
+    items_[0]->setValue(hud_content_value(model_));
+    items_[1]->setValue(
+      text(model_, model_.settings().damage_display.overlap
+                     ? UiMessage::On
+                     : UiMessage::Off)
+    );
+    char value[16]{};
+    const auto& display = model_.settings().damage_display;
+    std::snprintf(value, sizeof(value), "%u%%", display.size_percent);
+    items_[2]->setValue(value);
+    std::snprintf(value, sizeof(value), "%u%%", display.position_percent);
+    items_[3]->setValue(value);
+    items_[4]->setValue(damage_appear_effect_label(model_));
+    items_[5]->setValue(damage_drift_mode_label(model_));
+    std::snprintf(value, sizeof(value), "%u", display.drift_distance);
+    items_[6]->setValue(value);
+    std::snprintf(value, sizeof(value), "%u%%", display.drift_speed_percent);
+    items_[7]->setValue(value);
+    items_[8]->setValue(damage_stagger_mode_label(model_));
+    items_[9]->setValue(damage_stagger_type_label(model_));
+  }
+
+  bool handleInput(
+    const u64 keys_down,
+    const u64 keys_held,
+    const HidTouchState&,
+    JoystickPosition,
+    JoystickPosition
+  ) override {
+    if (handle_minimize_combo(keys_down, keys_held)) {
+      return true;
+    }
+    if ((keys_down & HidNpadButton_B) != 0) {
+      tsl::goBack();
+      return true;
+    }
+    return false;
+  }
+
+private:
+  static int adjust_delta(const u64 keys, const int small, const int large) {
+    if ((keys & HidNpadButton_Left) != 0) {
+      return -small;
+    }
+    if ((keys & HidNpadButton_Right) != 0) {
+      return small;
+    }
+    if ((keys & HidNpadButton_L) != 0) {
+      return -large;
+    }
+    if ((keys & HidNpadButton_R) != 0) {
+      return large;
+    }
+    return 0;
+  }
+
+  Model& model_;
+  LocalizedOverlayFrame* frame_{};
+  std::array<tsl::elm::ListItem*, 10> items_{};
 };
