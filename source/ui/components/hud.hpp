@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 // Included by source/ui/main.cpp inside its private UI namespace.
 
 class HudElement final : public tsl::elm::Element {
@@ -49,7 +51,8 @@ public:
         view.damage,
         monotonic_milliseconds(),
         settings.hud_layout,
-        shows_monster_info ? count : 0
+        shows_monster_info ? count : 0,
+        settings.damage_display
       );
     }
   }
@@ -79,19 +82,27 @@ private:
   static constexpr s32 kCardGap = 5;
   static constexpr s32 kMargin = 12;
   static constexpr std::uint64_t kDamageFadeStartMs = 650;
-  static constexpr s32 kDamageStaggerStep = 45;
-  static constexpr s32 kDamageDriftRadius = 80;
-  static constexpr s32 kDamageOverlapPadding = 10;
+  static constexpr s32 kDamageStaggerStep = 28;
+  static constexpr s32 kDamageHorizontalStep = 15;
+  static constexpr s32 kDamageOverlapPadding = 8;
   static constexpr std::size_t kTopCenterColumns = 3;
+
+  struct DamageOffset {
+    s32 dx{};
+    s32 dy{};
+  };
 
   struct DamageRenderEvent {
     mhgu::core::DamageEvent event{};
     std::uint64_t age_ms{};
     float font_size{};
     s32 width{};
+    s32 base_width{};  // width measured at base (unscaled) font size
     s32 left{};
     s32 baseline_y{};
     char value[16]{};
+    s32 drift_x{};
+    s32 drift_y{};
   };
 
   static HudPosition card_position(
@@ -235,11 +246,12 @@ private:
   }
 
   static float damage_scale(const std::uint64_t age_ms) {
+    // Pop small → overshoot large → settle, matching the original feel.
     if (age_ms < 80) {
-      return 0.70F + 0.50F * static_cast<float>(age_ms) / 80.0F;
+      return 0.70F + 1.30F * static_cast<float>(age_ms) / 80.0F;
     }
     if (age_ms < 160) {
-      return 1.20F - 0.20F * static_cast<float>(age_ms - 80) / 80.0F;
+      return 2.00F - 1.00F * static_cast<float>(age_ms - 80) / 80.0F;
     }
     return 1.0F;
   }
@@ -256,38 +268,295 @@ private:
     );
   }
 
-  static s32 damage_candidate_offset(const std::size_t candidate) {
-    if (candidate == 0) {
-      return 0;
+  // Whitish pale yellow while the number pops up to the peak, then a quick
+  // 40 ms blend back to the original yellow once the scale starts settling.
+  struct DamageColor {
+    std::uint8_t r;
+    std::uint8_t g;
+    std::uint8_t b;
+  };
+
+  static constexpr DamageColor kDamagePaleColor{0xFF, 0xF2, 0xB4};
+  static constexpr DamageColor kDamageNormalColor{0xFF, 0xCC, 0x33};
+
+  static DamageColor damage_color(const std::uint64_t age_ms) {
+    constexpr DamageColor pale = kDamagePaleColor;
+    constexpr DamageColor normal = kDamageNormalColor;
+    if (age_ms < 80) {
+      return pale;
     }
-    const auto distance = static_cast<s32>((candidate + 1) / 2) *
-                          kDamageStaggerStep;
-    return (candidate & 1U) != 0 ? -distance : distance;
+    if (age_ms < 120) {
+      const auto t = static_cast<float>(age_ms - 80) / 40.0F;
+      const auto mix = [t](const std::uint8_t from, const std::uint8_t to) {
+        return static_cast<std::uint8_t>(
+          static_cast<float>(from) + t * static_cast<float>(to - from)
+        );
+      };
+      return {
+        mix(pale.r, normal.r),
+        mix(pale.g, normal.g),
+        mix(pale.b, normal.b),
+      };
+    }
+    return normal;
   }
 
-  static s32 damage_candidate_direction(const s32 offset) {
-    return offset < 0 ? -1 : offset > 0 ? 1 : 0;
+  // Deterministic pseudo-random angle in [0, 2π) derived from the event
+  // sequence, so each damage number drifts along its own fixed direction
+  // without jittering between frames.
+  static float damage_random_angle(const std::uint64_t sequence) {
+    const auto hash =
+      sequence * 6364136223846793005ULL + 1442695040888963407ULL;
+    const auto degrees = static_cast<float>(hash % 360U);
+    return degrees * 3.14159265358979323846F / 180.0F;
   }
 
-  static s32 damage_drift(
-    const DamageRenderEvent& event, const s32 direction
+  // Drift is delayed while the scale-in animation runs (0 → 2.0 → 1.0,
+  // kDamageScaleMs = 160ms) so the number holds still while it pops, then
+  // begins drifting outward once the scale settles at 1.0.  Without the
+  // scale animation (fixed-size appear effects) there is nothing to wait
+  // for, so drift starts immediately.  The speed multiplier scales the
+  // drift progress rate.
+  static s32 damage_drift_distance(
+    const std::uint64_t age_ms,
+    const std::uint8_t max_drift,
+    const std::uint8_t speed_percent,
+    const bool scale_animated
   ) {
-    if (direction == 0) {
+    constexpr std::uint64_t kScaleAnimationMs = 160;
+    const auto delay_ms = scale_animated ? kScaleAnimationMs : 0;
+    if (age_ms < delay_ms) {
       return 0;
     }
-    const auto progress = static_cast<float>(event.age_ms) /
-                          mhgu::core::kDamageEventLifetimeMs;
-    return direction * static_cast<s32>(kDamageDriftRadius * progress);
+    const auto effective_age = age_ms - delay_ms;
+    const auto speed = static_cast<float>(speed_percent) / 100.0F;
+    const auto progress =
+      (static_cast<float>(effective_age) /
+       mhgu::core::kDamageEventLifetimeMs) *
+      speed;
+    return static_cast<s32>(
+      static_cast<float>(max_drift) * std::clamp(progress, 0.0F, 1.0F)
+    );
   }
 
-  static bool damage_ranges_overlap(
+  // Stagger functions: search for a free slot around the center to avoid
+  // overlapping damage numbers.  Three modes cover different layouts:
+  //   - VerticalMixed: primarily up/down with a small horizontal zig-zag
+  //   - Horizontal: primarily left/right with a small vertical zig-zag
+  //   - Upward: stack upward only (newest stays at bottom/center)
+
+  static DamageOffset damage_candidate_vertical_mixed(
+    const std::size_t candidate, const s32 v_step
+  ) {
+    if (candidate == 0) {
+      return {0, 0};
+    }
+    const auto row = (candidate + 1) / 2;
+    const auto is_up = (candidate & 1U) != 0;
+    const auto dy = is_up ? -static_cast<s32>(row) * v_step
+                          : static_cast<s32>(row) * v_step;
+    const auto row_sign = (row & 1U) != 0 ? 1 : -1;
+    const auto dx = is_up ? row_sign * kDamageHorizontalStep
+                          : -row_sign * kDamageHorizontalStep;
+    return {dx, dy};
+  }
+
+  static DamageOffset damage_candidate_horizontal(
+    const std::size_t candidate, const s32 h_step
+  ) {
+    if (candidate == 0) {
+      return {0, 0};
+    }
+    const auto col = (candidate + 1) / 2;
+    const auto is_left = (candidate & 1U) != 0;
+    const auto dx = is_left
+                      ? -static_cast<s32>(col) * h_step
+                      : static_cast<s32>(col) * h_step;
+    const auto col_sign = (col & 1U) != 0 ? 1 : -1;
+    const auto dy = is_left ? -col_sign * (kDamageStaggerStep / 2)
+                            : col_sign * (kDamageStaggerStep / 2);
+    return {dx, dy};
+  }
+
+  static DamageOffset damage_candidate_upward(
+    const std::size_t candidate, const s32 v_step
+  ) {
+    if (candidate == 0) {
+      return {0, 0};
+    }
+    const auto dx = (candidate & 1U) != 0 ? -kDamageHorizontalStep
+                                          : kDamageHorizontalStep;
+    return {dx, -static_cast<s32>(candidate) * v_step};
+  }
+
+  static DamageOffset damage_candidate_down(
+    const std::size_t candidate, const s32 v_step
+  ) {
+    if (candidate == 0) {
+      return {0, 0};
+    }
+    const auto dx = (candidate & 1U) != 0 ? -kDamageHorizontalStep
+                                          : kDamageHorizontalStep;
+    return {dx, static_cast<s32>(candidate) * v_step};
+  }
+
+  static DamageOffset damage_candidate_left(
+    const std::size_t candidate, const s32 h_step
+  ) {
+    if (candidate == 0) {
+      return {0, 0};
+    }
+    const auto dx = -static_cast<s32>(candidate) * h_step;
+    const auto dy = (candidate & 1U) != 0 ? -kDamageStaggerStep / 2
+                                          : kDamageStaggerStep / 2;
+    return {dx, dy};
+  }
+
+  static DamageOffset damage_candidate_right(
+    const std::size_t candidate, const s32 h_step
+  ) {
+    if (candidate == 0) {
+      return {0, 0};
+    }
+    const auto dx = static_cast<s32>(candidate) * h_step;
+    const auto dy = (candidate & 1U) != 0 ? -kDamageStaggerStep / 2
+                                          : kDamageStaggerStep / 2;
+    return {dx, dy};
+  }
+
+  // Linear variants: same alternation as zigzag but without the
+  // perpendicular micro-offset.  For bidirectional modes this means
+  // alternating up/down or left/right in a straight line; for
+  // unidirectional modes it means alternating the perpendicular axis
+  // while moving in the primary direction (same as zigzag since the
+  // perpendicular IS the alternation, not a micro).
+  static DamageOffset damage_candidate_vertical_linear(
+    const std::size_t candidate, const s32 step
+  ) {
+    if (candidate == 0) {
+      return {0, 0};
+    }
+    const auto row = (candidate + 1) / 2;
+    const auto is_up = (candidate & 1U) != 0;
+    const auto dy = is_up ? -static_cast<s32>(row) * step
+                          : static_cast<s32>(row) * step;
+    return {0, dy};
+  }
+
+  static DamageOffset damage_candidate_horizontal_linear(
+    const std::size_t candidate, const s32 step
+  ) {
+    if (candidate == 0) {
+      return {0, 0};
+    }
+    const auto col = (candidate + 1) / 2;
+    const auto is_left = (candidate & 1U) != 0;
+    const auto dx = is_left
+                      ? -static_cast<s32>(col) * step
+                      : static_cast<s32>(col) * step;
+    return {dx, 0};
+  }
+
+  static DamageOffset damage_candidate_upward_linear(
+    const std::size_t candidate, const s32 step
+  ) {
+    if (candidate == 0) {
+      return {0, 0};
+    }
+    return {0, -static_cast<s32>(candidate) * step};
+  }
+
+  static DamageOffset damage_candidate_down_linear(
+    const std::size_t candidate, const s32 step
+  ) {
+    if (candidate == 0) {
+      return {0, 0};
+    }
+    return {0, static_cast<s32>(candidate) * step};
+  }
+
+  static DamageOffset damage_candidate_left_linear(
+    const std::size_t candidate, const s32 step
+  ) {
+    if (candidate == 0) {
+      return {0, 0};
+    }
+    return {-static_cast<s32>(candidate) * step, 0};
+  }
+
+  static DamageOffset damage_candidate_right_linear(
+    const std::size_t candidate, const s32 step
+  ) {
+    if (candidate == 0) {
+      return {0, 0};
+    }
+    return {static_cast<s32>(candidate) * step, 0};
+  }
+
+  static DamageOffset damage_stagger_offset(
+    const DamageStaggerMode mode,
+    const DamageStaggerType type,
+    const std::size_t candidate,
+    const s32 font_height,
+    const s32 event_width
+  ) {
+    // Step must exceed the number dimensions to avoid overlap between
+    // consecutive candidates on the same axis.  This applies to both
+    // zigzag and linear modes.  The padding must be large enough to
+    // accommodate the scale animation peak (2.0x) for the brief 160ms
+    // after a number appears, otherwise numbers would overlap during
+    // the pop-in animation.
+    const auto v_step = std::max(kDamageStaggerStep, font_height + 16);
+    const auto h_step = std::max(
+      kDamageHorizontalStep * 2, event_width + 8
+    );
+    if (type == DamageStaggerType::Linear) {
+      switch (mode) {
+        case DamageStaggerMode::Horizontal:
+          return damage_candidate_horizontal_linear(candidate, h_step);
+        case DamageStaggerMode::Upward:
+          return damage_candidate_upward_linear(candidate, v_step);
+        case DamageStaggerMode::Down:
+          return damage_candidate_down_linear(candidate, v_step);
+        case DamageStaggerMode::Left:
+          return damage_candidate_left_linear(candidate, h_step);
+        case DamageStaggerMode::Right:
+          return damage_candidate_right_linear(candidate, h_step);
+        case DamageStaggerMode::VerticalMixed:
+        default:
+          return damage_candidate_vertical_linear(candidate, v_step);
+      }
+    }
+    switch (mode) {
+      case DamageStaggerMode::Horizontal:
+        return damage_candidate_horizontal(candidate, h_step);
+      case DamageStaggerMode::Upward:
+        return damage_candidate_upward(candidate, v_step);
+      case DamageStaggerMode::Down:
+        return damage_candidate_down(candidate, v_step);
+      case DamageStaggerMode::Left:
+        return damage_candidate_left(candidate, h_step);
+      case DamageStaggerMode::Right:
+        return damage_candidate_right(candidate, h_step);
+      default:
+        return damage_candidate_vertical_mixed(candidate, v_step);
+    }
+  }
+
+  static bool damage_rects_overlap(
     const s32 left_a,
     const s32 right_a,
+    const s32 top_a,
+    const s32 bottom_a,
     const s32 left_b,
-    const s32 right_b
+    const s32 right_b,
+    const s32 top_b,
+    const s32 bottom_b
   ) {
     return left_a < right_b + kDamageOverlapPadding &&
-           left_b < right_a + kDamageOverlapPadding;
+           left_b < right_a + kDamageOverlapPadding &&
+           top_a < bottom_b + kDamageOverlapPadding &&
+           top_b < bottom_a + kDamageOverlapPadding;
   }
 
   static void draw_damage_text(
@@ -296,15 +565,27 @@ private:
     const s32 left,
     const s32 baseline_y,
     const float font_size,
-    const std::uint8_t alpha
+    const std::uint8_t alpha,
+    const DamageColor color
   ) {
     if (damage_text_renderer().draw(
-          renderer, value, left, baseline_y, font_size, alpha
+          renderer,
+          value,
+          left,
+          baseline_y,
+          font_size,
+          alpha,
+          color.r,
+          color.g,
+          color.b
         )) {
       return;
     }
 
     // Keep damage readable if the shared system font cannot be initialized.
+    const auto nibble = [](const std::uint8_t channel) {
+      return static_cast<std::uint8_t>((channel + 8) / 17);
+    };
     renderer->drawString(
       value,
       false,
@@ -319,7 +600,7 @@ private:
       left,
       baseline_y,
       font_size,
-      renderer->a({0xF, 0xC, 0x3, alpha})
+      renderer->a({nibble(color.r), nibble(color.g), nibble(color.b), alpha})
     );
   }
 
@@ -328,11 +609,14 @@ private:
     const mhgu::core::DamageOutput& damage,
     const std::uint64_t now_ms,
     const HudLayout layout,
-    const std::size_t monster_count
+    const std::size_t monster_count,
+    const mhgu::core::DamageDisplaySettings& display
   ) {
-    constexpr float base_font_size = 38.0F;
+    const float base_font_size =
+      38.0F * static_cast<float>(display.size_percent) / 100.0F;
     std::array<DamageRenderEvent, mhgu::core::kMaxDamageEvents> active{};
     std::size_t active_count{};
+    s32 base_baseline_y{};
     const auto count = std::min(damage.event_count, damage.events.size());
     for (std::size_t index = 0; index < count; ++index) {
       const auto& event = damage.events[index];
@@ -347,7 +631,13 @@ private:
       auto& render_event = active[active_count++];
       render_event.event = event;
       render_event.age_ms = age_ms;
-      render_event.font_size = base_font_size * damage_scale(age_ms);
+      // The appear effect decides which of the two spawn animations run:
+      // the size pop (0.7 → 2.0 → 1.0) and/or the pale → yellow color blend.
+      const auto scale_animated =
+        display.appear_effect == DamageAppearEffect::SizeAndColor ||
+        display.appear_effect == DamageAppearEffect::SizeOnly;
+      render_event.font_size =
+        base_font_size * (scale_animated ? damage_scale(age_ms) : 1.0F);
       std::snprintf(
         render_event.value,
         sizeof(render_event.value),
@@ -362,66 +652,111 @@ private:
           renderer, render_event.value, render_event.font_size
         ));
       }
+      // Measure width at the base (unscaled) font size for stable stagger
+      // step calculation.  Using the scaled width would make h_step vary
+      // per-event (2x at peak vs 1x at rest), causing asymmetric spacing.
+      render_event.base_width = damage_text_renderer().measure(
+        render_event.value, base_font_size
+      );
+      if (render_event.base_width <= 0) {
+        render_event.base_width = static_cast<s32>(text_width(
+          renderer, render_event.value, base_font_size
+        ));
+      }
 
-      const auto progress = static_cast<float>(age_ms) /
-                            mhgu::core::kDamageEventLifetimeMs;
-      const auto inverse = 1.0F - progress;
-      const auto eased = 1.0F - inverse * inverse;
-      const auto damage_height_percent =
-        layout == HudLayout::TopCenterHorizontal && monster_count > 6 ? 52
-                                                                       : 28;
-      render_event.baseline_y =
-        static_cast<s32>(
-          tsl::cfg::FramebufferHeight * damage_height_percent / 100
-        ) -
-        static_cast<s32>(55.0F * eased);
+      // Numbers sit at the configured height; when the top-center layout is
+      // crowded the row drops lower so it stays clear of the monster cards.
+      auto damage_height_percent =
+        static_cast<s32>(display.position_percent);
+      if (layout == HudLayout::TopCenterHorizontal && monster_count > 6) {
+        damage_height_percent = std::min(damage_height_percent + 24, 90);
+      }
+      // Numbers spawn at the center and immediately drift outward along the
+      // configured mode.
+      base_baseline_y = static_cast<s32>(
+        tsl::cfg::FramebufferHeight * damage_height_percent / 100
+      );
+      const auto drift = damage_drift_distance(
+        age_ms, display.drift_distance, display.drift_speed_percent,
+        scale_animated
+      );
+      if (display.drift_mode == DamageDriftMode::Random) {
+        const auto angle = damage_random_angle(event.sequence);
+        render_event.drift_x = static_cast<s32>(drift * std::cos(angle));
+        render_event.drift_y = static_cast<s32>(drift * std::sin(angle));
+      } else if (display.drift_mode == DamageDriftMode::Upward) {
+        render_event.drift_y = -drift;
+      }
+      render_event.baseline_y = base_baseline_y + render_event.drift_y;
     }
 
-    // Place newer events first so the newest hit remains anchored at center.
-    // Each following event takes the nearest free slot around that anchor.
-    for (std::size_t reverse = active_count; reverse > 0; --reverse) {
-      auto& render_event = active[reverse - 1];
-      const auto candidate_count = active_count * 2 + 1;
-      for (std::size_t candidate = 0;
-           candidate < candidate_count;
-           ++candidate) {
-        const auto offset = damage_candidate_offset(candidate);
-        const auto direction = damage_candidate_direction(offset);
+    if (display.overlap) {
+      // Numbers may stack: draw each at its natural spawn + drift position
+      // without any avoidance search.
+      for (std::size_t index = 0; index < active_count; ++index) {
+        auto& render_event = active[index];
         const auto center_x =
-          static_cast<s32>(tsl::cfg::FramebufferWidth / 2) + offset +
-          damage_drift(render_event, direction);
-        const auto left = std::clamp<s32>(
+          static_cast<s32>(tsl::cfg::FramebufferWidth / 2) +
+          render_event.drift_x;
+        render_event.left = std::clamp<s32>(
           center_x - render_event.width / 2,
           0,
           std::max<s32>(0, tsl::cfg::FramebufferWidth - render_event.width)
         );
-        const auto right = left + render_event.width;
-        bool overlaps{};
-        for (std::size_t placed = reverse; placed < active_count; ++placed) {
-          const auto placed_left = active[placed].left;
-          const auto placed_right = placed_left + active[placed].width;
-          if (damage_ranges_overlap(left, right, placed_left, placed_right)) {
-            overlaps = true;
-            break;
-          }
-        }
-        if (!overlaps) {
-          render_event.left = left;
-          break;
-        }
+      }
+    } else {
+      // No overlap: assign each event a fixed slot by age index so
+      // positions are stable — a number's slot never changes when new
+      // numbers arrive, preventing the left-right jitter caused by
+      // re-searching every frame.  The newest event is at candidate 0
+      // (center), the oldest at candidate 1, the second-oldest at
+      // candidate 2, etc.
+      //
+      // Drift is added on top of the fixed stagger slot, exactly like in
+      // overlap mode: each number keeps its slot but still drifts outward
+      // with age, so the drift distance / speed / mode settings take effect
+      // with overlap disabled too.  New numbers spawn with zero drift, so
+      // the slot spacing is preserved at the moment a number appears and
+      // older numbers simply spread further out as they fade.
+      for (std::size_t index = 0; index < active_count; ++index) {
+        auto& render_event = active[index];
+        const auto candidate = active_count - 1 - index;
+        const auto offset = damage_stagger_offset(
+          display.stagger_mode, display.stagger_type, candidate,
+          static_cast<s32>(base_font_size),
+          render_event.base_width
+        );
+        const auto center_x =
+          static_cast<s32>(tsl::cfg::FramebufferWidth / 2) + offset.dx +
+          render_event.drift_x;
+        const auto baseline_y =
+          base_baseline_y + offset.dy + render_event.drift_y;
+        render_event.left = std::clamp<s32>(
+          center_x - render_event.width / 2,
+          0,
+          std::max<s32>(0, tsl::cfg::FramebufferWidth - render_event.width)
+        );
+        render_event.baseline_y = baseline_y;
       }
     }
 
+    const auto color_animated =
+      display.appear_effect == DamageAppearEffect::SizeAndColor ||
+      display.appear_effect == DamageAppearEffect::ColorOnly;
     for (std::size_t index = 0; index < active_count; ++index) {
       const auto& render_event = active[index];
       const auto alpha = damage_alpha(render_event.age_ms);
+      const auto color = color_animated
+                           ? damage_color(render_event.age_ms)
+                           : kDamageNormalColor;
       draw_damage_text(
         renderer,
         render_event.value,
         render_event.left,
         render_event.baseline_y,
         render_event.font_size,
-        alpha
+        alpha,
+        color
       );
     }
   }
@@ -609,7 +944,7 @@ public:
   }
 
   bool handleInput(
-    u64,
+    const u64 /*keys_down*/,
     const u64 keys_held,
     const HidTouchState&,
     JoystickPosition,

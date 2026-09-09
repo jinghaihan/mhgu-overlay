@@ -45,6 +45,16 @@ public:
   void cycle_frame_rate();
   void cycle_hud_layout(int direction);
   void cycle_hud_content(int direction);
+  void cycle_damage_drift_mode(int direction);
+  void cycle_damage_appear_effect(int direction);
+  void cycle_damage_stagger_mode(int direction);
+  void cycle_damage_stagger_type(int direction);
+  void toggle_damage_overlap();
+  void adjust_damage_size(int delta);
+  void adjust_damage_position(int delta);
+  void adjust_damage_drift_distance(int delta);
+  void adjust_damage_drift_speed(int delta);
+  void reset_damage_display();
   void toggle_infinite_quest_time();
   void toggle_unlimited_faints();
   void request_complete_quest();
@@ -56,10 +66,15 @@ public:
   void adjust_item_pouch_quantity(int delta);
   void request_item_pouch_quantity_write();
   void adjust_food_skill(std::size_t slot, int delta);
+  void set_food_skill(std::size_t slot, mhgu::core::FoodSkillId id);
+  mhgu::core::FoodSkillId food_skill(std::size_t slot) const;
   void request_food_skills_write();
   void cycle_size_preset();
   void request_rescan();
   void set_monster_hud_active(bool active);
+  bool monster_hud_active() const {
+    return monster_hud_active_.load(std::memory_order_relaxed);
+  }
 
 private:
   void worker_main();

@@ -22,6 +22,11 @@ int main() {
     defaults.hud_layout == core::HudLayout::BottomLeftVertical
   );
   assert(defaults.hud_content == core::HudContent::MonsterInfoAndDamage);
+  assert(
+    defaults.damage_display.appear_effect ==
+    core::DamageAppearEffect::SizeAndColor
+  );
+  assert(defaults.damage_display.overlap == false);
   assert(!defaults.infinite_quest_time);
   assert(!defaults.unlimited_faints);
   assert(defaults.monster_damage_mode == core::MonsterDamageMode::Off);
@@ -297,6 +302,58 @@ int main() {
   std::fprintf(legacy, "size_preset=silver\nsize_lock=1\n");
   assert(std::fclose(legacy) == 0);
   assert(store.load().size_preset == core::SizePreset::Silver);
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(numeric, "damage_appear_effect=size\n");
+  assert(std::fclose(numeric) == 0);
+  assert(
+    store.load().damage_display.appear_effect ==
+    core::DamageAppearEffect::SizeOnly
+  );
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(numeric, "damage_appear_effect=color\n");
+  assert(std::fclose(numeric) == 0);
+  assert(
+    store.load().damage_display.appear_effect ==
+    core::DamageAppearEffect::ColorOnly
+  );
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(numeric, "damage_appear_effect=fixed\n");
+  assert(std::fclose(numeric) == 0);
+  assert(
+    store.load().damage_display.appear_effect ==
+    core::DamageAppearEffect::Fixed
+  );
+
+  numeric = std::fopen(kPath, "w");
+  assert(numeric != nullptr);
+  std::fprintf(numeric, "damage_appear_effect=garbage\n");
+  assert(std::fclose(numeric) == 0);
+  assert(
+    store.load().damage_display.appear_effect ==
+    core::DamageAppearEffect::SizeAndColor
+  );
+
+  core::CoreSettings damage_round_trip{};
+  damage_round_trip.damage_display.overlap = true;
+  damage_round_trip.damage_display.appear_effect =
+    core::DamageAppearEffect::Fixed;
+  damage_round_trip.damage_display.drift_mode = core::DamageDriftMode::Upward;
+  damage_round_trip.damage_display.stagger_type =
+    core::DamageStaggerType::Linear;
+  assert(store.save(damage_round_trip));
+  {
+    const auto display = store.load().damage_display;
+    assert(display.overlap);
+    assert(display.appear_effect == core::DamageAppearEffect::Fixed);
+    assert(display.drift_mode == core::DamageDriftMode::Upward);
+    assert(display.stagger_type == core::DamageStaggerType::Linear);
+  }
 
   std::remove(kPath);
   auto* backup = std::fopen(kBackupPath, "w");

@@ -132,6 +132,134 @@ void Model::cycle_hud_content(const int direction) {
   persist(changed);
 }
 
+void Model::cycle_damage_drift_mode(const int direction) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    constexpr auto kModeCount = 3;
+    auto current = static_cast<int>(settings_.damage_display.drift_mode);
+    current = (current + (direction < 0 ? -1 : 1) + kModeCount) % kModeCount;
+    settings_.damage_display.drift_mode =
+      static_cast<core::DamageDriftMode>(current);
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::toggle_damage_overlap() {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    settings_.damage_display.overlap = !settings_.damage_display.overlap;
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::adjust_damage_size(const int delta) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    const auto adjusted =
+      static_cast<int>(settings_.damage_display.size_percent) + delta;
+    settings_.damage_display.size_percent =
+      static_cast<std::uint8_t>(std::clamp(adjusted, 50, 150));
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::adjust_damage_position(const int delta) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    const auto adjusted =
+      static_cast<int>(settings_.damage_display.position_percent) + delta;
+    settings_.damage_display.position_percent =
+      static_cast<std::uint8_t>(std::clamp(adjusted, 10, 90));
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::adjust_damage_drift_distance(const int delta) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    const auto adjusted =
+      static_cast<int>(settings_.damage_display.drift_distance) + delta;
+    settings_.damage_display.drift_distance =
+      static_cast<std::uint8_t>(std::clamp(adjusted, 0, 80));
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::adjust_damage_drift_speed(const int delta) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    const auto adjusted =
+      static_cast<int>(settings_.damage_display.drift_speed_percent) + delta;
+    settings_.damage_display.drift_speed_percent =
+      static_cast<std::uint8_t>(std::clamp(adjusted, 25, 300));
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::cycle_damage_appear_effect(const int direction) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    constexpr auto kEffectCount = 4;
+    auto current = static_cast<int>(settings_.damage_display.appear_effect);
+    current = (current + (direction < 0 ? -1 : 1) + kEffectCount) % kEffectCount;
+    settings_.damage_display.appear_effect =
+      static_cast<core::DamageAppearEffect>(current);
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::cycle_damage_stagger_mode(const int direction) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    constexpr auto kModeCount = 6;
+    auto current = static_cast<int>(settings_.damage_display.stagger_mode);
+    current = (current + (direction < 0 ? -1 : 1) + kModeCount) % kModeCount;
+    settings_.damage_display.stagger_mode =
+      static_cast<core::DamageStaggerMode>(current);
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::cycle_damage_stagger_type(const int direction) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    constexpr auto kTypeCount = 2;
+    auto current = static_cast<int>(settings_.damage_display.stagger_type);
+    current = (current + (direction < 0 ? -1 : 1) + kTypeCount) % kTypeCount;
+    settings_.damage_display.stagger_type =
+      static_cast<core::DamageStaggerType>(current);
+    changed = settings_;
+  }
+  persist(changed);
+}
+
+void Model::reset_damage_display() {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    settings_.damage_display = core::DamageDisplaySettings{};
+    changed = settings_;
+  }
+  persist(changed);
+}
+
 void Model::toggle_infinite_quest_time() {
   core::CoreSettings changed{};
   {
@@ -312,6 +440,26 @@ void Model::adjust_food_skill(const std::size_t slot, const int delta) {
   persist(changed);
 }
 
+void Model::set_food_skill(const std::size_t slot, const core::FoodSkillId id) {
+  core::CoreSettings changed{};
+  {
+    const std::scoped_lock lock(mutex_);
+    if (slot >= settings_.food_skills.size()) {
+      return;
+    }
+    if (id < core::kMinimumFoodSkillId || id > core::kMaximumFoodSkillId) {
+      return;
+    }
+    if (id == settings_.food_skills[slot]) {
+      return;
+    }
+    settings_.food_skills[slot] = id;
+    food_skill_apply_status_ = FoodSkillApplyStatus::Idle;
+    changed = settings_;
+  }
+  persist(changed);
+}
+
 void Model::request_food_skills_write() {
   const auto current_settings = settings();
   const auto request =
@@ -323,6 +471,14 @@ void Model::request_food_skills_write() {
     food_skill_apply_status_ = FoodSkillApplyStatus::Pending;
   }
   food_skill_write_request_.store(request);
+}
+
+core::FoodSkillId Model::food_skill(const std::size_t slot) const {
+  const std::scoped_lock lock(mutex_);
+  if (slot >= settings_.food_skills.size()) {
+    return core::kMinimumFoodSkillId;
+  }
+  return settings_.food_skills[slot];
 }
 
 void Model::cycle_size_preset() {

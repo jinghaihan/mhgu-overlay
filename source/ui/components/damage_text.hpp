@@ -17,7 +17,10 @@ public:
     const s32 left,
     const s32 baseline_y,
     const float font_size,
-    const std::uint8_t alpha
+    const std::uint8_t alpha,
+    const std::uint8_t fill_r,
+    const std::uint8_t fill_g,
+    const std::uint8_t fill_b
   ) {
     if (!ensure_font() || alpha == 0) {
       return false;
@@ -90,10 +93,11 @@ public:
           continue;
         }
 
-        // The fill is yellow and both layers underneath are black. Dividing
-        // the premultiplied yellow by the combined alpha preserves the dark
-        // anti-aliased edge instead of replacing it with a translucent fill.
-        const auto yellow_weight = static_cast<std::uint8_t>(
+        // The fill is the requested color and both layers underneath are
+        // black. Dividing the premultiplied fill color by the combined alpha
+        // preserves the dark anti-aliased edge instead of replacing it with
+        // a translucent fill.
+        const auto fill_weight = static_cast<std::uint8_t>(
           (static_cast<std::uint16_t>(fill_alpha) * 255 +
            output_alpha / 2) /
           output_alpha
@@ -102,9 +106,9 @@ public:
           static_cast<s16>(left + canvas_min_x + x),
           static_cast<s16>(baseline_y + canvas_min_y + y),
           {
-            color_nibble(0xFF, yellow_weight),
-            color_nibble(0xCC, yellow_weight),
-            color_nibble(0x33, yellow_weight),
+            color_nibble(fill_r, fill_weight),
+            color_nibble(fill_g, fill_weight),
+            color_nibble(fill_b, fill_weight),
             alpha_nibble(output_alpha),
           }
         );
@@ -114,10 +118,13 @@ public:
   }
 
 private:
-  static constexpr s32 kMaxCanvasWidth = 384;
-  static constexpr s32 kMaxCanvasHeight = 96;
-  static constexpr s32 kMaxGlyphWidth = 64;
-  static constexpr s32 kMaxGlyphHeight = 64;
+  // The canvas must fit the largest user-configured damage size: base font
+  // 38px x 150% size x 2.0 peak scale ≈ 114px glyphs, so keep generous
+  // limits or rasterization would bail out and lose the outlined style.
+  static constexpr s32 kMaxCanvasWidth = 448;
+  static constexpr s32 kMaxCanvasHeight = 160;
+  static constexpr s32 kMaxGlyphWidth = 128;
+  static constexpr s32 kMaxGlyphHeight = 128;
   static constexpr std::size_t kCanvasPixels =
     static_cast<std::size_t>(kMaxCanvasWidth) * kMaxCanvasHeight;
   static constexpr std::size_t kGlyphPixels =
