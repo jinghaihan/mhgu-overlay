@@ -105,6 +105,91 @@ core::HudContent parse_hud_content(const char* value) {
   return core::HudContent::MonsterInfoAndDamage;
 }
 
+core::DamageDriftMode parse_damage_drift_mode(const char* value) {
+  if (std::strcmp(value, "upward") == 0) {
+    return core::DamageDriftMode::Upward;
+  }
+  if (std::strcmp(value, "off") == 0) {
+    return core::DamageDriftMode::Off;
+  }
+  return core::DamageDriftMode::Random;
+}
+
+core::DamageAppearEffect parse_damage_appear_effect(const char* value) {
+  if (std::strcmp(value, "size") == 0) {
+    return core::DamageAppearEffect::SizeOnly;
+  }
+  if (std::strcmp(value, "color") == 0) {
+    return core::DamageAppearEffect::ColorOnly;
+  }
+  if (std::strcmp(value, "fixed") == 0) {
+    return core::DamageAppearEffect::Fixed;
+  }
+  return core::DamageAppearEffect::SizeAndColor;
+}
+
+std::uint8_t parse_damage_size(const char* value) {
+  char* end{};
+  const auto parsed = std::strtol(value, &end, 10);
+  if (end == value || *end != '\0') {
+    return 100;
+  }
+  return static_cast<std::uint8_t>(std::clamp(parsed, 50L, 150L));
+}
+
+std::uint8_t parse_damage_position(const char* value) {
+  char* end{};
+  const auto parsed = std::strtol(value, &end, 10);
+  if (end == value || *end != '\0') {
+    return 40;
+  }
+  return static_cast<std::uint8_t>(std::clamp(parsed, 10L, 90L));
+}
+
+std::uint8_t parse_damage_drift_distance(const char* value) {
+  char* end{};
+  const auto parsed = std::strtol(value, &end, 10);
+  if (end == value || *end != '\0') {
+    return 30;
+  }
+  return static_cast<std::uint8_t>(std::clamp(parsed, 0L, 80L));
+}
+
+std::uint8_t parse_damage_drift_speed(const char* value) {
+  char* end{};
+  const auto parsed = std::strtol(value, &end, 10);
+  if (end == value || *end != '\0') {
+    return 100;
+  }
+  return static_cast<std::uint8_t>(std::clamp(parsed, 25L, 300L));
+}
+
+core::DamageStaggerMode parse_damage_stagger_mode(const char* value) {
+  if (std::strcmp(value, "horizontal") == 0) {
+    return core::DamageStaggerMode::Horizontal;
+  }
+  if (std::strcmp(value, "upward") == 0) {
+    return core::DamageStaggerMode::Upward;
+  }
+  if (std::strcmp(value, "down") == 0) {
+    return core::DamageStaggerMode::Down;
+  }
+  if (std::strcmp(value, "left") == 0) {
+    return core::DamageStaggerMode::Left;
+  }
+  if (std::strcmp(value, "right") == 0) {
+    return core::DamageStaggerMode::Right;
+  }
+  return core::DamageStaggerMode::VerticalMixed;
+}
+
+core::DamageStaggerType parse_damage_stagger_type(const char* value) {
+  if (std::strcmp(value, "linear") == 0) {
+    return core::DamageStaggerType::Linear;
+  }
+  return core::DamageStaggerType::Zigzag;
+}
+
 core::MonsterDamageMode parse_monster_damage_mode(const char* value) {
   if (std::strcmp(value, "instant_kill") == 0) {
     return core::MonsterDamageMode::InstantKill;
@@ -326,6 +411,51 @@ const char* monster_damage_mode_value(const core::MonsterDamageMode mode) {
   }
 }
 
+const char* damage_drift_mode_value(const core::DamageDriftMode mode) {
+  switch (mode) {
+    case core::DamageDriftMode::Upward:
+      return "upward";
+    case core::DamageDriftMode::Off:
+      return "off";
+    default:
+      return "random";
+  }
+}
+
+const char* damage_appear_effect_value(const core::DamageAppearEffect effect) {
+  switch (effect) {
+    case core::DamageAppearEffect::SizeOnly:
+      return "size";
+    case core::DamageAppearEffect::ColorOnly:
+      return "color";
+    case core::DamageAppearEffect::Fixed:
+      return "fixed";
+    default:
+      return "size_color";
+  }
+}
+
+const char* damage_stagger_mode_value(const core::DamageStaggerMode mode) {
+  switch (mode) {
+    case core::DamageStaggerMode::Horizontal:
+      return "horizontal";
+    case core::DamageStaggerMode::Upward:
+      return "upward";
+    case core::DamageStaggerMode::Down:
+      return "down";
+    case core::DamageStaggerMode::Left:
+      return "left";
+    case core::DamageStaggerMode::Right:
+      return "right";
+    default:
+      return "vertical";
+  }
+}
+
+const char* damage_stagger_type_value(const core::DamageStaggerType type) {
+  return type == core::DamageStaggerType::Linear ? "linear" : "zigzag";
+}
+
 }  // namespace
 
 SettingsStore::SettingsStore(std::string path)
@@ -364,6 +494,30 @@ core::CoreSettings SettingsStore::load() const {
     } else if (std::strcmp(key, "hud_content") == 0) {
       settings.hud_content = parse_hud_content(value);
       has_hud_content = true;
+    } else if (std::strcmp(key, "damage_overlap") == 0) {
+      settings.damage_display.overlap = parse_enabled(value);
+    } else if (std::strcmp(key, "damage_size") == 0) {
+      settings.damage_display.size_percent = parse_damage_size(value);
+    } else if (std::strcmp(key, "damage_position") == 0) {
+      settings.damage_display.position_percent =
+        parse_damage_position(value);
+    } else if (std::strcmp(key, "damage_drift") == 0) {
+      settings.damage_display.drift_mode = parse_damage_drift_mode(value);
+    } else if (std::strcmp(key, "damage_appear_effect") == 0) {
+      settings.damage_display.appear_effect =
+        parse_damage_appear_effect(value);
+    } else if (std::strcmp(key, "damage_drift_distance") == 0) {
+      settings.damage_display.drift_distance =
+        parse_damage_drift_distance(value);
+    } else if (std::strcmp(key, "damage_drift_speed") == 0) {
+      settings.damage_display.drift_speed_percent =
+        parse_damage_drift_speed(value);
+    } else if (std::strcmp(key, "damage_stagger") == 0) {
+      settings.damage_display.stagger_mode =
+        parse_damage_stagger_mode(value);
+    } else if (std::strcmp(key, "damage_stagger_type") == 0) {
+      settings.damage_display.stagger_type =
+        parse_damage_stagger_type(value);
     } else if (std::strcmp(key, "damage_display") == 0) {
       legacy_damage_display_enabled = parse_enabled(value);
     } else if (std::strcmp(key, "infinite_quest_time") == 0) {
@@ -468,6 +622,51 @@ bool SettingsStore::save(const core::CoreSettings& settings) const {
     file,
     "hud_content=%s\n",
     hud_content_value(settings.hud_content)
+  );
+  std::fprintf(
+    file,
+    "damage_overlap=%u\n",
+    settings.damage_display.overlap ? 1U : 0U
+  );
+  std::fprintf(
+    file,
+    "damage_size=%u\n",
+    static_cast<unsigned>(settings.damage_display.size_percent)
+  );
+  std::fprintf(
+    file,
+    "damage_position=%u\n",
+    static_cast<unsigned>(settings.damage_display.position_percent)
+  );
+  std::fprintf(
+    file,
+    "damage_drift=%s\n",
+    damage_drift_mode_value(settings.damage_display.drift_mode)
+  );
+  std::fprintf(
+    file,
+    "damage_appear_effect=%s\n",
+    damage_appear_effect_value(settings.damage_display.appear_effect)
+  );
+  std::fprintf(
+    file,
+    "damage_drift_distance=%u\n",
+    static_cast<unsigned>(settings.damage_display.drift_distance)
+  );
+  std::fprintf(
+    file,
+    "damage_drift_speed=%u\n",
+    static_cast<unsigned>(settings.damage_display.drift_speed_percent)
+  );
+  std::fprintf(
+    file,
+    "damage_stagger=%s\n",
+    damage_stagger_mode_value(settings.damage_display.stagger_mode)
+  );
+  std::fprintf(
+    file,
+    "damage_stagger_type=%s\n",
+    damage_stagger_type_value(settings.damage_display.stagger_type)
   );
   std::fprintf(
     file,

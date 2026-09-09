@@ -74,6 +74,49 @@ enum class HudContent : std::uint8_t {
   DamageOnly,
 };
 
+enum class DamageDriftMode : std::uint8_t {
+  Random,
+  Upward,
+  Off,
+};
+
+enum class DamageStaggerMode : std::uint8_t {
+  VerticalMixed,
+  Horizontal,
+  Upward,
+  Down,
+  Left,
+  Right,
+};
+
+enum class DamageStaggerType : std::uint8_t {
+  Zigzag,
+  Linear,
+};
+
+// Which spawn animations a damage number plays when it appears.  SizeAndColor
+// matches the original game: the number pops (scale) and flashes pale before
+// blending back to yellow.  The other values keep only one of the two
+// animations, or neither (Fixed: full size, yellow from the first frame).
+enum class DamageAppearEffect : std::uint8_t {
+  SizeAndColor,
+  SizeOnly,
+  ColorOnly,
+  Fixed,
+};
+
+struct DamageDisplaySettings {
+  bool overlap{false};
+  std::uint8_t size_percent{100};
+  std::uint8_t position_percent{40};
+  DamageAppearEffect appear_effect{DamageAppearEffect::SizeAndColor};
+  DamageDriftMode drift_mode{DamageDriftMode::Random};
+  std::uint8_t drift_distance{30};
+  std::uint8_t drift_speed_percent{100};
+  DamageStaggerMode stagger_mode{DamageStaggerMode::VerticalMixed};
+  DamageStaggerType stagger_type{DamageStaggerType::Zigzag};
+};
+
 enum class RuntimeFeature : std::uint8_t {
   MapAndLargeMonsters,
   CarryItemsIntoPouch,
@@ -204,6 +247,7 @@ struct CoreSettings {
   FrameRate frame_rate{FrameRate::Fps30};
   HudLayout hud_layout{HudLayout::BottomLeftVertical};
   HudContent hud_content{HudContent::MonsterInfoAndDamage};
+  DamageDisplaySettings damage_display{};
   bool infinite_quest_time{};
   bool unlimited_faints{};
   MonsterDamageMode monster_damage_mode{MonsterDamageMode::Off};

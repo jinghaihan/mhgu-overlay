@@ -67,11 +67,14 @@ public:
 
   bool handleInput(
     const u64 keys_down,
-    u64,
+    const u64 keys_held,
     const HidTouchState&,
     JoystickPosition,
     JoystickPosition
   ) override {
+    if (handle_minimize_combo(keys_down, keys_held)) {
+      return true;
+    }
     if ((keys_down & HidNpadButton_B) != 0) {
       tsl::goBack();
       return true;
@@ -112,11 +115,14 @@ public:
 
   bool handleInput(
     const u64 keys_down,
-    u64,
+    const u64 keys_held,
     const HidTouchState&,
     JoystickPosition,
     JoystickPosition
   ) override {
+    if (handle_minimize_combo(keys_down, keys_held)) {
+      return true;
+    }
     if ((keys_down & HidNpadButton_B) != 0) {
       tsl::goBack();
       return true;
@@ -159,11 +165,14 @@ public:
 
   bool handleInput(
     const u64 keys_down,
-    u64,
+    const u64 keys_held,
     const HidTouchState&,
     JoystickPosition,
     JoystickPosition
   ) override {
+    if (handle_minimize_combo(keys_down, keys_held)) {
+      return true;
+    }
     if ((keys_down & HidNpadButton_B) != 0) {
       tsl::goBack();
       return true;
@@ -200,11 +209,14 @@ public:
 
   bool handleInput(
     const u64 keys_down,
-    u64,
+    const u64 keys_held,
     const HidTouchState&,
     JoystickPosition,
     JoystickPosition
   ) override {
+    if (handle_minimize_combo(keys_down, keys_held)) {
+      return true;
+    }
     if ((keys_down & HidNpadButton_B) != 0) {
       tsl::goBack();
       return true;
@@ -252,11 +264,14 @@ public:
 
   bool handleInput(
     const u64 keys_down,
-    u64,
+    const u64 keys_held,
     const HidTouchState&,
     JoystickPosition,
     JoystickPosition
   ) override {
+    if (handle_minimize_combo(keys_down, keys_held)) {
+      return true;
+    }
     if ((keys_down & HidNpadButton_B) != 0) {
       tsl::goBack();
       return true;
@@ -334,11 +349,14 @@ public:
 
   bool handleInput(
     const u64 keys_down,
-    u64,
+    const u64 keys_held,
     const HidTouchState&,
     JoystickPosition,
     JoystickPosition
   ) override {
+    if (handle_minimize_combo(keys_down, keys_held)) {
+      return true;
+    }
     if ((keys_down & HidNpadButton_B) != 0) {
       tsl::goBack();
       return true;
@@ -435,11 +453,14 @@ public:
 
   bool handleInput(
     const u64 keys_down,
-    u64,
+    const u64 keys_held,
     const HidTouchState&,
     JoystickPosition,
     JoystickPosition
   ) override {
+    if (handle_minimize_combo(keys_down, keys_held)) {
+      return true;
+    }
     if ((keys_down & HidNpadButton_B) != 0) {
       tsl::goBack();
       return true;
