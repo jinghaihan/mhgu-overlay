@@ -47,8 +47,8 @@ Use the repository's two-space rules before testing:
 git ls-files '*.cpp' '*.hpp' \
   | grep -v '^source/generated/' \
   | xargs clang-format -i
-uvx ruff@0.12.7 format tools
-uvx ruff@0.12.7 check tools
+uvx ruff@0.12.7 format scripts
+uvx ruff@0.12.7 check scripts
 ```
 
 The Python commands use an isolated Ruff executable managed by
@@ -145,7 +145,7 @@ OrbStack, or another Docker-compatible runtime must be running.
 3. If you changed a locale or catalog file, regenerate the C++ tables:
 
    ```sh
-   python3 tools/generate_catalog.py
+   python3 scripts/generate_catalog.py
    ```
 
 4. Run the host tests:
@@ -185,7 +185,7 @@ All locale files must contain exactly the same monster and UI keys. After
 editing a locale:
 
 ```sh
-python3 tools/generate_catalog.py
+python3 scripts/generate_catalog.py
 make -f Makefile.host test
 ```
 
@@ -199,9 +199,9 @@ separately. To refresh public facts, cross-check crown sizes, regenerate C++
 tables, and test:
 
 ```sh
-python3 tools/refresh_catalog.py
-python3 tools/refresh_legal_sizes.py
-python3 tools/generate_catalog.py
+python3 scripts/refresh_catalog.py
+python3 scripts/refresh_legal_sizes.py
+python3 scripts/generate_catalog.py
 make -f Makefile.host test
 ```
 
@@ -216,7 +216,7 @@ The player-facing crown-size reference is independent from the write range.
 Regenerate it from the current catalog and MH Crown pages with:
 
 ```sh
-python3 tools/generate_size_reference.py
+python3 scripts/generate_size_reference.py
 ```
 
 Review every reported mismatch and unavailable page before committing the
@@ -229,7 +229,7 @@ the Overlay's legal size ranges.
 branch, run the interactive release helper:
 
 ```sh
-uv run tools/release.py
+uv run scripts/release.py
 ```
 
 Choose `patch`, `minor`, or `major`, then confirm the plan. The script checks
@@ -241,9 +241,9 @@ The release type can also be supplied directly while keeping the final
 confirmation:
 
 ```sh
-uv run tools/release.py patch
-uv run tools/release.py minor
-uv run tools/release.py major
+uv run scripts/release.py patch
+uv run scripts/release.py minor
+uv run scripts/release.py major
 ```
 
 The interactive prompt uses the arrow keys and Enter. Its pinned `questionary`

@@ -23,7 +23,7 @@ jobs:
         run: make -j2
 
       - name: Verify overlay package
-        run: python3 tools/verify_overlay.py mhgu-overlay.ovl
+        run: python3 scripts/verify_overlay.py mhgu-overlay.ovl
 
       - name: Create checksum
         run: sha256sum mhgu-overlay.ovl > mhgu-overlay.ovl.sha256

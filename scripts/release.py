@@ -221,7 +221,7 @@ def publish(bump: Optional[str]) -> int:
     return 0
 
   print("\nVerifying generated tables...", flush=True)
-  command(sys.executable, "tools/generate_catalog.py")
+  command(sys.executable, "scripts/generate_catalog.py")
   if output("git", "status", "--porcelain"):
     raise ReleaseError("generated files changed; review and commit them first")
 

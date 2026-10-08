@@ -40,7 +40,7 @@
   or locale data, run:
 
   ```sh
-  python3 tools/generate_catalog.py
+  python3 scripts/generate_catalog.py
   make -f Makefile.host test
   ```
 
@@ -86,7 +86,7 @@
   user explicitly requests it.
 - `VERSION` is the single release version source. Release tags must equal
   `v<VERSION>`.
-- Use `uv run tools/release.py` for normal releases. It creates the version commit,
+- Use `uv run scripts/release.py` for normal releases. It creates the version commit,
   annotated tag, and explicit pushes after running the host checks.
 - Push release tags explicitly, for example
   `git push origin v0.1.0`. Never use `git push --tags`.

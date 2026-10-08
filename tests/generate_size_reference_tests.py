@@ -10,7 +10,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tools.generate_size_reference import parse_sizes, section  # noqa: E402
+from scripts.generate_size_reference import parse_sizes, section  # noqa: E402
 
 
 class MhCrownParserTests(unittest.TestCase):
